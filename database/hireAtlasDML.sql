@@ -18,6 +18,7 @@ BEGIN
     SET startDate = @startDate
     WHERE userId = @userId;
 END;
+GO
 --====================================================================
 
 CREATE PROCEDURE UpdateEducationEndDate
@@ -49,8 +50,9 @@ BEGIN
     SET endDate = @endDate
     WHERE userId = @userId;
 END;
-
+GO
 --====================================================================
+
 CREATE PROCEDURE insertEducation  
     @userId         BIGINT,
     @instituteName  VARCHAR(200),
@@ -97,7 +99,7 @@ BEGIN
         RAISERROR(@Err, 16, 1);
     END CATCH
 END;
-
+GO
 --===============================================================
 
 CREATE TRIGGER tr_RestrictStatusFlow
@@ -123,7 +125,7 @@ BEGIN
         PRINT 'Application Status Successfully Updated!'
     END
 END; 
-
+GO
 --================================================================================================
 
 --sign up procedure
@@ -165,7 +167,7 @@ BEGIN
         'SUCCESS'      AS Status,
         SCOPE_IDENTITY() AS UserID;
 END;
-
+GO
 
 --===============================================================================
 
@@ -220,7 +222,7 @@ SELECT
     u.Email,
     u.Phone,
     u.Age,
-    u.CV_path
+    u.cvPath
 FROM appUser u
 WHERE u.UserID = @UserID;
 
