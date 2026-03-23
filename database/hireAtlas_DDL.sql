@@ -1,3 +1,6 @@
+CREATE DATABASE hireatlas
+GO
+
 USE hireatlas;
 
 CREATE TABLE appUser

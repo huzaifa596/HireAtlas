@@ -1,5 +1,27 @@
+USE hireatlas 
+GO
+--====================================================================
+CREATE PROCEDURE UpdateEducationStartDate
+    @userId    BIGINT,
+    @startDate DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @startDate > CAST(GETDATE() AS DATE)
+    BEGIN
+        RAISERROR('INVALID DATE: Start date cannot be in the future.', 16, 1);
+        RETURN;
+    END
+
+    UPDATE userEducation
+    SET startDate = @startDate
+    WHERE userId = @userId;
+END;
+--====================================================================
 
 
+--====================================================================
 CREATE PROCEDURE insertEducation  
     @userId         BIGINT,
     @instituteName  VARCHAR(200),
@@ -71,7 +93,12 @@ BEGIN
     BEGIN
         PRINT 'Application Status Successfully Updated!'
     END
-END; --sign up procedure
+END; 
+
+--================================================================================================
+
+--sign up procedure
+
 CREATE PROCEDURE SignupUser
     @Name     VARCHAR(100),
     @Email    VARCHAR(150),
@@ -111,10 +138,10 @@ BEGIN
 END;
 
 
+--===============================================================================
+
 
 --login procedure
-
-
 CREATE PROCEDURE sp_LoginUser
     @Email VARCHAR(150)
 AS
@@ -144,12 +171,18 @@ BEGIN
     WHERE Email = @Email;
 END;
 
+--==========================================================================
+
 --other quries for sign up and login 
 --check if email already exist
 SELECT CASE 
     WHEN EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
-    THEN 1 ELSE 0
+    THEN 1 
+    ELSE 0
 END AS EmailExists;
+
+
+--========================================================================
 
 --data fetching for profile
 SELECT 
@@ -161,3 +194,6 @@ SELECT
     u.CV_path
 FROM appUser u
 WHERE u.UserID = @UserID;
+
+--=========================================================================
+
