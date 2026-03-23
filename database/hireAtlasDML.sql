@@ -127,7 +127,29 @@ BEGIN
 END; 
 GO
 --================================================================================================
+CREATE PROCEDURE removeEducation
+    @userId     BIGINT,
+    @degreeName VARCHAR(150)
+AS
+BEGIN
+    SET NOCOUNT ON;
 
+    IF NOT EXISTS(
+        SELECT 1 FROM userEducation
+        WHERE userId = @userId 
+        AND degreeName = @degreeName
+    )
+    BEGIN
+        RAISERROR('Education record not found.', 16, 1);
+        RETURN;
+    END
+
+    DELETE FROM userEducation
+    WHERE userId = @userId 
+    AND degreeName = @degreeName;
+END;
+GO
+--================================================================================================
 --sign up procedure
 
 CREATE PROCEDURE SignupUser
