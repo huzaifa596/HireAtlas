@@ -150,7 +150,7 @@ CREATE TABLE postQualification
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
+CREATE INDEX IX_appUser_Name          ON appUser (name);
 CREATE INDEX IX_post_jobCategory      ON post (jobCategory);
 CREATE INDEX IX_post_empType          ON post (empType);
 CREATE INDEX IX_post_experienceLevel  ON post (experienceLevel);
