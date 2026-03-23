@@ -20,6 +20,35 @@ BEGIN
 END;
 --====================================================================
 
+CREATE PROCEDURE UpdateEducationEndDate
+    @userId  BIGINT,
+    @endDate DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @existingStartDate DATE;
+
+    SELECT @existingStartDate = startDate 
+    FROM userEducation 
+    WHERE userId = @userId;
+
+    IF @existingStartDate IS NULL
+    BEGIN
+        RAISERROR('Education record not found.', 16, 1);
+        RETURN;
+    END
+
+    IF @endDate > CAST(GETDATE() AS DATE) OR @endDate < @existingStartDate
+    BEGIN
+        RAISERROR('INVALID DATE: End date is in the future or before start date.', 16, 1);
+        RETURN;
+    END
+
+    UPDATE userEducation
+    SET endDate = @endDate
+    WHERE userId = @userId;
+END;
 
 --====================================================================
 CREATE PROCEDURE insertEducation  
