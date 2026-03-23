@@ -127,6 +127,31 @@ BEGIN
 END; 
 GO
 --================================================================================================
+CREATE PROCEDURE getUserEducation
+    @userId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE UserID = @userId)
+    BEGIN
+        RAISERROR('User does not exist.', 16, 1);
+        RETURN;
+    END
+
+    SELECT 
+        instituteName,
+        level,
+        degreeName,
+        grade,
+        startDate,
+        endDate
+    FROM userEducation
+    WHERE userId = @userId
+    ORDER BY startDate DESC;
+END;
+GO
+--================================================================================================
 CREATE PROCEDURE removeEducation
     @userId     BIGINT,
     @degreeName VARCHAR(150)
