@@ -324,3 +324,65 @@ WHERE minSalary <= @max AND maxSalary >= @min
 SELECT * FROM post
 WHERE location LIKE '%' + @city + '%'
 --========================================================================
+-- #18 newest
+SELECT * FROM post
+WHERE isActive = 1
+ORDER BY postedDate DESC;
+
+--========================================================================
+-- #19 max salary
+SELECT * FROM post 
+WHERE isActive = 1 
+ORDER BY maxSalary DESC;
+
+--========================================================================
+-- #20  min salary
+SELECT * FROM post 
+WHERE isActive = 1 
+ORDER BY minSalary ASC;
+GO
+--========================================================================
+-- Category + Type Combo
+CREATE PROCEDURE sp_GetPostsByCategoryAndType
+    @jobCategory VARCHAR(100),
+    @empType VARCHAR(50)
+AS
+BEGIN
+    SELECT * FROM post 
+    WHERE isActive = 1 
+      AND jobCategory = @jobCategory 
+      AND empType = @empType
+    ORDER BY postedDate DESC;
+END;
+GO
+--========================================================================
+--Level + Remote Combo
+CREATE PROCEDURE sp_GetPostsByLevelAndRemote
+    @experienceLevel VARCHAR(50),
+    @isRemote BIT
+AS
+BEGIN
+    SELECT * FROM post 
+    WHERE isActive = 1 
+      AND experienceLevel = @experienceLevel 
+      AND isRemote = @isRemote
+    ORDER BY postedDate DESC;
+END;
+GO
+--========================================================================
+--Location + Salary Combo
+CREATE PROCEDURE sp_GetPostsByLocationAndSalary
+    @location VARCHAR(150),
+    @minSalary DECIMAL(18,2),
+    @maxSalary DECIMAL(18,2)
+AS
+BEGIN
+    SELECT * FROM post 
+    WHERE isActive = 1 
+      AND location LIKE '%' + @location + '%'
+      AND minSalary <= @maxSalary 
+      AND maxSalary >= @minSalary
+    ORDER BY postedDate DESC;
+END;
+GO
+--========================================================================
