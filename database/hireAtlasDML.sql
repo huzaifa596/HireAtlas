@@ -275,3 +275,52 @@ WHERE u.UserID = @UserID;
 
 --=========================================================================
 
+--query to filter all the non active posts 
+
+SELECT * FROM post
+WHERE isActive=1
+--=========================================================================
+-- empType filter
+
+SELECT * FROM post
+WHERE empType=@empType
+
+--=========================================================================
+--filter by experiencelevel
+
+SELECT * FROM post 
+WHERE experienceLevel = @level
+
+--=========================================================================
+--filter by job category
+
+SELECT * FROM post 
+WHERE jobCategory = @category
+--=========================================================================
+--remote jobs finder
+
+SELECT * FROM post
+WHERE isRemote = @isRemote
+--=========================================================================
+
+--company name filter
+
+SELECT * FROM post
+WHERE companyName LIKE '%' + @company + '%'
+--=========================================================================
+
+--Date range
+SELECT * FROM post
+WHERE postedDate >= @sinceDate
+--========================================================================
+
+--Salary range	
+SELECT * FROM post
+WHERE minSalary <= @max AND maxSalary >= @min
+
+--========================================================================
+
+--Location	
+SELECT * FROM post
+WHERE location LIKE '%' + @city + '%'
+--========================================================================
