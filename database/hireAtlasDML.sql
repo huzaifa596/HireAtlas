@@ -301,7 +301,7 @@ WHERE jobCategory = @category
 
 SELECT * FROM post
 WHERE isRemote = @isRemote
---=========================================================================
+--=======================================================================
 
 --company name filter
 
