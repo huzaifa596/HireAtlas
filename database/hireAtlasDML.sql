@@ -386,3 +386,29 @@ BEGIN
 END;
 GO
 --========================================================================
+--SpecificSkillSearch
+CREATE PROCEDURE sp_GetPostsBySpecificSkill
+    @skillName VARCHAR(100)
+AS
+BEGIN
+    SELECT 
+        p.postId,
+        p.jobTitle,
+        p.companyName,
+        p.location,
+        p.empType,
+        p.experienceLevel,
+        p.minSalary,
+        p.maxSalary,
+        p.postedDate,
+        s.skillName,
+        ps.requiredLevel
+    FROM post p
+    INNER JOIN postSkill ps ON p.postId = ps.postId
+    INNER JOIN skill s ON ps.skillId = s.skillId
+    WHERE p.isActive = 1
+      AND s.skillName = @skillName
+    ORDER BY p.postedDate DESC;
+END;
+GO
+--=========================================================================
