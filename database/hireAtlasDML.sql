@@ -412,3 +412,24 @@ BEGIN
 END;
 GO
 --=========================================================================
+--Jobs matching my skill procedure
+CREATE PROCEDURE mySkillJob
+    @UserID BIGINT
+AS
+BEGIN
+    SELECT p.* 
+    FROM post p
+    WHERE EXISTS(
+        SELECT 1 FROM postSkill ps
+        WHERE EXISTS(
+            SELECT 1 FROM userSkill us
+            WHERE us.userId = @UserID
+              AND us.skillId = ps.skillId
+        )
+        AND p.postId = ps.postId 
+    )
+    AND p.isActive = 1  
+    ORDER BY p.postedDate DESC;
+END;
+GO
+--========================================================================
