@@ -220,7 +220,7 @@ GO
 
 
 --login procedure
-CREATE PROCEDURE sp_LoginUser
+CREATE PROCEDURE LoginUser
     @Email VARCHAR(150)
 AS
 BEGIN

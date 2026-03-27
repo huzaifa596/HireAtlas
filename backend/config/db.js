@@ -1,25 +1,39 @@
-const sql = require('mssql');
-// 👆 remove the zod import, you don't need it here
+const sql = require('mssql/msnodesqlv8');
 
-const config = {
-    user:     'sa',
-    password: 'huzaifa123',
-    server:   'localhost',
+const isWindowsAuth = !process.env.DB_USER && !process.env.DB_PASSWORD;
+
+const dbConfig = {
+    server: 'localhost',
     database: 'hireatlas',
-    // port: 1433,  // SQL Server default port - you can remove this line
+    // We define the driver connection string for Windows Auth
+    connectionString: isWindowsAuth 
+        ? 'Driver={ODBC Driver 17 for SQL Server};Server=localhost\\SQLEXPRESS;Database=hireatlas;Trusted_Connection=yes;'
+        : null,
+    // Standard config for SQL Auth (your buddy)
+    user: process.env.DB_USER || 'sa',
+    password: process.env.DB_PASSWORD || 'huzaifa123',
     options: {
-        instanceName:           'SQLEXPRESS',
-        encrypt:                false,
-        trustServerCertificate: true
+        instanceName: 'SQLEXPRESS',
+        encrypt: false,
+        trustServerCertificate: true,
+        trustedConnection: isWindowsAuth
     }
 };
 
-const poolPromise = new sql.ConnectionPool(config)
+// If Windows Auth, we remove user/pass so they don't conflict
+if (isWindowsAuth) {
+    delete dbConfig.user;
+    delete dbConfig.password;
+}
+
+const poolPromise = new sql.ConnectionPool(dbConfig)
     .connect()
     .then(pool => {
-        console.log('✅ Connected to SQL Server');
+        console.log(`✅ Connected via ${isWindowsAuth ? 'Windows' : 'SQL'} Auth`);
         return pool;
     })
-    .catch(err => console.error('❌ DB Connection Failed:', err));
+    .catch(err => {
+        console.error('❌ DB Connection Failed:', err.message);
+    });
 
 module.exports = { sql, poolPromise };
