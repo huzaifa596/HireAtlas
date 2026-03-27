@@ -1,4 +1,3 @@
 node_modules
 dist
 dist-ssr
-*.localPS D:\hireatlas\backend> git merge origin/main --allow-unrelated-histories
