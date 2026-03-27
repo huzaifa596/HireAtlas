@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { InputField, SocialButtons } from "./components";
 import { isValidEmail } from "./utils";
+import API from '../services/api';
 
 export default function SignInPanel({ flipped, onFlip }) {
   const [email,   setEmail]   = useState("");
@@ -8,13 +9,30 @@ export default function SignInPanel({ flipped, onFlip }) {
   const [loading, setLoading] = useState(false);
   const [valid,   setValid]   = useState({ email: null, pass: null });
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     const emailOk = isValidEmail(email);
     const passOk  = pass.length >= 6;
     setValid({ email: emailOk, pass: passOk });
-    if (!emailOk || !passOk) return;
+    if (!emailOk || !passOk) {
+      alert('Please enter a valid email and password (min 6 chars)');
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => setLoading(false), 1500);
+    try {
+      const res = await API.post('/auth/login', {
+        email,
+        password: pass,
+      });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      alert('Login successful!');
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Login failed';
+      alert(msg);
+    } finally {
+      setLoading(false);
+    }
   }, [email, pass]);
 
   return (
