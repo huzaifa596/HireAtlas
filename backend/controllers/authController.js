@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const { sql, poolPromise } = require('../config/db');
+const fs=require('fs');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'huzaifa123';
+fs.writeFileSync('./log.txt',' ' );
 
 // ─────────────────────────────
 // SIGNUP
@@ -45,6 +47,7 @@ const signup = async (req, res) => {
             });
         }
 
+         fs.appendFileSync('./log.txt',`New user signed up: ${email}\n time: ${new Date().toISOString()}\n`)
         return res.status(201).json({
             status:  'SUCCESS',
             message: 'Account created successfully',
@@ -104,6 +107,7 @@ const login = async (req, res) =>
             { expiresIn: '7d' }
         );
 
+        fs.appendFileSync('./log.txt',`User logged in: ${email}\n time: ${new Date().toISOString()}\n`)
         return res.status(200).json({
             status:  'SUCCESS',
             message: 'Login successful',
