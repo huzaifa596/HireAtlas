@@ -504,23 +504,24 @@ END;
 
 --=======================
 --procedure to delete a post
-CREATE PROCEDURE sp_DeletePost
+ALTER PROCEDURE sp_DeletePost
     @PostID    BIGINT,
     @CreatorID BIGINT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check post exists and belongs to this user
     IF NOT EXISTS (SELECT 1 FROM Post WHERE PostID = @PostID AND CreatorID = @CreatorID)
     BEGIN
         SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
         RETURN;
     END
 
-    DELETE FROM Post
-    WHERE PostID    = @PostID
-      AND CreatorID = @CreatorID;
+    -- Soft delete 👇
+    UPDATE Post
+    SET    IsActive = 0
+    WHERE  PostID    = @PostID
+      AND  CreatorID = @CreatorID;
 
     SELECT 'SUCCESS' AS Status;
 END;
@@ -550,3 +551,75 @@ BEGIN
       AND p.CreatorID != @LoggedInUserID  -- 👈 hide own posts
     ORDER BY p.PostedDate DESC;
 END;
+
+--============================
+--getting a single post 
+CREATE PROCEDURE sp_GetPostByID
+    @PostID         BIGINT,
+    @LoggedInUserID BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check post exists and is not the user's own
+    IF NOT EXISTS (
+        SELECT 1 FROM Post 
+        WHERE PostID   = @PostID 
+          AND IsActive = 1
+          AND CreatorID != @LoggedInUserID  -- 👈 cant view own post
+    )
+    BEGIN
+        SELECT 'POST_NOT_FOUND_OR_OWN_POST' AS Status;
+        RETURN;
+    END
+
+    -- Post details
+    SELECT 
+        p.PostID,
+        p.JobTitle,
+        p.CompanyName,
+        p.Location,
+        p.Category,
+        p.EstimateSalary,
+        p.Description,
+        p.PostedDate,
+        u.Name  AS PostedBy,
+        u.Email AS PostedByEmail
+    FROM Post p
+    INNER JOIN appUser u ON p.CreatorID = u.UserID
+    WHERE p.PostID = @PostID;
+
+    -- Required skills
+    SELECT 
+        s.SkillName,
+        s.Category     AS SkillCategory,
+        ps.RequiredLevel
+    FROM Post_Skill ps
+    INNER JOIN Skill s ON ps.SkillID = s.SkillID
+    WHERE ps.PostID = @PostID;
+
+    -- Required qualifications
+    SELECT 
+        MinDegree,
+        FieldOfStudy,
+        MinGrade
+    FROM Post_Qualification
+    WHERE PostID = @PostID;
+END;
+
+
+--======================
+--getting own posts
+SELECT 
+    PostID,
+    JobTitle,
+    CompanyName,
+    Location,
+    Category,
+    EstimateSalary,
+    IsActive,
+    PostedDate
+FROM Post
+WHERE CreatorID = @LoggedInUserID
+ORDER BY PostedDate DESC;
+
