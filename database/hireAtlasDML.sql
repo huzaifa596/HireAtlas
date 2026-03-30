@@ -1,6 +1,148 @@
 USE hireatlas 
+
+
+
+--================================================================================================
+--sign up procedure
+
+CREATE PROCEDURE SignupUser
+    @Name     VARCHAR(100),
+    @Email    VARCHAR(150),
+    @Phone    VARCHAR(20)  = NULL,
+    @Age      INT          = NULL,
+    @Password VARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check if email already exists
+    IF EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
+    BEGIN
+        SELECT 
+            'EMAIL_ALREADY_EXISTS' AS Status,
+            NULL AS UserID;
+        RETURN;
+    END
+
+    -- Age validation
+    IF @Age IS NOT NULL AND @Age < 15
+    BEGIN
+        SELECT 
+            'INVALID_AGE' AS Status,
+            NULL AS UserID;
+        RETURN;
+    END
+
+    -- Insert new user
+    INSERT INTO appUser (Name, Email, Phone, Age, Password)
+    VALUES (@Name, @Email, @Phone, @Age, @Password);
+
+    -- Return new user's ID and success status
+    SELECT 
+        'SUCCESS'      AS Status,
+        SCOPE_IDENTITY() AS UserID;
+END;
 GO
+
+
+
+
+
+--===============================================================================
+--login procedure
+GO
+CREATE PROCEDURE LoginUser
+    @Email VARCHAR(150)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check if user exists
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
+    BEGIN
+        SELECT 
+            'USER_NOT_FOUND' AS Status,
+            NULL AS UserID,
+            NULL AS Name,
+            NULL AS Email,
+            NULL AS Password;
+        RETURN;
+    END
+
+    -- Return user data for backend to verify password
+    SELECT
+        'SUCCESS'  AS Status,
+        UserID,
+        Name,
+        Email,
+        Password   -- backend compares the hash
+    FROM appUser
+    WHERE Email = @Email;
+END;
+
+--==========================================================================
+
+--other quries for sign up and login 
+--check if email already exist
+SELECT CASE 
+    WHEN EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
+    THEN 1 
+    ELSE 0
+END AS EmailExists;
+
+
 --====================================================================
+--insert education procedure
+CREATE PROCEDURE insertEducation  
+    @userId         BIGINT,
+    @instituteName  VARCHAR(200),
+    @level          VARCHAR(100),
+    @degreeName     VARCHAR(150),
+    @grade          DECIMAL(5,2),
+    @startDate      DATE,
+    @endDate        DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    --turns the 1 row affected message off
+    IF EXISTS (SELECT 1 FROM userEducation 
+               WHERE userId = @userId 
+               AND degreeName = @degreeName 
+               AND instituteName = @instituteName)
+    BEGIN
+        RAISERROR('Duplicate education record.', 16, 1);
+        RETURN;
+    END
+
+    BEGIN TRY
+        INSERT INTO userEducation (
+            userId, 
+            instituteName, 
+            level, 
+            degreeName, 
+            grade, 
+            startDate, 
+            endDate
+        )
+        VALUES (
+            @userId, 
+            @instituteName, 
+            @level, 
+            @degreeName, 
+            @grade, 
+            @startDate, 
+            @endDate
+        );
+    END TRY
+    BEGIN CATCH
+        DECLARE @Err NVARCHAR(MAX) = ERROR_MESSAGE();
+        RAISERROR(@Err, 16, 1);
+    END CATCH
+END;
+GO
+
+--====================================================================
+
 CREATE PROCEDURE UpdateEducationStartDate
     @userId    BIGINT,
     @startDate DATE
@@ -51,55 +193,7 @@ BEGIN
     WHERE userId = @userId;
 END;
 GO
---====================================================================
 
-CREATE PROCEDURE insertEducation  
-    @userId         BIGINT,
-    @instituteName  VARCHAR(200),
-    @level          VARCHAR(100),
-    @degreeName     VARCHAR(150),
-    @grade          DECIMAL(5,2),
-    @startDate      DATE,
-    @endDate        DATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    --turns the 1 row affected message off
-    IF EXISTS (SELECT 1 FROM userEducation 
-               WHERE userId = @userId 
-               AND degreeName = @degreeName 
-               AND instituteName = @instituteName)
-    BEGIN
-        RAISERROR('Duplicate education record.', 16, 1);
-        RETURN;
-    END
-
-    BEGIN TRY
-        INSERT INTO userEducation (
-            userId, 
-            instituteName, 
-            level, 
-            degreeName, 
-            grade, 
-            startDate, 
-            endDate
-        )
-        VALUES (
-            @userId, 
-            @instituteName, 
-            @level, 
-            @degreeName, 
-            @grade, 
-            @startDate, 
-            @endDate
-        );
-    END TRY
-    BEGIN CATCH
-        DECLARE @Err NVARCHAR(MAX) = ERROR_MESSAGE();
-        RAISERROR(@Err, 16, 1);
-    END CATCH
-END;
-GO
 --===============================================================
 
 CREATE TRIGGER tr_RestrictStatusFlow
@@ -174,90 +268,204 @@ BEGIN
     AND degreeName = @degreeName;
 END;
 GO
---================================================================================================
---sign up procedure
 
-CREATE PROCEDURE SignupUser
-    @Name     VARCHAR(100),
-    @Email    VARCHAR(150),
-    @Phone    VARCHAR(20)  = NULL,
-    @Age      INT          = NULL,
-    @Password VARCHAR(255)
+
+
+
+
+
+--========================================================================
+--post procedure for creating a new job post
+CREATE PROCEDURE sp_CreatePost
+    @CreatorID      BIGINT,
+    @CompanyName    VARCHAR(200)  = NULL,
+    @JobTitle       VARCHAR(150),
+    @Description    VARCHAR(1000) = NULL,
+    @Location       VARCHAR(150)  = NULL,
+    @Category       VARCHAR(100)  = NULL,
+    @EstimateSalary DECIMAL(18,2) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check if email already exists
-    IF EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
+    -- Check user exists
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE UserID = @CreatorID)
     BEGIN
-        SELECT 
-            'EMAIL_ALREADY_EXISTS' AS Status,
-            NULL AS UserID;
+        SELECT 'USER_NOT_FOUND' AS Status, NULL AS PostID;
         RETURN;
     END
 
-    -- Age validation
-    IF @Age IS NOT NULL AND @Age < 15
-    BEGIN
-        SELECT 
-            'INVALID_AGE' AS Status,
-            NULL AS UserID;
-        RETURN;
-    END
+    -- Insert post
+    INSERT INTO Post (CreatorID, CompanyName, JobTitle, Description, Location, Category, EstimateSalary)
+    VALUES (@CreatorID, @CompanyName, @JobTitle, @Description, @Location, @Category, @EstimateSalary);
 
-    -- Insert new user
-    INSERT INTO appUser (Name, Email, Phone, Age, Password)
-    VALUES (@Name, @Email, @Phone, @Age, @Password);
-
-    -- Return new user's ID and success status
     SELECT 
-        'SUCCESS'      AS Status,
-        SCOPE_IDENTITY() AS UserID;
+        'SUCCESS'        AS Status,
+        SCOPE_IDENTITY() AS PostID;
 END;
-GO
-
---===============================================================================
 
 
---login procedure
-CREATE PROCEDURE LoginUser
-    @Email VARCHAR(150)
+--====================
+--procedure to update a post
+CREATE PROCEDURE sp_UpdatePost
+    @PostID         BIGINT,
+    @CreatorID      BIGINT,
+    @CompanyName    VARCHAR(200)  = NULL,
+    @JobTitle       VARCHAR(150)  = NULL,
+    @Description    VARCHAR(1000) = NULL,
+    @Location       VARCHAR(150)  = NULL,
+    @Category       VARCHAR(100)  = NULL,
+    @EstimateSalary DECIMAL(18,2) = NULL,
+    @IsActive       BIT           = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check if user exists
-    IF NOT EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
+    -- Check post exists and belongs to this user
+    IF NOT EXISTS (SELECT 1 FROM Post WHERE PostID = @PostID AND CreatorID = @CreatorID)
     BEGIN
-        SELECT 
-            'USER_NOT_FOUND' AS Status,
-            NULL AS UserID,
-            NULL AS Name,
-            NULL AS Email,
-            NULL AS Password;
+        SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
         RETURN;
     END
 
-    -- Return user data for backend to verify password
-    SELECT
-        'SUCCESS'  AS Status,
-        UserID,
-        Name,
-        Email,
-        Password   -- backend compares the hash
-    FROM appUser
-    WHERE Email = @Email;
+    -- Update only fields that are passed
+    UPDATE Post
+    SET
+        CompanyName    = ISNULL(@CompanyName,    CompanyName),
+        JobTitle       = ISNULL(@JobTitle,        JobTitle),
+        Description    = ISNULL(@Description,     Description),
+        Location       = ISNULL(@Location,        Location),
+        Category       = ISNULL(@Category,        Category),
+        EstimateSalary = ISNULL(@EstimateSalary,  EstimateSalary),
+        IsActive       = ISNULL(@IsActive,        IsActive)
+    WHERE PostID    = @PostID
+      AND CreatorID = @CreatorID;
+
+    SELECT 'SUCCESS' AS Status;
 END;
 
---==========================================================================
+--=======================
+--procedure to delete a post
+ALTER PROCEDURE sp_DeletePost
+    @PostID    BIGINT,
+    @CreatorID BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
 
---other quries for sign up and login 
---check if email already exist
-SELECT CASE 
-    WHEN EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
-    THEN 1 
-    ELSE 0
-END AS EmailExists;
+    IF NOT EXISTS (SELECT 1 FROM Post WHERE PostID = @PostID AND CreatorID = @CreatorID)
+    BEGIN
+        SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
+        RETURN;
+    END
+
+    -- Soft delete 👇
+    UPDATE Post
+    SET    IsActive = 0
+    WHERE  PostID    = @PostID
+      AND  CreatorID = @CreatorID;
+
+    SELECT 'SUCCESS' AS Status;
+END;
+
+--=====================
+--getting all posts
+CREATE PROCEDURE sp_GetAllPosts
+    @LoggedInUserID BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        p.PostID,
+        p.JobTitle,
+        p.CompanyName,
+        p.Location,
+        p.Category,
+        p.EstimateSalary,
+        p.Description,
+        p.PostedDate,
+        u.Name  AS PostedBy,
+        u.Email AS PostedByEmail
+    FROM Post p
+    INNER JOIN appUser u ON p.CreatorID = u.UserID
+    WHERE p.IsActive = 1
+      AND p.CreatorID != @LoggedInUserID  --hide own posts
+    ORDER BY p.PostedDate DESC;
+END;
+
+--============================
+--getting a single post 
+CREATE PROCEDURE sp_GetPostByID
+    @PostID         BIGINT,
+    @LoggedInUserID BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check post exists and is not the user's own
+    IF NOT EXISTS (
+        SELECT 1 FROM Post 
+        WHERE PostID   = @PostID 
+          AND IsActive = 1
+          AND CreatorID != @LoggedInUserID  -- 👈 cant view own post
+    )
+    BEGIN
+        SELECT 'POST_NOT_FOUND_OR_OWN_POST' AS Status;
+        RETURN;
+    END
+
+    -- Post details
+    SELECT 
+        p.PostID,
+        p.JobTitle,
+        p.CompanyName,
+        p.Location,
+        p.Category,
+        p.EstimateSalary,
+        p.Description,
+        p.PostedDate,
+        u.Name  AS PostedBy,
+        u.Email AS PostedByEmail
+    FROM Post p
+    INNER JOIN appUser u ON p.CreatorID = u.UserID
+    WHERE p.PostID = @PostID;
+
+    -- Required skills
+    SELECT 
+        s.SkillName,
+        s.Category     AS SkillCategory,
+        ps.RequiredLevel
+    FROM Post_Skill ps
+    INNER JOIN Skill s ON ps.SkillID = s.SkillID
+    WHERE ps.PostID = @PostID;
+
+    -- Required qualifications
+    SELECT 
+        MinDegree,
+        FieldOfStudy,
+        MinGrade
+    FROM Post_Qualification
+    WHERE PostID = @PostID;
+END;
+
+
+--======================
+--getting own posts
+SELECT 
+    PostID,
+    JobTitle,
+    CompanyName,
+    Location,
+    Category,
+    EstimateSalary,
+    IsActive,
+    PostedDate
+FROM Post
+WHERE CreatorID = @LoggedInUserID
+ORDER BY PostedDate DESC;
+
+
 
 
 --========================================================================
@@ -432,194 +640,3 @@ BEGIN
     ORDER BY p.postedDate DESC;
 END;
 GO
---========================================================================
---post procedure for creating a new job post
-CREATE PROCEDURE sp_CreatePost
-    @CreatorID      BIGINT,
-    @CompanyName    VARCHAR(200)  = NULL,
-    @JobTitle       VARCHAR(150),
-    @Description    VARCHAR(1000) = NULL,
-    @Location       VARCHAR(150)  = NULL,
-    @Category       VARCHAR(100)  = NULL,
-    @EstimateSalary DECIMAL(18,2) = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Check user exists
-    IF NOT EXISTS (SELECT 1 FROM appUser WHERE UserID = @CreatorID)
-    BEGIN
-        SELECT 'USER_NOT_FOUND' AS Status, NULL AS PostID;
-        RETURN;
-    END
-
-    -- Insert post
-    INSERT INTO Post (CreatorID, CompanyName, JobTitle, Description, Location, Category, EstimateSalary)
-    VALUES (@CreatorID, @CompanyName, @JobTitle, @Description, @Location, @Category, @EstimateSalary);
-
-    SELECT 
-        'SUCCESS'        AS Status,
-        SCOPE_IDENTITY() AS PostID;
-END;
-
-
---====================
---procedure to update a post
-CREATE PROCEDURE sp_UpdatePost
-    @PostID         BIGINT,
-    @CreatorID      BIGINT,
-    @CompanyName    VARCHAR(200)  = NULL,
-    @JobTitle       VARCHAR(150)  = NULL,
-    @Description    VARCHAR(1000) = NULL,
-    @Location       VARCHAR(150)  = NULL,
-    @Category       VARCHAR(100)  = NULL,
-    @EstimateSalary DECIMAL(18,2) = NULL,
-    @IsActive       BIT           = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Check post exists and belongs to this user
-    IF NOT EXISTS (SELECT 1 FROM Post WHERE PostID = @PostID AND CreatorID = @CreatorID)
-    BEGIN
-        SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
-        RETURN;
-    END
-
-    -- Update only fields that are passed
-    UPDATE Post
-    SET
-        CompanyName    = ISNULL(@CompanyName,    CompanyName),
-        JobTitle       = ISNULL(@JobTitle,        JobTitle),
-        Description    = ISNULL(@Description,     Description),
-        Location       = ISNULL(@Location,        Location),
-        Category       = ISNULL(@Category,        Category),
-        EstimateSalary = ISNULL(@EstimateSalary,  EstimateSalary),
-        IsActive       = ISNULL(@IsActive,        IsActive)
-    WHERE PostID    = @PostID
-      AND CreatorID = @CreatorID;
-
-    SELECT 'SUCCESS' AS Status;
-END;
-
---=======================
---procedure to delete a post
-ALTER PROCEDURE sp_DeletePost
-    @PostID    BIGINT,
-    @CreatorID BIGINT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF NOT EXISTS (SELECT 1 FROM Post WHERE PostID = @PostID AND CreatorID = @CreatorID)
-    BEGIN
-        SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
-        RETURN;
-    END
-
-    -- Soft delete 👇
-    UPDATE Post
-    SET    IsActive = 0
-    WHERE  PostID    = @PostID
-      AND  CreatorID = @CreatorID;
-
-    SELECT 'SUCCESS' AS Status;
-END;
-
---=====================
---getting all posts
-CREATE PROCEDURE sp_GetAllPosts
-    @LoggedInUserID BIGINT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT 
-        p.PostID,
-        p.JobTitle,
-        p.CompanyName,
-        p.Location,
-        p.Category,
-        p.EstimateSalary,
-        p.Description,
-        p.PostedDate,
-        u.Name  AS PostedBy,
-        u.Email AS PostedByEmail
-    FROM Post p
-    INNER JOIN appUser u ON p.CreatorID = u.UserID
-    WHERE p.IsActive = 1
-      AND p.CreatorID != @LoggedInUserID  -- 👈 hide own posts
-    ORDER BY p.PostedDate DESC;
-END;
-
---============================
---getting a single post 
-CREATE PROCEDURE sp_GetPostByID
-    @PostID         BIGINT,
-    @LoggedInUserID BIGINT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Check post exists and is not the user's own
-    IF NOT EXISTS (
-        SELECT 1 FROM Post 
-        WHERE PostID   = @PostID 
-          AND IsActive = 1
-          AND CreatorID != @LoggedInUserID  -- 👈 cant view own post
-    )
-    BEGIN
-        SELECT 'POST_NOT_FOUND_OR_OWN_POST' AS Status;
-        RETURN;
-    END
-
-    -- Post details
-    SELECT 
-        p.PostID,
-        p.JobTitle,
-        p.CompanyName,
-        p.Location,
-        p.Category,
-        p.EstimateSalary,
-        p.Description,
-        p.PostedDate,
-        u.Name  AS PostedBy,
-        u.Email AS PostedByEmail
-    FROM Post p
-    INNER JOIN appUser u ON p.CreatorID = u.UserID
-    WHERE p.PostID = @PostID;
-
-    -- Required skills
-    SELECT 
-        s.SkillName,
-        s.Category     AS SkillCategory,
-        ps.RequiredLevel
-    FROM Post_Skill ps
-    INNER JOIN Skill s ON ps.SkillID = s.SkillID
-    WHERE ps.PostID = @PostID;
-
-    -- Required qualifications
-    SELECT 
-        MinDegree,
-        FieldOfStudy,
-        MinGrade
-    FROM Post_Qualification
-    WHERE PostID = @PostID;
-END;
-
-
---======================
---getting own posts
-SELECT 
-    PostID,
-    JobTitle,
-    CompanyName,
-    Location,
-    Category,
-    EstimateSalary,
-    IsActive,
-    PostedDate
-FROM Post
-WHERE CreatorID = @LoggedInUserID
-ORDER BY PostedDate DESC;
-

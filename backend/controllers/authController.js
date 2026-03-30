@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const { sql, poolPromise } = require('../config/db');
-const fs=require('fs');
+const fs = require('fs').promises;  // ✅ Use promises version
 
 const JWT_SECRET = process.env.JWT_SECRET || 'huzaifa123';
-fs.writeFile('./log.txt',' ' );
+fs.writeFile('log.txt', ' ');  // ✅ Now works without a callback
 
 // ─────────────────────────────
 // SIGNUP
@@ -47,7 +47,7 @@ const signup = async (req, res) => {
             });
         }
 
-         fs.appendFile('./log.txt',`New user signed up: ${email}\n time: ${new Date().toISOString()}\n`)
+        await fs.appendFile('log.txt', `New user signed up: ${email}\n time: ${new Date().toISOString()}\n`);  // ✅ awaited
         return res.status(201).json({
             status:  'SUCCESS',
             message: 'Account created successfully',
@@ -66,8 +66,7 @@ const signup = async (req, res) => {
 // ─────────────────────────────
 // LOGIN
 // ─────────────────────────────
-const login = async (req, res) => 
-    {
+const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -107,7 +106,7 @@ const login = async (req, res) =>
             { expiresIn: '7d' }
         );
 
-        fs.appendFile('./log.txt',`User logged in: ${email}\n time: ${new Date().toISOString()}\n`)
+        await fs.appendFile('log.txt', `User logged in: ${email}\n time: ${new Date().toISOString()}\n`);  // ✅ awaited
         return res.status(200).json({
             status:  'SUCCESS',
             message: 'Login successful',
