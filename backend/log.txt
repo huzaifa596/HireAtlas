@@ -1,0 +1,6 @@
+ New user signed up: tester3@gmail.com
+ time: 2026-03-30T11:52:31.108Z
+User logged in: tester3@gmail.com
+ time: 2026-03-30T11:52:55.002Z
+New user signed up: test@gmail.com
+ time: 2026-03-31T19:00:11.538Z
