@@ -1,8 +1,8 @@
-import AuthForm from './components/AuthForm'
-import './App.css'
+import AuthForm from "./components/LoginSignup/AuthForm";
+import "./App.css";
 
 function App() {
-  return <AuthForm />
+  return <AuthForm />;
 }
 
-export default App
+export default App;
