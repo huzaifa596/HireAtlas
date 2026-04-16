@@ -1,40 +1,40 @@
 import { useState, useCallback } from "react";
 import { InputField, SocialButtons } from "./components";
 import { isValidEmail, getStrength, strengthColors } from "./utils";
-import API from '../services/api';
+import API from "../../services/api";
 
 export default function SignUpPanel({ flipped, onFlip }) {
-  const [name,    setName]    = useState("");
-  const [email,   setEmail]   = useState("");
-  const [pass,    setPass]    = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
   const [loading, setLoading] = useState(false);
-  const [valid,   setValid]   = useState({ name: null, email: null, pass: null });
+  const [valid, setValid] = useState({ name: null, email: null, pass: null });
 
   const strength = getStrength(pass);
 
   const handleSubmit = useCallback(async () => {
-  const nameOk  = name.trim().length >= 2;
-  const emailOk = isValidEmail(email);
-  const passOk  = pass.length >= 8;
-  setValid({ name: nameOk, email: emailOk, pass: passOk });
-  if (!nameOk || !emailOk || !passOk) return;
+    const nameOk = name.trim().length >= 2;
+    const emailOk = isValidEmail(email);
+    const passOk = pass.length >= 8;
+    setValid({ name: nameOk, email: emailOk, pass: passOk });
+    if (!nameOk || !emailOk || !passOk) return;
 
-  setLoading(true);
-  try {
-    const res = await API.post('/auth/signup', {
-      name,
-      email,
-      password: pass,
-    });
-    alert('Account created! Please sign in.');
-    onFlip(false); // switch to sign in panel
-  } catch (err) {
-    const msg = err.response?.data?.message || 'Signup failed';
-    alert(msg);
-  } finally {
-    setLoading(false);
-  }
-}, [name, email, pass]);
+    setLoading(true);
+    try {
+      const res = await API.post("/auth/signup", {
+        name,
+        email,
+        password: pass,
+      });
+      alert("Account created! Please sign in.");
+      onFlip(false); // switch to sign in panel
+    } catch (err) {
+      const msg = err.response?.data?.message || "Signup failed";
+      alert(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [name, email, pass]);
 
   return (
     <div className={`form-panel signup-panel${flipped ? " flipped" : ""}`}>
@@ -49,7 +49,7 @@ export default function SignUpPanel({ flipped, onFlip }) {
         placeholder="Full name"
         autoComplete="name"
         value={name}
-        onChange={e => setName(e.target.value)}
+        onChange={(e) => setName(e.target.value)}
         icon="far fa-user"
         validity={valid.name}
       />
@@ -58,7 +58,7 @@ export default function SignUpPanel({ flipped, onFlip }) {
         placeholder="Email address"
         autoComplete="email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
         icon="far fa-envelope"
         validity={valid.email}
       />
@@ -67,7 +67,7 @@ export default function SignUpPanel({ flipped, onFlip }) {
         placeholder="Password"
         autoComplete="new-password"
         value={pass}
-        onChange={e => setPass(e.target.value)}
+        onChange={(e) => setPass(e.target.value)}
         icon="fas fa-lock"
         validity={valid.pass}
       />

@@ -1,38 +1,20 @@
 import { useState, useCallback } from "react";
 import { InputField, SocialButtons } from "./components";
 import { isValidEmail } from "./utils";
-import API from '../services/api';
 
 export default function SignInPanel({ flipped, onFlip }) {
-  const [email,   setEmail]   = useState("");
-  const [pass,    setPass]    = useState("");
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
   const [loading, setLoading] = useState(false);
-  const [valid,   setValid]   = useState({ email: null, pass: null });
+  const [valid, setValid] = useState({ email: null, pass: null });
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(() => {
     const emailOk = isValidEmail(email);
-    const passOk  = pass.length >= 6;
+    const passOk = pass.length >= 6;
     setValid({ email: emailOk, pass: passOk });
-    if (!emailOk || !passOk) {
-      alert('Please enter a valid email and password (min 6 chars)');
-      return;
-    }
-
+    if (!emailOk || !passOk) return;
     setLoading(true);
-    try {
-      const res = await API.post('/auth/login', {
-        email,
-        password: pass,
-      });
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      alert('Login successful!');
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed';
-      alert(msg);
-    } finally {
-      setLoading(false);
-    }
+    setTimeout(() => setLoading(false), 1500);
   }, [email, pass]);
 
   return (
@@ -48,7 +30,7 @@ export default function SignInPanel({ flipped, onFlip }) {
         placeholder="Email address"
         autoComplete="email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
         icon="far fa-envelope"
         validity={valid.email}
       />
@@ -57,7 +39,7 @@ export default function SignInPanel({ flipped, onFlip }) {
         placeholder="Password"
         autoComplete="current-password"
         value={pass}
-        onChange={e => setPass(e.target.value)}
+        onChange={(e) => setPass(e.target.value)}
         icon="fas fa-lock"
         validity={valid.pass}
       />
