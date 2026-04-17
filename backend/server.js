@@ -13,12 +13,18 @@ app.use(express.json());
 
 app.use('/api/auth', require('./routes/authRoutes'));
 
-const PORT = process.env.PORT || 3000;
+//dashboard route
+app.get('/api/dashboard', (req, res) => {
+  res.json({ 
+    status: 'SUCCESS', 
+    message: 'Welcome to the dashboard!' 
+  });
+});
 
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
 
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log('DB_USER:', process.env.DB_USER);
-console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+
 
 });
