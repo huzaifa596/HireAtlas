@@ -1,16 +1,24 @@
-const express = require('express');
-const cors    = require('cors');
+const env     =require('dotenv').config(); //here dotenv module is imported to load environment variables from a .env file into process.env, allowing us to keep sensitive information like database credentials and JWT secrets out of our codebase.
+const express = require('express');//requests meaning importing a module. here express module is imported
+const cors    = require('cors'); //here cors module is imported to handle cross-origin requests, allowing the frontend (running on a different port) to communicate with the backend without issues.
 const app     = express();
 
 app.use(cors({
   origin: 'http://localhost:5173'
 }));
+
 app.use(express.json());
 
-// Routes
+//Routes
+
 app.use('/api/auth', require('./routes/authRoutes'));
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+
 });

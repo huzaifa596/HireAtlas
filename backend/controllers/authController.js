@@ -1,10 +1,11 @@
+const env=require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const { sql, poolPromise } = require('../config/db');
 const fs = require('fs').promises;  // ✅ Use promises version
 
-const JWT_SECRET = process.env.JWT_SECRET || 'huzaifa123';
-fs.writeFile('log.txt', ' ');  // ✅ Now works without a callback
+const JWT_SECRET = process.env.JWT_SECRET;
+//fs.writeFile('log.txt', ' ');  // ✅ Now works without a callback
 
 // ─────────────────────────────
 // SIGNUP

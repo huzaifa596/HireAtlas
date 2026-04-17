@@ -1,3 +1,4 @@
+const env=require('dotenv').config();
 const sql = require('mssql/msnodesqlv8');
 
 const isWindowsAuth = !process.env.DB_USER && !process.env.DB_PASSWORD;
@@ -10,8 +11,8 @@ const dbConfig = {
         ? 'Driver={ODBC Driver 17 for SQL Server};Server=localhost\\SQLEXPRESS;Database=hireatlas;Trusted_Connection=yes;'
         : null,
     // Standard config for SQL Auth (your buddy)
-    user: process.env.DB_USER || 'sa',
-    password: process.env.DB_PASSWORD || 'huzaifa123',
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD ,
     options: {
         instanceName: 'SQLEXPRESS',
         encrypt: false,
