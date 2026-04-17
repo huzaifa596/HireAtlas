@@ -11,6 +11,8 @@ import PasswordField from "../Shared/PasswordField.jsx";
 import Button        from "../Shared/Button.jsx";
 import "../Shared/Shared.css";
 import "./SignInForm.css";
+import "../../../services/api.js"; 
+import API from "../../../services/api.js";
 
 // ── Validation ────────────────────────────────────────────────────────────
 function validate({ email, password }) {
@@ -55,21 +57,46 @@ export default function SignInForm({ onSwitch }) {
     if (errors[key]) setErrors((err) => ({ ...err, [key]: "" }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errs = validate(fields);
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    setLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 1500));
-      console.log("Sign in payload:", { ...fields, remember });
-    } catch (err) {
-      setErrors({ email: "Invalid credentials. Please try again." });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const errs = validate(fields);
+  if (Object.keys(errs).length) {
+    setErrors(errs);
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const res = await API.post("/auth/login", {
+      email: fields.email,
+      password: fields.password,
+    });
+
+    console.log("Login response:", res.data);
+
+    const { status, message, token, user } = res.data;
+
+    alert(message);
+
+    localStorage.setItem("token", token);
+
+    console.log("User:", user);
+
+    // TODO: redirect to dashboard
+    // navigate("/dashboard");
+
+  } catch (err) {
+    console.log(err);
+
+    setErrors({
+      email: "Invalid credentials. Please try again.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="sif-root">

@@ -12,6 +12,7 @@ import Button              from "../Shared/Button.jsx";
 import AccountTypeSelector from "./AccountTypeSelector.jsx";
 import "../Shared/Shared.css";
 import "./SignUpForm.css";
+import "../../../services/api.js"; 
 
 // ── Validation ────────────────────────────────────────────────────────────
 function validateStep1({ fullName, email, phone, password, confirmPassword }) {
@@ -101,8 +102,18 @@ export default function SignUpForm({ onSwitch }) {
 
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-      console.log("Sign up payload:", fields);
+      const res=await API.post("/auth/signup",{
+        name: fields.fullName,
+        email: fields.email,
+        password: fields.password,
+        phone: fields.phone,
+        age:18
+      })
+      console.log("Signup response:", res.data);
+
+      const { status, message } = res.data;
+      alert(message);
+
     } catch (err) {
       setErrors({ terms: "Registration failed. Please try again." });
     } finally {
