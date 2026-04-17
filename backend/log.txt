@@ -1,2 +1,10 @@
  New user signed up: testing@gmail.co
  time: 2026-04-17T16:43:27.999Z
+New user signed up: tester@gmail.com
+ time: 2026-04-17T22:07:39.791Z
+New user signed up: h@gmail.com
+ time: 2026-04-17T22:10:24.396Z
+User logged in: h@gmail.com
+ time: 2026-04-17T22:20:19.783Z
+User logged in: h@gmail.com
+ time: 2026-04-17T22:22:45.641Z

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { InputField, SocialButtons } from "./components";
 import { isValidEmail } from "./utils";
+import API from "../../services/api";
 
 export default function SignInPanel({ flipped, onFlip }) {
   const [email, setEmail] = useState("");
@@ -8,14 +9,39 @@ export default function SignInPanel({ flipped, onFlip }) {
   const [loading, setLoading] = useState(false);
   const [valid, setValid] = useState({ email: null, pass: null });
 
-  const handleSubmit = useCallback(() => {
-    const emailOk = isValidEmail(email);
-    const passOk = pass.length >= 6;
-    setValid({ email: emailOk, pass: passOk });
-    if (!emailOk || !passOk) return;
-    setLoading(true);
-    setTimeout(() => setLoading(false), 1500);
-  }, [email, pass]);
+  const handleSubmit = useCallback(async () => {
+  const emailOk = isValidEmail(email);
+  const passOk = pass.length >= 6;
+
+  setValid({ email: emailOk, pass: passOk });
+
+  if (!emailOk || !passOk) return;
+
+  setLoading(true);
+
+  try {
+    const res = await API.post("/auth/login", {
+      email,
+      password: pass,
+    });
+    console.log("Login response:", res.data); // ✅ log the full response
+    const { status,message,token, user } = res.data;
+     alert(message);
+     
+    localStorage.setItem("token", token);
+
+   // alert("Login success:", user);
+
+    // navigate to dashboard (if using router)
+    // navigate("/dashboard");
+
+  } catch (err) {
+    const msg = err.response?.data?.message || "email or password incorrect";
+    alert(msg);
+  } finally {
+    setLoading(false);
+  }
+}, [email, pass]);
 
   return (
     <div className={`form-panel signin-panel${flipped ? " flipped" : ""}`}>
