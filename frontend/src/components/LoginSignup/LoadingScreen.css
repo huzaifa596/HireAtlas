@@ -1,0 +1,124 @@
+/* LoadingScreen.css */
+.ls-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--navy-950) 0%, var(--navy-800) 45%, var(--navy-600) 100%);
+  transition: opacity 0.5s var(--ease);
+}
+
+.ls-root--fading { opacity: 0; pointer-events: none; }
+
+/* Ambient blobs */
+.ls-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  animation: blobDrift 9s ease-in-out infinite alternate;
+}
+.ls-blob--a {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(59,114,204,0.45), transparent 70%);
+  top: -140px; right: -120px;
+  animation-duration: 11s;
+}
+.ls-blob--b {
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(107,159,232,0.28), transparent 70%);
+  bottom: -100px; left: -80px;
+  animation-delay: -4s;
+}
+
+@keyframes blobDrift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(28px, -36px) scale(1.1); }
+}
+
+/* Grid overlay */
+.ls-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* Center stack */
+.ls-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  animation: fadeUp 0.7s var(--ease) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Logo mark */
+.ls-mark {
+  width: 76px; height: 76px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
+  animation: markPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes markPulse {
+  0%, 100% { box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 0 0 rgba(59,114,204,0); }
+  50%       { box-shadow: 0 12px 40px rgba(0,0,0,0.3), 0 0 0 12px rgba(59,114,204,0); }
+}
+
+.ls-mark svg { width: 38px; height: 38px; }
+
+/* Wordmark */
+.ls-wordmark {
+  font-size: clamp(38px, 8vw, 62px);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.ls-wordmark span { color: var(--navy-300); }
+
+/* Tagline */
+.ls-tagline {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 40px;
+}
+
+/* Progress bar */
+.ls-bar-track {
+  width: 180px; height: 2px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.ls-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--navy-300), #fff);
+  border-radius: 99px;
+  animation: barFill 2.1s var(--ease) forwards;
+}
+
+@keyframes barFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
