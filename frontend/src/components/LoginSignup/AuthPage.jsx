@@ -12,7 +12,7 @@ const LogoIcon = () => (
 
 const PILLS = ['AI-Matched Candidates', 'Smart Screening', 'Real-time Analytics']
 
-export default function AuthPage() {
+export default function AuthPage({onLogin}) {
   const [mode, setMode] = useState('login') // 'login' | 'signup'
 
   return (
@@ -75,7 +75,7 @@ export default function AuthPage() {
       {/* ── Right form panel ── */}
       <main className="ap-right">
         <div className="ap-form-wrap">
-          <AuthForm mode={mode} onModeChange={setMode} />
+              <AuthForm mode={mode} onModeChange={setMode} onLogin={onLogin} />
         </div>
       </main>
     </div>

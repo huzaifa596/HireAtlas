@@ -40,3 +40,9 @@ User logged in: huzaifa123@gmail.com
  time: 2026-04-18T07:17:39.551Z
 New user signed up: l240745@lhr.nu.edu.pk
  time: 2026-04-18T05:12:11.029Z
+New user signed up: l240895@lhr.nu.edu.pk
+ time: 2026-04-18T06:58:45.988Z
+User logged in: l240895@lhr.nu.edu.pk
+ time: 2026-04-18T06:59:29.363Z
+User logged in: l240895@lhr.nu.edu.pk
+ time: 2026-04-18T07:13:01.923Z

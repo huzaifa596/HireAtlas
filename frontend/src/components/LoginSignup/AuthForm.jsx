@@ -129,7 +129,7 @@ function StrengthMeter({ password }) {
 }
 
 /* ── Main AuthForm ──────────────────────────────────────────────────────── */
-export default function AuthForm({ mode, onModeChange }) {
+export default function AuthForm({ mode, onModeChange,onLogin }) {
   const isLogin = mode === 'login'
 
   // Fields
@@ -201,7 +201,7 @@ export default function AuthForm({ mode, onModeChange }) {
       const { token, message } = res.data;
 
       localStorage.setItem('token', token); // store JWT
-      alert(message || "Login successful");
+      onLogin();
 
     } else {
       // 📝 SIGNUP
