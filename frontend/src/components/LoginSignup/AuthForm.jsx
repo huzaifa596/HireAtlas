@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import './AuthForm.css'
-import API from '../../services/api';
+import API from '../../services/api.js';
 /* ── SVG Icons ──────────────────────────────────────────────────────────── */
 const IconMail = () => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
