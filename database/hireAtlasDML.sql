@@ -1,10 +1,9 @@
-USE hireatlas 
+USE hireatlas;
+GO
 
-
-
---================================================================================================
---sign up procedure
-
+-- ================================================================================================
+-- SIGN UP PROCEDURE
+-- ================================================================================================
 CREATE PROCEDURE SignupUser
     @Name     VARCHAR(100),
     @Email    VARCHAR(150),
@@ -15,52 +14,37 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check if email already exists
-    IF EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
+    IF EXISTS (SELECT 1 FROM appUser WHERE email = @Email)
     BEGIN
-        SELECT 
-            'EMAIL_ALREADY_EXISTS' AS Status,
-            NULL AS UserID;
+        SELECT 'EMAIL_ALREADY_EXISTS' AS Status, NULL AS UserID;
         RETURN;
     END
 
-    -- Age validation
     IF @Age IS NOT NULL AND @Age < 15
     BEGIN
-        SELECT 
-            'INVALID_AGE' AS Status,
-            NULL AS UserID;
+        SELECT 'INVALID_AGE' AS Status, NULL AS UserID;
         RETURN;
     END
 
-    -- Insert new user
-    INSERT INTO appUser (Name, Email, Phone, Age, Password)
+    INSERT INTO appUser (name, email, phone, age, password)
     VALUES (@Name, @Email, @Phone, @Age, @Password);
 
-    -- Return new user's ID and success status
-    SELECT 
-        'SUCCESS'      AS Status,
-        SCOPE_IDENTITY() AS UserID;
+    SELECT 'SUCCESS' AS Status, SCOPE_IDENTITY() AS UserID;
 END;
 GO
 
-
-
-
-
---===============================================================================
---login procedure
-GO
+-- ================================================================================================
+-- LOGIN PROCEDURE
+-- ================================================================================================
 CREATE PROCEDURE LoginUser
     @Email VARCHAR(150)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check if user exists
-    IF NOT EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE email = @Email)
     BEGIN
-        SELECT 
+        SELECT
             'USER_NOT_FOUND' AS Status,
             NULL AS UserID,
             NULL AS Name,
@@ -69,70 +53,52 @@ BEGIN
         RETURN;
     END
 
-    -- Return user data for backend to verify password
     SELECT
-        'SUCCESS'  AS Status,
-        UserID,
-        Name,
-        Email,
-        Password   -- backend compares the hash
+        'SUCCESS' AS Status,
+        userId,
+        name,
+        email,
+        password   -- backend compares the hash
     FROM appUser
-    WHERE Email = @Email;
+    WHERE email = @Email;
 END;
+GO
 
---==========================================================================
-
---other quries for sign up and login 
---check if email already exist
-SELECT CASE 
-    WHEN EXISTS (SELECT 1 FROM appUser WHERE Email = @Email)
-    THEN 1 
-    ELSE 0
-END AS EmailExists;
-
-
---====================================================================
---insert education procedure
-CREATE PROCEDURE insertEducation  
-    @userId         BIGINT,
-    @instituteName  VARCHAR(200),
-    @level          VARCHAR(100),
-    @degreeName     VARCHAR(150),
-    @grade          DECIMAL(5,2),
-    @startDate      DATE,
-    @endDate        DATE
+-- ================================================================================================
+-- INSERT EDUCATION PROCEDURE
+-- ================================================================================================
+CREATE PROCEDURE insertEducation
+    @userId        BIGINT,
+    @instituteName VARCHAR(200),
+    @level         VARCHAR(100),
+    @degreeName    VARCHAR(150),
+    @grade         DECIMAL(5,2),
+    @startDate     DATE,
+    @endDate       DATE
 AS
 BEGIN
     SET NOCOUNT ON;
-    --turns the 1 row affected message off
-    IF EXISTS (SELECT 1 FROM userEducation 
-               WHERE userId = @userId 
-               AND degreeName = @degreeName 
-               AND instituteName = @instituteName)
+
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
+    BEGIN
+        RAISERROR('User does not exist.', 16, 1);
+        RETURN;
+    END
+
+    IF EXISTS (
+        SELECT 1 FROM userEducation
+        WHERE userId       = @userId
+          AND degreeName   = @degreeName
+          AND instituteName = @instituteName
+    )
     BEGIN
         RAISERROR('Duplicate education record.', 16, 1);
         RETURN;
     END
 
     BEGIN TRY
-        INSERT INTO userEducation (
-            userId, 
-            instituteName, 
-            level, 
-            degreeName, 
-            grade, 
-            startDate, 
-            endDate
-        )
-        VALUES (
-            @userId, 
-            @instituteName, 
-            @level, 
-            @degreeName, 
-            @grade, 
-            @startDate, 
-            @endDate
-        );
+        INSERT INTO userEducation (userId, instituteName, level, degreeName, grade, startDate, endDate)
+        VALUES (@userId, @instituteName, @level, @degreeName, @grade, @startDate, @endDate);
     END TRY
     BEGIN CATCH
         DECLARE @Err NVARCHAR(MAX) = ERROR_MESSAGE();
@@ -141,14 +107,23 @@ BEGIN
 END;
 GO
 
---====================================================================
-
+-- ================================================================================================
+-- UPDATE EDUCATION START DATE
+-- FIX: Added @eduId parameter so only the specific record is updated, not all records for the user
+-- ================================================================================================
 CREATE PROCEDURE UpdateEducationStartDate
     @userId    BIGINT,
+    @eduId     BIGINT,
     @startDate DATE
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM userEducation WHERE eduId = @eduId AND userId = @userId)
+    BEGIN
+        RAISERROR('Education record not found.', 16, 1);
+        RETURN;
+    END
 
     IF @startDate > CAST(GETDATE() AS DATE)
     BEGIN
@@ -158,13 +133,18 @@ BEGIN
 
     UPDATE userEducation
     SET startDate = @startDate
-    WHERE userId = @userId;
+    WHERE eduId  = @eduId
+      AND userId = @userId;
 END;
 GO
---====================================================================
 
+-- ================================================================================================
+-- UPDATE EDUCATION END DATE
+-- FIX: Added @eduId parameter so only the specific record is updated, not all records for the user
+-- ================================================================================================
 CREATE PROCEDURE UpdateEducationEndDate
     @userId  BIGINT,
+    @eduId   BIGINT,
     @endDate DATE
 AS
 BEGIN
@@ -172,9 +152,10 @@ BEGIN
 
     DECLARE @existingStartDate DATE;
 
-    SELECT @existingStartDate = startDate 
-    FROM userEducation 
-    WHERE userId = @userId;
+    SELECT @existingStartDate = startDate
+    FROM userEducation
+    WHERE eduId  = @eduId
+      AND userId = @userId;
 
     IF @existingStartDate IS NULL
     BEGIN
@@ -190,50 +171,28 @@ BEGIN
 
     UPDATE userEducation
     SET endDate = @endDate
-    WHERE userId = @userId;
+    WHERE eduId  = @eduId
+      AND userId = @userId;
 END;
 GO
 
---===============================================================
-
-CREATE TRIGGER tr_RestrictStatusFlow
-ON application
-AFTER UPDATE
-AS
-BEGIN
-    IF UPDATE(status)
-    BEGIN
-        IF EXISTS (
-            SELECT 1 
-            FROM deleted d
-            JOIN inserted i ON d.applicationId = i.applicationId
-            WHERE d.status IN ('Rejected', 'Accepted')
-        )
-        BEGIN
-            RAISERROR ('Final decisions (Accepted/Rejected) cannot be modified.', 16, 1);
-            ROLLBACK TRANSACTION;
-        END
-    END
-    ELSE
-    BEGIN
-        PRINT 'Application Status Successfully Updated!'
-    END
-END; 
-GO
---================================================================================================
+-- ================================================================================================
+-- GET USER EDUCATION
+-- ================================================================================================
 CREATE PROCEDURE getUserEducation
     @userId BIGINT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF NOT EXISTS (SELECT 1 FROM appUser WHERE UserID = @userId)
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
     BEGIN
         RAISERROR('User does not exist.', 16, 1);
         RETURN;
     END
 
-    SELECT 
+    SELECT
+        eduId,
         instituteName,
         level,
         degreeName,
@@ -245,7 +204,10 @@ BEGIN
     ORDER BY startDate DESC;
 END;
 GO
---================================================================================================
+
+-- ================================================================================================
+-- REMOVE EDUCATION
+-- ================================================================================================
 CREATE PROCEDURE removeEducation
     @userId     BIGINT,
     @degreeName VARCHAR(150)
@@ -253,10 +215,10 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF NOT EXISTS(
+    IF NOT EXISTS (
         SELECT 1 FROM userEducation
-        WHERE userId = @userId 
-        AND degreeName = @degreeName
+        WHERE userId    = @userId
+          AND degreeName = @degreeName
     )
     BEGIN
         RAISERROR('Education record not found.', 16, 1);
@@ -264,151 +226,378 @@ BEGIN
     END
 
     DELETE FROM userEducation
-    WHERE userId = @userId 
-    AND degreeName = @degreeName;
+    WHERE userId    = @userId
+      AND degreeName = @degreeName;
 END;
 GO
 
-
-
-
-
-
---========================================================================
---post procedure for creating a new job post
-CREATE PROCEDURE sp_CreatePost
-    @CreatorID      BIGINT,
-    @CompanyName    VARCHAR(200)  = NULL,
-    @JobTitle       VARCHAR(150),
-    @Description    VARCHAR(1000) = NULL,
-    @Location       VARCHAR(150)  = NULL,
-    @Category       VARCHAR(100)  = NULL,
-    @EstimateSalary DECIMAL(18,2) = NULL
+-- ================================================================================================
+-- USER EXPERIENCE: INSERT
+-- ================================================================================================
+CREATE PROCEDURE insertExperience
+    @userId      BIGINT,
+    @companyName VARCHAR(200),
+    @jobTitle    VARCHAR(150),
+    @description VARCHAR(1000),
+    @startDate   DATE,
+    @endDate     DATE = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check user exists
-    IF NOT EXISTS (SELECT 1 FROM appUser WHERE UserID = @CreatorID)
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
+    BEGIN
+        RAISERROR('User does not exist.', 16, 1);
+        RETURN;
+    END
+
+    IF @endDate IS NOT NULL AND @endDate < @startDate
+    BEGIN
+        RAISERROR('INVALID DATE: End date cannot be before start date.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO userExperience (userId, companyName, jobTitle, description, startDate, endDate)
+    VALUES (@userId, @companyName, @jobTitle, @description, @startDate, @endDate);
+END;
+GO
+
+-- ================================================================================================
+-- USER EXPERIENCE: GET
+-- ================================================================================================
+CREATE PROCEDURE getUserExperience
+    @userId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
+    BEGIN
+        RAISERROR('User does not exist.', 16, 1);
+        RETURN;
+    END
+
+    SELECT
+        expId,
+        companyName,
+        jobTitle,
+        description,
+        startDate,
+        endDate
+    FROM userExperience
+    WHERE userId = @userId
+    ORDER BY startDate DESC;
+END;
+GO
+
+-- ================================================================================================
+-- USER EXPERIENCE: REMOVE
+-- ================================================================================================
+CREATE PROCEDURE removeExperience
+    @userId BIGINT,
+    @expId  BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM userExperience
+        WHERE expId  = @expId
+          AND userId = @userId
+    )
+    BEGIN
+        RAISERROR('Experience record not found.', 16, 1);
+        RETURN;
+    END
+
+    DELETE FROM userExperience
+    WHERE expId  = @expId
+      AND userId = @userId;
+END;
+GO
+
+-- ================================================================================================
+-- USER SKILL: INSERT
+-- ================================================================================================
+CREATE PROCEDURE insertUserSkill
+    @userId      BIGINT,
+    @skillId     BIGINT,
+    @proficiency VARCHAR(50) = 'Beginner'
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
+    BEGIN
+        RAISERROR('User does not exist.', 16, 1);
+        RETURN;
+    END
+
+    IF NOT EXISTS (SELECT 1 FROM skill WHERE skillId = @skillId)
+    BEGIN
+        RAISERROR('Skill not found.', 16, 1);
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM userSkill WHERE userId = @userId AND skillId = @skillId)
+    BEGIN
+        RAISERROR('Skill already added for this user.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO userSkill (userId, skillId, proficiency)
+    VALUES (@userId, @skillId, @proficiency);
+END;
+GO
+
+-- ================================================================================================
+-- USER SKILL: GET
+-- ================================================================================================
+CREATE PROCEDURE getUserSkills
+    @userId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
+    BEGIN
+        RAISERROR('User does not exist.', 16, 1);
+        RETURN;
+    END
+
+    SELECT
+        s.skillId,
+        s.skillName,
+        s.category,
+        us.proficiency
+    FROM userSkill us
+    INNER JOIN skill s ON us.skillId = s.skillId
+    WHERE us.userId = @userId
+    ORDER BY s.skillName;
+END;
+GO
+
+-- ================================================================================================
+-- USER SKILL: REMOVE
+-- ================================================================================================
+CREATE PROCEDURE removeUserSkill
+    @userId  BIGINT,
+    @skillId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM userSkill
+        WHERE userId  = @userId
+          AND skillId = @skillId
+    )
+    BEGIN
+        RAISERROR('Skill record not found for this user.', 16, 1);
+        RETURN;
+    END
+
+    DELETE FROM userSkill
+    WHERE userId  = @userId
+      AND skillId = @skillId;
+END;
+GO
+
+-- ================================================================================================
+-- TRIGGER: RESTRICT STATUS FLOW ON application
+-- ================================================================================================
+CREATE TRIGGER tr_RestrictStatusFlow
+ON application
+AFTER UPDATE
+AS
+BEGIN
+    IF UPDATE(status)
+    BEGIN
+        IF EXISTS (
+            SELECT 1
+            FROM deleted d
+            JOIN inserted i ON d.applicationId = i.applicationId
+            WHERE d.status IN ('Rejected', 'Accepted')
+        )
+        BEGIN
+            RAISERROR('Final decisions (Accepted/Rejected) cannot be modified.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+        PRINT 'Application Status Successfully Updated!';
+    END
+END;
+GO
+
+-- ================================================================================================
+-- POST: CREATE
+-- FIX: Replaced non-existent Category/EstimateSalary with correct DDL columns
+--      Added all missing fields: empType, experienceLevel, isRemote, salCurrency, minSalary, maxSalary
+-- ================================================================================================
+CREATE PROCEDURE sp_CreatePost
+    @creatorId       BIGINT,
+    @companyName     VARCHAR(200)  = NULL,
+    @jobTitle        VARCHAR(150),
+    @description     VARCHAR(1000) = NULL,
+    @location        VARCHAR(150)  = NULL,
+    @empType         VARCHAR(50)   = NULL,
+    @jobCategory     VARCHAR(100)  = NULL,
+    @experienceLevel VARCHAR(50)   = NULL,
+    @minSalary       DECIMAL(18,2) = NULL,
+    @maxSalary       DECIMAL(18,2) = NULL,
+    @salCurrency     VARCHAR(10)   = 'PKR',
+    @isRemote        BIT           = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @creatorId)
     BEGIN
         SELECT 'USER_NOT_FOUND' AS Status, NULL AS PostID;
         RETURN;
     END
 
-    -- Insert post
-    INSERT INTO Post (CreatorID, CompanyName, JobTitle, Description, Location, Category, EstimateSalary)
-    VALUES (@CreatorID, @CompanyName, @JobTitle, @Description, @Location, @Category, @EstimateSalary);
+    INSERT INTO post (
+        creatorId, companyName, jobTitle, description, location,
+        empType, jobCategory, experienceLevel,
+        minSalary, maxSalary, salCurrency, isRemote
+    )
+    VALUES (
+        @creatorId, @companyName, @jobTitle, @description, @location,
+        @empType, @jobCategory, @experienceLevel,
+        @minSalary, @maxSalary, @salCurrency, @isRemote
+    );
 
-    SELECT 
-        'SUCCESS'        AS Status,
-        SCOPE_IDENTITY() AS PostID;
+    SELECT 'SUCCESS' AS Status, SCOPE_IDENTITY() AS PostID;
 END;
+GO
 
-
---====================
---procedure to update a post
+-- ================================================================================================
+-- POST: UPDATE
+-- FIX: Replaced Category/EstimateSalary with correct DDL columns
+--      Added all missing fields: empType, experienceLevel, isRemote, salCurrency, minSalary, maxSalary
+-- ================================================================================================
 CREATE PROCEDURE sp_UpdatePost
-    @PostID         BIGINT,
-    @CreatorID      BIGINT,
-    @CompanyName    VARCHAR(200)  = NULL,
-    @JobTitle       VARCHAR(150)  = NULL,
-    @Description    VARCHAR(1000) = NULL,
-    @Location       VARCHAR(150)  = NULL,
-    @Category       VARCHAR(100)  = NULL,
-    @EstimateSalary DECIMAL(18,2) = NULL,
-    @IsActive       BIT           = NULL
+    @postId          BIGINT,
+    @creatorId       BIGINT,
+    @companyName     VARCHAR(200)  = NULL,
+    @jobTitle        VARCHAR(150)  = NULL,
+    @description     VARCHAR(1000) = NULL,
+    @location        VARCHAR(150)  = NULL,
+    @empType         VARCHAR(50)   = NULL,
+    @jobCategory     VARCHAR(100)  = NULL,
+    @experienceLevel VARCHAR(50)   = NULL,
+    @minSalary       DECIMAL(18,2) = NULL,
+    @maxSalary       DECIMAL(18,2) = NULL,
+    @salCurrency     VARCHAR(10)   = NULL,
+    @isRemote        BIT           = NULL,
+    @isActive        BIT           = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check post exists and belongs to this user
-    IF NOT EXISTS (SELECT 1 FROM Post WHERE PostID = @PostID AND CreatorID = @CreatorID)
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
     BEGIN
         SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
         RETURN;
     END
 
-    -- Update only fields that are passed
-    UPDATE Post
+    UPDATE post
     SET
-        CompanyName    = ISNULL(@CompanyName,    CompanyName),
-        JobTitle       = ISNULL(@JobTitle,        JobTitle),
-        Description    = ISNULL(@Description,     Description),
-        Location       = ISNULL(@Location,        Location),
-        Category       = ISNULL(@Category,        Category),
-        EstimateSalary = ISNULL(@EstimateSalary,  EstimateSalary),
-        IsActive       = ISNULL(@IsActive,        IsActive)
-    WHERE PostID    = @PostID
-      AND CreatorID = @CreatorID;
+        companyName     = ISNULL(@companyName,     companyName),
+        jobTitle        = ISNULL(@jobTitle,         jobTitle),
+        description     = ISNULL(@description,      description),
+        location        = ISNULL(@location,         location),
+        empType         = ISNULL(@empType,          empType),
+        jobCategory     = ISNULL(@jobCategory,      jobCategory),
+        experienceLevel = ISNULL(@experienceLevel,  experienceLevel),
+        minSalary       = ISNULL(@minSalary,        minSalary),
+        maxSalary       = ISNULL(@maxSalary,        maxSalary),
+        salCurrency     = ISNULL(@salCurrency,      salCurrency),
+        isRemote        = ISNULL(@isRemote,         isRemote),
+        isActive        = ISNULL(@isActive,         isActive)
+    WHERE postId    = @postId
+      AND creatorId = @creatorId;
 
     SELECT 'SUCCESS' AS Status;
 END;
+GO
 
---=======================
---procedure to delete a post
-ALTER PROCEDURE sp_DeletePost
-    @PostID    BIGINT,
-    @CreatorID BIGINT
+-- ================================================================================================
+-- POST: SOFT DELETE
+-- ================================================================================================
+CREATE PROCEDURE sp_DeletePost
+    @postId    BIGINT,
+    @creatorId BIGINT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF NOT EXISTS (SELECT 1 FROM Post WHERE PostID = @PostID AND CreatorID = @CreatorID)
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
     BEGIN
         SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
         RETURN;
     END
 
-    -- Soft delete 👇
-    UPDATE Post
-    SET    IsActive = 0
-    WHERE  PostID    = @PostID
-      AND  CreatorID = @CreatorID;
+    UPDATE post
+    SET    isActive = 0
+    WHERE  postId    = @postId
+      AND  creatorId = @creatorId;
 
     SELECT 'SUCCESS' AS Status;
 END;
+GO
 
---=====================
---getting all posts
+-- ================================================================================================
+-- POST: GET ALL (excluding own posts)
+-- ================================================================================================
 CREATE PROCEDURE sp_GetAllPosts
-    @LoggedInUserID BIGINT
+    @loggedInUserId BIGINT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT 
-        p.PostID,
-        p.JobTitle,
-        p.CompanyName,
-        p.Location,
-        p.Category,
-        p.EstimateSalary,
-        p.Description,
-        p.PostedDate,
-        u.Name  AS PostedBy,
-        u.Email AS PostedByEmail
-    FROM Post p
-    INNER JOIN appUser u ON p.CreatorID = u.UserID
-    WHERE p.IsActive = 1
-      AND p.CreatorID != @LoggedInUserID  --hide own posts
-    ORDER BY p.PostedDate DESC;
+    SELECT
+        p.postId,
+        p.jobTitle,
+        p.companyName,
+        p.location,
+        p.empType,
+        p.jobCategory,
+        p.experienceLevel,
+        p.minSalary,
+        p.maxSalary,
+        p.salCurrency,
+        p.isRemote,
+        p.description,
+        p.postedDate,
+        u.name  AS postedBy,
+        u.email AS postedByEmail
+    FROM post p
+    INNER JOIN appUser u ON p.creatorId = u.userId
+    WHERE p.isActive  = 1
+      AND p.creatorId != @loggedInUserId
+    ORDER BY p.postedDate DESC;
 END;
+GO
 
---============================
---getting a single post 
+-- ================================================================================================
+-- POST: GET BY ID
+-- FIX: Corrected table names Post_Skill → postSkill, Post_Qualification → postQualification
+--      Fixed column names Category → jobCategory, EstimateSalary → minSalary/maxSalary
+-- ================================================================================================
 CREATE PROCEDURE sp_GetPostByID
-    @PostID         BIGINT,
-    @LoggedInUserID BIGINT
+    @postId         BIGINT,
+    @loggedInUserId BIGINT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Check post exists and is not the user's own
     IF NOT EXISTS (
-        SELECT 1 FROM Post 
-        WHERE PostID   = @PostID 
-          AND IsActive = 1
-          AND CreatorID != @LoggedInUserID  -- 👈 cant view own post
+        SELECT 1 FROM post
+        WHERE postId    = @postId
+          AND isActive  = 1
+          AND creatorId != @loggedInUserId
     )
     BEGIN
         SELECT 'POST_NOT_FOUND_OR_OWN_POST' AS Status;
@@ -416,190 +605,455 @@ BEGIN
     END
 
     -- Post details
-    SELECT 
-        p.PostID,
-        p.JobTitle,
-        p.CompanyName,
-        p.Location,
-        p.Category,
-        p.EstimateSalary,
-        p.Description,
-        p.PostedDate,
-        u.Name  AS PostedBy,
-        u.Email AS PostedByEmail
-    FROM Post p
-    INNER JOIN appUser u ON p.CreatorID = u.UserID
-    WHERE p.PostID = @PostID;
+    SELECT
+        p.postId,
+        p.jobTitle,
+        p.companyName,
+        p.location,
+        p.empType,
+        p.jobCategory,
+        p.experienceLevel,
+        p.minSalary,
+        p.maxSalary,
+        p.salCurrency,
+        p.isRemote,
+        p.description,
+        p.postedDate,
+        u.name  AS postedBy,
+        u.email AS postedByEmail
+    FROM post p
+    INNER JOIN appUser u ON p.creatorId = u.userId
+    WHERE p.postId = @postId;
 
     -- Required skills
-    SELECT 
-        s.SkillName,
-        s.Category     AS SkillCategory,
-        ps.RequiredLevel
-    FROM Post_Skill ps
-    INNER JOIN Skill s ON ps.SkillID = s.SkillID
-    WHERE ps.PostID = @PostID;
+    SELECT
+        s.skillName,
+        s.category    AS skillCategory,
+        ps.requiredLevel
+    FROM postSkill ps                       -- FIX: was Post_Skill
+    INNER JOIN skill s ON ps.skillId = s.skillId
+    WHERE ps.postId = @postId;
 
     -- Required qualifications
-    SELECT 
-        MinDegree,
-        FieldOfStudy,
-        MinGrade
-    FROM Post_Qualification
-    WHERE PostID = @PostID;
+    SELECT
+        qualId,
+        minDegree,
+        fieldOfStudy,
+        minGrade
+    FROM postQualification                  -- FIX: was Post_Qualification
+    WHERE postId = @postId;
 END;
-
-
---======================
---getting own posts
-SELECT 
-    PostID,
-    JobTitle,
-    CompanyName,
-    Location,
-    Category,
-    EstimateSalary,
-    IsActive,
-    PostedDate
-FROM Post
-WHERE CreatorID = @LoggedInUserID
-ORDER BY PostedDate DESC;
-
-
-
-
---========================================================================
-
---data fetching for profile
-SELECT 
-    u.UserID,
-    u.Name,
-    u.Email,
-    u.Phone,
-    u.Age,
-    u.cvPath
-FROM appUser u
-WHERE u.UserID = @UserID;
-
---=========================================================================
-
---query to filter all the non active posts 
-
-SELECT * FROM post
-WHERE isActive=1
---=========================================================================
--- empType filter
-
-SELECT * FROM post
-WHERE empType=@empType
-
---=========================================================================
---filter by experiencelevel
-
-SELECT * FROM post 
-WHERE experienceLevel = @level
-
---=========================================================================
---filter by job category
-
-SELECT * FROM post 
-WHERE jobCategory = @category
---=========================================================================
---remote jobs finder
-
-SELECT * FROM post
-WHERE isRemote = @isRemote
---=======================================================================
-
---company name filter
-
-SELECT * FROM post
-WHERE companyName LIKE '%' + @company + '%'
---=========================================================================
-
---Date range
-SELECT * FROM post
-WHERE postedDate >= @sinceDate
---========================================================================
-
---Salary range	
-SELECT * FROM post
-WHERE minSalary <= @max AND maxSalary >= @min
-
---========================================================================
-
---Location	
-SELECT * FROM post
-WHERE location LIKE '%' + @city + '%'
---========================================================================
--- #18 newest
-SELECT * FROM post
-WHERE isActive = 1
-ORDER BY postedDate DESC;
-
---========================================================================
--- #19 max salary
-SELECT * FROM post 
-WHERE isActive = 1 
-ORDER BY maxSalary DESC;
-
---========================================================================
--- #20  min salary
-SELECT * FROM post 
-WHERE isActive = 1 
-ORDER BY minSalary ASC;
 GO
---========================================================================
--- Category + Type Combo
+
+-- ================================================================================================
+-- POST: GET OWN POSTS
+-- FIX: Replaced Category/EstimateSalary with correct DDL columns
+-- ================================================================================================
+CREATE PROCEDURE sp_GetMyPosts
+    @loggedInUserId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        postId,
+        jobTitle,
+        companyName,
+        location,
+        empType,
+        jobCategory,
+        experienceLevel,
+        minSalary,
+        maxSalary,
+        salCurrency,
+        isRemote,
+        isActive,
+        postedDate
+    FROM post
+    WHERE creatorId = @loggedInUserId
+    ORDER BY postedDate DESC;
+END;
+GO
+
+-- ================================================================================================
+-- POST SKILL: ADD SKILL TO A POST
+-- ================================================================================================
+CREATE PROCEDURE sp_AddPostSkill
+    @postId        BIGINT,
+    @creatorId     BIGINT,
+    @skillId       BIGINT,
+    @requiredLevel VARCHAR(50) = 'Beginner'
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
+    BEGIN
+        RAISERROR('Post not found or unauthorized.', 16, 1);
+        RETURN;
+    END
+
+    IF NOT EXISTS (SELECT 1 FROM skill WHERE skillId = @skillId)
+    BEGIN
+        RAISERROR('Skill not found.', 16, 1);
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM postSkill WHERE postId = @postId AND skillId = @skillId)
+    BEGIN
+        RAISERROR('This skill is already added to the post.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO postSkill (postId, skillId, requiredLevel)
+    VALUES (@postId, @skillId, @requiredLevel);
+END;
+GO
+
+-- ================================================================================================
+-- POST SKILL: REMOVE SKILL FROM A POST
+-- ================================================================================================
+CREATE PROCEDURE sp_RemovePostSkill
+    @postId    BIGINT,
+    @creatorId BIGINT,
+    @skillId   BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
+    BEGIN
+        RAISERROR('Post not found or unauthorized.', 16, 1);
+        RETURN;
+    END
+
+    IF NOT EXISTS (SELECT 1 FROM postSkill WHERE postId = @postId AND skillId = @skillId)
+    BEGIN
+        RAISERROR('Skill not found on this post.', 16, 1);
+        RETURN;
+    END
+
+    DELETE FROM postSkill
+    WHERE postId  = @postId
+      AND skillId = @skillId;
+END;
+GO
+
+-- ================================================================================================
+-- POST QUALIFICATION: ADD
+-- ================================================================================================
+CREATE PROCEDURE sp_AddPostQualification
+    @postId       BIGINT,
+    @creatorId    BIGINT,
+    @minDegree    VARCHAR(100)  = NULL,
+    @fieldOfStudy VARCHAR(150)  = NULL,
+    @minGrade     DECIMAL(5,2)  = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
+    BEGIN
+        RAISERROR('Post not found or unauthorized.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO postQualification (postId, minDegree, fieldOfStudy, minGrade)
+    VALUES (@postId, @minDegree, @fieldOfStudy, @minGrade);
+END;
+GO
+
+-- ================================================================================================
+-- POST QUALIFICATION: REMOVE
+-- ================================================================================================
+CREATE PROCEDURE sp_RemovePostQualification
+    @qualId    BIGINT,
+    @postId    BIGINT,
+    @creatorId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
+    BEGIN
+        RAISERROR('Post not found or unauthorized.', 16, 1);
+        RETURN;
+    END
+
+    IF NOT EXISTS (SELECT 1 FROM postQualification WHERE qualId = @qualId AND postId = @postId)
+    BEGIN
+        RAISERROR('Qualification record not found.', 16, 1);
+        RETURN;
+    END
+
+    DELETE FROM postQualification
+    WHERE qualId = @qualId
+      AND postId = @postId;
+END;
+GO
+
+-- ================================================================================================
+-- APPLICATION: APPLY FOR A JOB
+-- ================================================================================================
+CREATE PROCEDURE sp_ApplyForJob
+    @postId      BIGINT,
+    @applicantId BIGINT,
+    @cvPath      VARCHAR(255) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND isActive = 1)
+    BEGIN
+        SELECT 'POST_NOT_FOUND_OR_INACTIVE' AS Status, NULL AS ApplicationID;
+        RETURN;
+    END
+
+    -- Prevent applying to own post
+    IF EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @applicantId)
+    BEGIN
+        SELECT 'CANNOT_APPLY_TO_OWN_POST' AS Status, NULL AS ApplicationID;
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM application WHERE postId = @postId AND applicantId = @applicantId)
+    BEGIN
+        SELECT 'ALREADY_APPLIED' AS Status, NULL AS ApplicationID;
+        RETURN;
+    END
+
+    -- Use user's profile cvPath if none provided
+    DECLARE @resolvedCv VARCHAR(255) = @cvPath;
+    IF @resolvedCv IS NULL
+        SELECT @resolvedCv = cvPath FROM appUser WHERE userId = @applicantId;
+
+    INSERT INTO application (postId, applicantId, cvPath)
+    VALUES (@postId, @applicantId, @resolvedCv);
+
+    SELECT 'SUCCESS' AS Status, SCOPE_IDENTITY() AS ApplicationID;
+END;
+GO
+
+-- ================================================================================================
+-- APPLICATION: UPDATE STATUS (by post creator)
+-- ================================================================================================
+CREATE PROCEDURE sp_UpdateApplicationStatus
+    @applicationId BIGINT,
+    @creatorId     BIGINT,
+    @newStatus     VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Verify creator owns the post tied to this application
+    IF NOT EXISTS (
+        SELECT 1
+        FROM application a
+        INNER JOIN post p ON a.postId = p.postId
+        WHERE a.applicationId = @applicationId
+          AND p.creatorId     = @creatorId
+    )
+    BEGIN
+        SELECT 'APPLICATION_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
+        RETURN;
+    END
+
+    UPDATE application
+    SET status = @newStatus
+    WHERE applicationId = @applicationId;
+    -- tr_RestrictStatusFlow trigger enforces no changes after Accepted/Rejected
+
+    SELECT 'SUCCESS' AS Status;
+END;
+GO
+
+-- ================================================================================================
+-- APPLICATION: GET APPLICATIONS FOR A POST (for post creator)
+-- ================================================================================================
+CREATE PROCEDURE sp_GetApplicationsByPost
+    @postId    BIGINT,
+    @creatorId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
+    BEGIN
+        RAISERROR('Post not found or unauthorized.', 16, 1);
+        RETURN;
+    END
+
+    SELECT
+        a.applicationId,
+        a.applicantId,
+        u.name          AS applicantName,
+        u.email         AS applicantEmail,
+        a.status,
+        a.applicationDate,
+        a.cvPath
+    FROM application a
+    INNER JOIN appUser u ON a.applicantId = u.userId
+    WHERE a.postId = @postId
+    ORDER BY a.applicationDate DESC;
+END;
+GO
+
+-- ================================================================================================
+-- APPLICATION: GET MY APPLICATIONS (for job seeker)
+-- ================================================================================================
+CREATE PROCEDURE sp_GetMyApplications
+    @applicantId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        a.applicationId,
+        a.postId,
+        p.jobTitle,
+        p.companyName,
+        p.location,
+        a.status,
+        a.applicationDate,
+        a.cvPath
+    FROM application a
+    INNER JOIN post p ON a.postId = p.postId
+    WHERE a.applicantId = @applicantId
+    ORDER BY a.applicationDate DESC;
+END;
+GO
+
+-- ================================================================================================
+-- USER PROFILE FETCH
+-- ================================================================================================
+CREATE PROCEDURE sp_GetUserProfile
+    @userId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
+    BEGIN
+        RAISERROR('User does not exist.', 16, 1);
+        RETURN;
+    END
+
+    SELECT
+        userId,
+        name,
+        email,
+        phone,
+        age,
+        cvPath
+    FROM appUser
+    WHERE userId = @userId;
+END;
+GO
+
+-- ================================================================================================
+-- FILTER QUERIES
+-- ================================================================================================
+
+-- Active posts only
+SELECT * FROM post WHERE isActive = 1;
+
+-- Filter by empType
+SELECT * FROM post WHERE empType = @empType AND isActive = 1;
+
+-- Filter by experienceLevel
+SELECT * FROM post WHERE experienceLevel = @level AND isActive = 1;
+
+-- Filter by jobCategory
+SELECT * FROM post WHERE jobCategory = @category AND isActive = 1;
+
+-- Remote jobs
+SELECT * FROM post WHERE isRemote = @isRemote AND isActive = 1;
+
+-- Company name search
+SELECT * FROM post WHERE companyName LIKE '%' + @company + '%' AND isActive = 1;
+
+-- Date range (since a given date)
+SELECT * FROM post WHERE postedDate >= @sinceDate AND isActive = 1;
+
+-- Salary range
+SELECT * FROM post WHERE minSalary <= @max AND maxSalary >= @min AND isActive = 1;
+
+-- Location search
+SELECT * FROM post WHERE location LIKE '%' + @city + '%' AND isActive = 1;
+
+-- Newest first
+SELECT * FROM post WHERE isActive = 1 ORDER BY postedDate DESC;
+
+-- Highest max salary first
+SELECT * FROM post WHERE isActive = 1 ORDER BY maxSalary DESC;
+
+-- Lowest min salary first
+SELECT * FROM post WHERE isActive = 1 ORDER BY minSalary ASC;
+
+GO
+
+-- ================================================================================================
+-- COMBO FILTER: Category + Employment Type
+-- ================================================================================================
 CREATE PROCEDURE sp_GetPostsByCategoryAndType
     @jobCategory VARCHAR(100),
-    @empType VARCHAR(50)
+    @empType     VARCHAR(50)
 AS
 BEGIN
-    SELECT * FROM post 
-    WHERE isActive = 1 
-      AND jobCategory = @jobCategory 
-      AND empType = @empType
+    SET NOCOUNT ON;
+    SELECT * FROM post
+    WHERE isActive    = 1
+      AND jobCategory = @jobCategory
+      AND empType     = @empType
     ORDER BY postedDate DESC;
 END;
 GO
---========================================================================
---Level + Remote Combo
+
+-- ================================================================================================
+-- COMBO FILTER: Experience Level + Remote
+-- ================================================================================================
 CREATE PROCEDURE sp_GetPostsByLevelAndRemote
     @experienceLevel VARCHAR(50),
-    @isRemote BIT
+    @isRemote        BIT
 AS
 BEGIN
-    SELECT * FROM post 
-    WHERE isActive = 1 
-      AND experienceLevel = @experienceLevel 
-      AND isRemote = @isRemote
+    SET NOCOUNT ON;
+    SELECT * FROM post
+    WHERE isActive        = 1
+      AND experienceLevel = @experienceLevel
+      AND isRemote        = @isRemote
     ORDER BY postedDate DESC;
 END;
 GO
---========================================================================
---Location + Salary Combo
+
+-- ================================================================================================
+-- COMBO FILTER: Location + Salary Range
+-- ================================================================================================
 CREATE PROCEDURE sp_GetPostsByLocationAndSalary
-    @location VARCHAR(150),
+    @location  VARCHAR(150),
     @minSalary DECIMAL(18,2),
     @maxSalary DECIMAL(18,2)
 AS
 BEGIN
-    SELECT * FROM post 
-    WHERE isActive = 1 
-      AND location LIKE '%' + @location + '%'
-      AND minSalary <= @maxSalary 
+    SET NOCOUNT ON;
+    SELECT * FROM post
+    WHERE isActive  = 1
+      AND location  LIKE '%' + @location + '%'
+      AND minSalary <= @maxSalary
       AND maxSalary >= @minSalary
     ORDER BY postedDate DESC;
 END;
 GO
---========================================================================
---SpecificSkillSearch
+
+-- ================================================================================================
+-- SEARCH: Posts by Specific Skill Name
+-- ================================================================================================
 CREATE PROCEDURE sp_GetPostsBySpecificSkill
     @skillName VARCHAR(100)
 AS
 BEGIN
-    SELECT 
+    SET NOCOUNT ON;
+    SELECT
         p.postId,
         p.jobTitle,
         p.companyName,
@@ -612,31 +1066,36 @@ BEGIN
         s.skillName,
         ps.requiredLevel
     FROM post p
-    INNER JOIN postSkill ps ON p.postId = ps.postId
-    INNER JOIN skill s ON ps.skillId = s.skillId
-    WHERE p.isActive = 1
+    INNER JOIN postSkill ps ON p.postId  = ps.postId
+    INNER JOIN skill s      ON ps.skillId = s.skillId
+    WHERE p.isActive  = 1
       AND s.skillName = @skillName
     ORDER BY p.postedDate DESC;
 END;
 GO
---=========================================================================
---Jobs matching my skill procedure
+
+-- ================================================================================================
+-- SEARCH: Jobs Matching User's Own Skills
+-- ================================================================================================
 CREATE PROCEDURE mySkillJob
-    @UserID BIGINT
+    @userId BIGINT
 AS
 BEGIN
-    SELECT p.* 
+    SET NOCOUNT ON;
+    SELECT p.*
     FROM post p
-    WHERE EXISTS(
-        SELECT 1 FROM postSkill ps
-        WHERE EXISTS(
-            SELECT 1 FROM userSkill us
-            WHERE us.userId = @UserID
-              AND us.skillId = ps.skillId
-        )
-        AND p.postId = ps.postId 
-    )
-    AND p.isActive = 1  
+    WHERE p.isActive = 1
+      AND EXISTS (
+          SELECT 1
+          FROM postSkill ps
+          WHERE ps.postId = p.postId
+            AND EXISTS (
+                SELECT 1
+                FROM userSkill us
+                WHERE us.userId  = @userId
+                  AND us.skillId = ps.skillId
+            )
+      )
     ORDER BY p.postedDate DESC;
 END;
 GO
