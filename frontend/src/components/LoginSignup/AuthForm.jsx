@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import './AuthForm.css'
-
+import API from '../../services/api';
 /* ── SVG Icons ──────────────────────────────────────────────────────────── */
 const IconMail = () => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -176,18 +176,58 @@ export default function AuthForm({ mode, onModeChange }) {
     return errs
   }
 
-  /* Submit */
   async function handleSubmit(e) {
-    e.preventDefault()
-    const errs = validate()
-    if (Object.keys(errs).length) { setErrors(errs); return }
-    setErrors({})
-    setLoading(true)
-    // Simulate async request
-    await new Promise(r => setTimeout(r, 1400))
-    setLoading(false)
-    setSuccess(true)
+  e.preventDefault();
+
+  const errs = validate();
+  if (Object.keys(errs).length) {
+    setErrors(errs);
+    return;
   }
+
+  setErrors({});
+  setLoading(true);
+
+  try {
+    let res;
+
+    if (isLogin) {
+      // 🔐 LOGIN
+      res = await API.post('/auth/login', {
+        email,
+        password,
+      });
+
+      const { token, message } = res.data;
+
+      localStorage.setItem('token', token); // store JWT
+      alert(message || "Login successful");
+
+    } else {
+      // 📝 SIGNUP
+      res = await API.post('/auth/signup', {
+        name,
+        email,
+        password,
+      });
+
+      alert(res.data.message || "Signup successful");
+    }
+
+    setSuccess(true);
+
+  } catch (err) {
+    console.error("API ERROR:", err);
+
+    const msg =
+      err.response?.data?.message ||
+      "Something went wrong";
+
+    alert(msg);
+  } finally {
+    setLoading(false);
+  }
+}
 
   if (success) {
     return (

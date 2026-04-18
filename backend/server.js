@@ -4,8 +4,7 @@ const cors    = require('cors'); //here cors module is imported to handle cross-
 const app     = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
-  origin:'https://www.thunderclient.com'
+  origin: 'http://localhost:5173'
 }));
 
 app.use(express.json());

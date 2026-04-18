@@ -32,3 +32,9 @@ User logged in: h@gmail.com
  time: 2026-04-17T23:22:15.904Z
 User logged in: h@gmail.com
  time: 2026-04-18T00:29:43.738Z
+User logged in: h@gmail.com
+ time: 2026-04-18T07:16:56.925Z
+New user signed up: huzaifa123@gmail.com
+ time: 2026-04-18T07:17:24.128Z
+User logged in: huzaifa123@gmail.com
+ time: 2026-04-18T07:17:39.551Z
