@@ -4,22 +4,17 @@ const cors    = require('cors'); //here cors module is imported to handle cross-
 const app     = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin: 'http://localhost:5173',
+  origin:'https://www.thunderclient.com'
 }));
 
 app.use(express.json());
 
-//Routes
-
+// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 
-//dashboard route
-app.get('/api/dashboard', (req, res) => {
-  res.json({ 
-    status: 'SUCCESS', 
-    message: 'Welcome to the dashboard!' 
-  });
-});
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/api/dashboard', dashboardRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
