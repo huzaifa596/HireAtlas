@@ -46,3 +46,27 @@ User logged in: l240895@lhr.nu.edu.pk
  time: 2026-04-18T06:59:29.363Z
 User logged in: l240895@lhr.nu.edu.pk
  time: 2026-04-18T07:13:01.923Z
+User logged in: h@gmail.com
+ time: 2026-04-18T21:24:55.686Z
+New user signed up: tester@gmail.com
+ time: 2026-04-18T21:42:17.848Z
+New user signed up: tester2@gmail.com
+ time: 2026-04-18T21:44:27.507Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:11:29.430Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:13:01.709Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:15:46.749Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:17:49.308Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:23:19.555Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:28:48.557Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:31:21.816Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:51:02.304Z
+User logged in: tester2@gmail.com
+ time: 2026-04-18T22:52:21.710Z

@@ -5,7 +5,7 @@ const { getPosts} = require('../controllers/dashboardController');
 const verifyToken = require('../middleware/authMiddleware');
 
 
-router.get('/', verifyToken, getPosts);
+router.get('/posts', verifyToken, getPosts);
 
 
 module.exports = router;

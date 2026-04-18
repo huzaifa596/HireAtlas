@@ -1,8 +1,7 @@
 const env=require('dotenv').config();
-const { get } = require('fast-levenshtein');
 const { sql, poolPromise } = require('../config/db');
 
-getPosts = async (req, res) => {
+const getPosts = async (req, res) => {
     try {
         console.log("USER:", req.user);
 
@@ -12,10 +11,8 @@ getPosts = async (req, res) => {
             .input('LoggedInUserID', sql.BigInt, req.user.userID)
             .execute('sp_GetAllPosts');
 
-        return res.status(200).json({
-            status: 'SUCCESS',
-            posts: result.recordset
-        });
+            return res.status(200).json({ status: 'SUCCESS', posts: result.recordset });
+       
 
     } catch (err) {
         console.error('Get posts error FULL:', err);
