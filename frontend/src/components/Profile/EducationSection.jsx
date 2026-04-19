@@ -1,9 +1,9 @@
 // sections/EducationSection.jsx
 import React, { useState } from "react";
-import SectionCard from "../components/SectionCard";
-import TimelineItem from "../components/TimelineItem";
-import FormInput from "../components/FormInput";
-import { levelOptions } from "../mockData";
+import SectionCard from "./SectionCard";
+import TimelineItem from "./TimelineItem";
+import FormInput from "./FormInput";
+import { levelOptions } from "./mockData";
 // import { addEducation, updateEducation, deleteEducation } from "../services/profileApi";
 
 const EMPTY = {

@@ -1,8 +1,8 @@
 // sections/ExperienceSection.jsx
 import React, { useState } from "react";
-import SectionCard from "../components/SectionCard";
-import TimelineItem from "../components/TimelineItem";
-import FormInput from "../components/FormInput";
+import SectionCard from "./SectionCard";
+import TimelineItem from "./TimelineItem";
+import FormInput from "./FormInput";
 // import { addExperience, updateExperience, deleteExperience } from "../services/profileApi";
 
 const EMPTY = {

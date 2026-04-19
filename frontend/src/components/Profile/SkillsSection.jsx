@@ -1,9 +1,9 @@
 // sections/SkillsSection.jsx
 import React, { useState } from "react";
-import SectionCard from "../components/SectionCard";
-import SkillBadge from "../components/SkillBadge";
-import FormInput from "../components/FormInput";
-import { skillOptions, categoryOptions, proficiencyOptions } from "../mockData";
+import SectionCard from "./SectionCard";
+import SkillBadge from "./SkillBadge";
+import FormInput from "./FormInput";
+import { skillOptions, categoryOptions, proficiencyOptions } from "./mockData";
 // import { addSkill, updateSkill, deleteSkill } from "../services/profileApi";
 
 const EMPTY_SKILL = { skillName: "", category: "", proficiency: "Beginner" };
