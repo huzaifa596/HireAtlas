@@ -1,45 +1,25 @@
 // sections/SkillsSection.jsx
 import React, { useState } from "react";
-import SectionCard from "../components/SectionCard";
-import SkillBadge from "../components/SkillBadge";
-import FormInput from "../components/FormInput";
-import { skillOptions, categoryOptions, proficiencyOptions } from "../mockData";
+import SectionCard from "./SectionCard";
+import SkillBadge from "./SkillBadge";
+import FormInput from "./FormInput";
+import { skillOptions, categoryOptions, proficiencyOptions } from "./mockData";
+// import { addSkill, updateSkill, deleteSkill } from "../services/profileApi";
 
 const EMPTY_SKILL = { skillName: "", category: "", proficiency: "Beginner" };
 
 const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
-  const [skills, setSkills] = useState(initialSkills);
-  const [isEditing, setIsEditing] = useState(false);
+  const [skills,      setSkills]      = useState(initialSkills);
+  const [isEditing,   setIsEditing]   = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [form, setForm] = useState({ ...EMPTY_SKILL });
-  const [errors, setErrors] = useState({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [feedback, setFeedback] = useState(null);
+  const [form,        setForm]        = useState({ ...EMPTY_SKILL });
+  const [errors,      setErrors]      = useState({});
+  const [isSaving,    setIsSaving]    = useState(false);
+  const [feedback,    setFeedback]    = useState(null);
 
-  // Group skills by category
-  const grouped = skills.reduce((acc, skill) => {
-    const cat = skill.category || "Other";
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(skill);
-    return acc;
-  }, {});
-
-  const handleEdit = () => {
-    setIsEditing(true);
-    setFeedback(null);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setShowAddForm(false);
-    setForm({ ...EMPTY_SKILL });
-    setErrors({});
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-    setShowAddForm(false);
-  };
+  const handleEdit   = () => { setIsEditing(true);  setFeedback(null); };
+  const handleCancel = () => { setIsEditing(false); setShowAddForm(false); setForm({ ...EMPTY_SKILL }); setErrors({}); };
+  const handleSave   = () => { setIsEditing(false); setShowAddForm(false); };
 
   const handleAddNew = () => {
     setIsEditing(true);
@@ -49,26 +29,24 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
   };
 
   const validate = () => {
-    const errs = {};
-    if (!form.skillName?.trim()) errs.skillName = "Skill name is required";
-    if (!form.category) errs.category = "Category is required";
-    if (!form.proficiency) errs.proficiency = "Proficiency is required";
-    const exists = skills.some(
-      (s) => s.skillName.toLowerCase() === form.skillName.toLowerCase()
-    );
-    if (exists) errs.skillName = "This skill is already added";
-    return errs;
+    const e = {};
+    if (!form.skillName?.trim()) e.skillName = "Skill name is required";
+    if (!form.category)          e.category  = "Category is required";
+    if (!form.proficiency)       e.proficiency = "Proficiency is required";
+    if (skills.some((s) => s.skillName.toLowerCase() === form.skillName.toLowerCase()))
+      e.skillName = "This skill is already added";
+    return e;
   };
 
   const handleAddSkill = async () => {
     const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    if (Object.keys(errs).length) { setErrors(errs); return; }
     setIsSaving(true);
     setFeedback(null);
     try {
       await new Promise((r) => setTimeout(r, 500));
-      const newSkill = { ...form, userSkillId: Date.now() };
-      const updated = [...skills, newSkill];
+      const entry = { ...form, userSkillId: Date.now() };
+      const updated = [...skills, entry];
       setSkills(updated);
       onSkillsUpdated?.(updated);
       setFeedback({ type: "success", message: `"${form.skillName}" added.` });
@@ -118,18 +96,14 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
 
   return (
     <SectionCard
-      title="Skills"
-      icon="⚡"
+      title="Skills" icon="⚡"
       isEditing={isEditing && !showAddForm}
       isSaving={isSaving}
-      onEdit={handleEdit}
-      onSave={handleSave}
-      onCancel={handleCancel}
-      onAdd={handleAddNew}
-      addLabel="Add Skill"
+      onEdit={handleEdit} onSave={handleSave} onCancel={handleCancel}
+      onAdd={handleAddNew} addLabel="Add Skill"
       feedback={feedback}
     >
-      {/* Flat skill badges — no category grouping */}
+      {/* ── Flat badge list — no category grouping ── */}
       {skills.length === 0 && !showAddForm && (
         <div className="empty-state">
           <span>⚡</span>
@@ -137,7 +111,7 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
         </div>
       )}
 
-      <div className="sg-badges" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: skills.length ? '4px' : 0 }}>
+      <div className="skills-flat">
         {skills.map((skill) => (
           <div key={skill.userSkillId} className="skill-badge-wrapper">
             <SkillBadge
@@ -146,6 +120,7 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
               isEditing={isEditing || showAddForm}
               onRemove={() => handleRemoveSkill(skill.userSkillId, skill.skillName)}
             />
+            {/* Proficiency quick-change — visible in edit mode */}
             {(isEditing || showAddForm) && (
               <select
                 className="skill-proficiency-select"
@@ -162,34 +137,13 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
         ))}
       </div>
 
-      {/* Add Skill Form */}
+      {/* ── Add Skill form ── */}
       {showAddForm && (
         <div className="entry-form entry-form--skills">
           <div className="entry-form__grid entry-form__grid--3">
-            <FormInput
-              label="Skill Name"
-              name="skillName"
-              type="select"
-              {...field("skillName")}
-              required
-              options={skillOptions}
-            />
-            <FormInput
-              label="Category"
-              name="category"
-              type="select"
-              {...field("category")}
-              required
-              options={categoryOptions}
-            />
-            <FormInput
-              label="Proficiency"
-              name="proficiency"
-              type="select"
-              {...field("proficiency")}
-              required
-              options={proficiencyOptions}
-            />
+            <FormInput label="Skill Name" name="skillName" type="select" required options={skillOptions} {...field("skillName")} />
+            <FormInput label="Category"   name="category"  type="select" required options={categoryOptions} {...field("category")} />
+            <FormInput label="Proficiency" name="proficiency" type="select" required options={proficiencyOptions} {...field("proficiency")} />
           </div>
           <div className="entry-form__actions">
             <button className="btn btn--ghost btn--sm" onClick={() => { setShowAddForm(false); if (!skills.length) setIsEditing(false); }}>
