@@ -2,10 +2,10 @@
 // Place at: frontend/src/components/Profile/Profile.jsx
 import React, { useState } from "react";
 import "./Profile.css";
-import PersonalInfoSection from "./sections/PersonalInfoSection";
-import EducationSection    from "./sections/EducationSection";
-import ExperienceSection   from "./sections/ExperienceSection";
-import SkillsSection       from "./sections/SkillsSection";
+import PersonalInfoSection from "./PersonalInfoSection";
+import EducationSection    from "./EducationSection";
+import ExperienceSection   from "./ExperienceSection";
+import SkillsSection       from "./SkillsSection";
 import { mockUser, mockEducation, mockExperience, mockSkills } from "./mockData";
 
 /**
