@@ -505,7 +505,7 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
   color: var(--text-mid);
   line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 14px;
