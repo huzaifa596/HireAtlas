@@ -70,6 +70,12 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
   margin: 0 auto;
   padding: 0 28px;
 }
+.navbar-left
+{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
 /* Logo */
 .navbar-logo {
@@ -129,7 +135,7 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
 }
 
 /* Center search */
-.navbar-center { flex: 1; display: flex; justify-content: center; }
+.navbar-center { flex: 1; display: flex; justify-content: end; }
 
 .search-wrapper {
   position: relative;
