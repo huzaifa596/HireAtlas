@@ -347,19 +347,25 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
    DASHBOARD MAIN LAYOUT
    ============================================= */
 .dashboard-main {
-  display: grid;
-  grid-template-columns: 1fr minmax(0, 900px) 1fr;
-  gap: 0;
+  display: flex;
+  justify-content: center; /* Centers content horizontally */
   padding-top: calc(var(--navbar-h) + 32px);
   padding-bottom: 48px;
   min-height: 100vh;
 }
 
+.sidebar-left,
+.sidebar-right {
+  flex: 1; /* Equal growth */
+  min-width: 0;
+}
 .sidebar { display: block; }
 
 .content-center {
+  flex: 0 0 900px; /* Fixed width, no grow/shrink */
+  max-width: 100%;
   padding: 0 24px;
-  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Content header */
