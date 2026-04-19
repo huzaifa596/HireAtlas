@@ -1,7 +1,7 @@
 // sections/PersonalInfoSection.jsx
 import React, { useState, useRef } from "react";
-import SectionCard from "../components/SectionCard";
-import FormInput from "../components/FormInput";
+import SectionCard from "./SectionCard";
+import FormInput from "./FormInput";
 // import { updateUserProfile } from "../services/profileApi"; // uncomment when backend ready
 
 /**
