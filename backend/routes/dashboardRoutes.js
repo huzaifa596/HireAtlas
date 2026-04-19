@@ -1,7 +1,6 @@
 const express    = require('express');
 const router     = express.Router();
 const { getPosts,getSinglePost} = require('../controllers/dashboardController');
-
 const verifyToken = require('../middleware/authMiddleware');
 
 

@@ -1,9 +1,9 @@
 require('dotenv').config();
-const { sql, poolPromise } = require('../config/db');
+const { sql, poolpromise } = require('../config/db');
 
 const getPosts = async (req, res) => {
     try {
-        const pool = await poolPromise;
+        const pool = await poolpromise;
         const result = await pool.request()
             .input('LoggedInUserID', sql.BigInt, req.user.userID)
             .execute('sp_GetAllPosts');

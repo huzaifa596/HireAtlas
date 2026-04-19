@@ -9,16 +9,23 @@ app.use(cors({
 
 app.use(express.json());
 
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const user=require('./routes/userRoutes');
+
+console.log("authRoutes:", require('./routes/authRoutes'));
+console.log("dashboardRoutes:", dashboardRoutes);
+console.log("userRoutes:", user);
+
 // Routes
 //auth
 app.use('/api/auth', require('./routes/authRoutes'));
 
 //dashboard
-const dashboardRoutes = require('./routes/dashboardRoutes');
+
 app.use('/api/dashboard', dashboardRoutes);
 
 //user
-const user=require('./routes/userRoutes');
+
 app.use('/api/user',user);
 
 const PORT = process.env.PORT;

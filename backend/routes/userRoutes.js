@@ -1,5 +1,9 @@
-const express=require('express);')
+const express=require('express')
 const router=express.Router();
-const {}=require('../controllers/userController')
+const {getProfile}=require('../controllers/userController')
+const verifyToken = require('../middleware/authMiddleware');
 
-router.get('',);
+console.log("getProfile:", getProfile);
+router.get('/', verifyToken, getProfile);
+
+module.exports = router; 
