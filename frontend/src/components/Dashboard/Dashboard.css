@@ -654,27 +654,28 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
 /* =============================================
    RESPONSIVE BREAKPOINTS
    ============================================= */
+/* =============================================
+   RESPONSIVE BREAKPOINTS — FLEXBOX VERSION
+   ============================================= */
 
 /* ── 1400px: Tighten sidebars ── */
 @media (max-width: 1400px) {
-  .dashboard-main {
-    grid-template-columns: 80px minmax(0, 900px) 80px;
+  .content-center {
+    flex: 0 0 800px; /* Slightly narrower */
   }
 }
 
 /* ── 1024px: Collapse sidebars ── */
 @media (max-width: 1024px) {
-  .dashboard-main {
-    grid-template-columns: 1fr;
+  .sidebar-left,
+  .sidebar-right {
+    display: none; /* Hide empty sidebars */
   }
 
-  .sidebar { display: none; }
-
   .content-center {
-    padding: 0 24px;
-    width: 100%;
+    flex: 1; /* Take full width */
     max-width: 900px;
-    margin: 0 auto;
+    margin: 0 auto; /* Center with auto margins */
   }
 }
 
@@ -682,11 +683,11 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
 @media (max-width: 768px) {
   /* Navbar adjustments */
   .navbar-tabs   { display: none; }
-  .navbar-center { display: none; }      /* hide desktop search */
+  .navbar-center { display: none; }
   .avatar-name   { display: none; }
   .hamburger-btn { display: flex; }
-  .mobile-search-toggle { display: flex; } /* show search icon */
-  .mobile-search-bar { display: block; }  /* enable slide-down */
+  .mobile-search-toggle { display: flex; }
+  .mobile-search-bar { display: block; }
 
   /* Mobile menu backdrop */
   .mobile-backdrop { display: block; pointer-events: none; }
@@ -705,17 +706,16 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
   }
 
   .dashboard-main {
-    grid-template-columns: 1fr;
     padding-top: calc(var(--navbar-h) + 20px);
     padding-left: 0;
     padding-right: 0;
   }
 
   .content-center {
-    padding: 0 14px;
-    width: 100%;
-    min-width: 0;         /* critical — prevents overflow blowout */
-    overflow: hidden;
+    flex: 1; /* Full width on mobile */
+    max-width: 100%;
+    padding: 0 16px;
+    margin: 0; /* Remove auto margins on mobile */
   }
 
   .content-title { font-size: 18px; }
@@ -723,11 +723,11 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
   /* Cards */
   .job-card {
     padding: 16px;
-    min-width: 0;         /* critical — allows card to shrink */
+    min-width: 0;
     overflow: hidden;
   }
 
-  /* Card top: logo left, meta right — but wrap if tight */
+  /* Card top: logo left, meta right */
   .card-top {
     flex-wrap: wrap;
     gap: 8px;
