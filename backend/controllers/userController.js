@@ -5,7 +5,7 @@ const getProfile=async(req,res)=>{
  try{
     const pool=await PoolPromise;
     const result=await pool.request()
-    .input('LoggedInUserID',sql.BigInt,req.user.userID)
+    .input('UserId',sql.BigInt,req.user.userID)
     .execute('sp_GetUserProfile');
     return res.status(200).json({status:'SUCCESS',profile:result.recordset[0]});
  }

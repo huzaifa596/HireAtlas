@@ -10,10 +10,16 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
+//auth
 app.use('/api/auth', require('./routes/authRoutes'));
 
+//dashboard
 const dashboardRoutes = require('./routes/dashboardRoutes');
 app.use('/api/dashboard', dashboardRoutes);
+
+//user
+const user=require('./routes/userRoutes');
+app.use('/api/user',user);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
