@@ -4,8 +4,8 @@ const sql = require('mssql/msnodesqlv8');
 const isWindowsAuth = !process.env.DB_USER && !process.env.DB_PASSWORD;
 
 const dbConfig = {
-    server: 'localhost',
-    database: 'hireatlas',
+    server: process.env.DB_SERVER,
+    database: process.env.DB_NAME,
     // We define the driver connection string for Windows Auth
     connectionString: isWindowsAuth 
         ? 'Driver={ODBC Driver 17 for SQL Server};Server=localhost\\SQLEXPRESS;Database=hireatlas;Trusted_Connection=yes;'
