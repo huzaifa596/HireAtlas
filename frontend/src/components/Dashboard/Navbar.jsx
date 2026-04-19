@@ -85,16 +85,21 @@ export default function Navbar({
             <span className="badge">3</span>
           </button>
 
-          <div className="avatar-group">
+         
+          <div
+            className={`avatar-group ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="avatar"><User size={18} /></div>
             <span className="avatar-name">John Doe</span>
           </div>
-        </div>
 
-        {/* MOBILE: Hamburger */}
-        <button className="hamburger-btn" onClick={toggleMobileMenu}>
-          {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+          {/* MOBILE: Hamburger */}
+          <button className="hamburger-btn" onClick={toggleMobileMenu}>
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* ── Mobile search bar (slides down below navbar) ── */}
