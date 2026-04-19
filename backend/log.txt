@@ -94,3 +94,9 @@ User logged in: l240895@lhr.nu.edu.pk
  time: 2026-04-19T14:04:41.490Z
 User logged in: l240895@lhr.nu.edu.pk
  time: 2026-04-19T14:06:22.850Z
+User logged in: tester2@gmail.com
+ time: 2026-04-19T19:24:53.173Z
+New user signed up: tester3@gmail.com
+ time: 2026-04-19T19:26:40.381Z
+User logged in: tester3@gmail.com
+ time: 2026-04-19T19:26:55.398Z

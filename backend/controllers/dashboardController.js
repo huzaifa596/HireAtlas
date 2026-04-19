@@ -1,9 +1,9 @@
 require('dotenv').config();
-const { sql, poolpromise } = require('../config/db');
+const { sql, poolPromise } = require('../config/db');
 
 const getPosts = async (req, res) => {
     try {
-        const pool = await poolpromise;
+        const pool = await poolPromise; // ✅ already correct
         const result = await pool.request()
             .input('LoggedInUserID', sql.BigInt, req.user.userID)
             .execute('sp_GetAllPosts');
@@ -24,15 +24,13 @@ const getSinglePost = async (req, res) => {
             return res.status(400).json({ status: 'ERROR', message: 'Invalid post ID' });
         }
 
-        const pool = await poolPromise;
+        const pool = await poolPromise; // ✅ fixed here
         const result = await pool.request()
             .input('postId', sql.BigInt, postId)
             .execute('sp_GetPostByID');
 
-        // SP returns 3 result sets
         const [postDetails, skills, qualifications] = result.recordsets;
 
-        // Handle POST_NOT_FOUND status returned from SP
         if (postDetails[0]?.Status === 'POST_NOT_FOUND') {
             return res.status(404).json({ status: 'ERROR', message: 'Post not found' });
         }
