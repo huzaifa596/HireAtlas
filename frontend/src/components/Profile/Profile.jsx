@@ -1,54 +1,68 @@
 // Profile.jsx — Main profile page for HireAtlas
-// Place at: frontend/src/components/Profile/Profile.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Profile.css";
 import PersonalInfoSection from "./PersonalInfoSection";
 import EducationSection    from "./EducationSection";
 import ExperienceSection   from "./ExperienceSection";
 import SkillsSection       from "./SkillsSection";
-import { mockUser, mockEducation, mockExperience, mockSkills } from "./mockData";
+// adjust path as needed
+import API                 from "../../services/api";        // adjust path as needed
 
-/**
- * Profile — top-level container.
- *
- * In production, replace the mock state initialisers with useEffect API calls:
- *
- *   const { userId } = useContext(AuthContext);
- *   useEffect(() => {
- *     getUserProfile(userId).then(setUser);
- *     getEducation(userId).then(setEducation);
- *     getExperience(userId).then(setExperience);
- *     getSkills(userId).then(setSkills);
- *   }, [userId]);
- */
 const Profile = () => {
-  const [user,       setUser]       = useState(mockUser);
-  const [education,  setEducation]  = useState(mockEducation);
-  const [experience, setExperience] = useState(mockExperience);
-  const [skills,     setSkills]     = useState(mockSkills);
+ // ✅ Fix 2 — already correct, keep as is
+const storedUser = JSON.parse(localStorage.getItem("user"));
+const userId = storedUser?.userID;  // capital D ✓
+
+  const [user,       setUser]       = useState(null);
+  const [education,  setEducation]  = useState([]);
+  const [experience, setExperience] = useState([]);
+  const [skills,     setSkills]     = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState(null);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    setLoading(true);
+    API.get("/user")          // single request to your backend
+      .then(({ data }) => {
+        if (data.status !== "SUCCESS") throw new Error("Failed to load profile");
+
+        const { personalInfo, education, experience, skills } = data.profile;
+        setUser(personalInfo);
+        setEducation(education);
+        setExperience(experience);
+        setSkills(skills);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [userId]);
 
   const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
-  // Profile completion score
   const completion = Math.min(
-    (user.name && user.email ? 25 : 0) +
-    (user.phone              ? 10 : 0) +
-    (education.length        ? 25 : 0) +
-    (experience.length       ? 25 : 0) +
-    (skills.length           ? 15 : 0),
+    (user?.name && user?.email ? 25 : 0) +
+    (user?.phone               ? 10 : 0) +
+    (education.length          ? 25 : 0) +
+    (experience.length         ? 25 : 0) +
+    (skills.length             ? 15 : 0),
     100
   );
 
-  const circumference = 213.628; // 2 * π * 34
+  const circumference = 213.628;
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      // Clear auth state here, then redirect:
       // localStorage.removeItem("token");
       // window.location.href = "/login";
     }
   };
+
+  // ── Guards ──────────────────────────────────────────────────────────────
+  if (loading) return <div className="profile-loading">Loading profile…</div>;
+  if (error)   return <div className="profile-error">Error: {error}</div>;
+  if (!user)   return null;
 
   return (
     <div className="profile-page">
@@ -71,7 +85,6 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Completion ring */}
           <div className="profile-hero__completion">
             <div className="completion-ring">
               <svg viewBox="0 0 80 80" className="completion-ring__svg">
@@ -115,8 +128,7 @@ const Profile = () => {
       {/* ══ Logout ══ */}
       <div className="profile-logout-row">
         <button className="btn btn--logout" onClick={handleLogout}>
-          <svg
-            width="16" height="16" viewBox="0 0 24 24"
+          <svg width="16" height="16" viewBox="0 0 24 24"
             fill="none" stroke="currentColor"
             strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
           >

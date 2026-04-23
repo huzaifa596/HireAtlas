@@ -100,3 +100,25 @@ New user signed up: tester3@gmail.com
  time: 2026-04-19T19:26:40.381Z
 User logged in: tester3@gmail.com
  time: 2026-04-19T19:26:55.398Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T19:32:20.344Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T19:35:37.988Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T23:37:40.574Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T23:48:04.429Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T23:50:48.660Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T23:52:05.720Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T23:55:19.931Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T23:56:49.223Z
+User logged in: tester2@gmail.com
+ time: 2026-04-22T23:59:17.829Z
+User logged in: tester2@gmail.com
+ time: 2026-04-23T00:01:00.990Z
+User logged in: tester2@gmail.com
+ time: 2026-04-23T00:02:33.404Z
