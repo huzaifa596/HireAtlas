@@ -1,0 +1,748 @@
+/* ═══════════════════════════════════════════════════════════════
+   PostDetail.css — HireAtlas · View Post Detail
+   Colors pixel-matched from the HireAtlas UI screenshot:
+     Page bg   : #e8edf5  (soft blue-gray)
+     Banner    : #1c2d5a  (dark navy)
+     Avatar    : #5b8fd9  (medium blue)
+     Accent    : #6aa3e0  (banner link / accent blue)
+     Card bg   : #ffffff
+     Text dark : #1a1f36
+     Text mid  : #4a5068
+     Text muted: #9098b1
+     Icon/label: #2e307a  (dark indigo for section icons)
+     Apply btn : #1c2d5a  (navy, matches banner)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Tokens ─────────────────────────────────────────────────── */
+:root {
+  /* Palette */
+  --ha-page-bg:      #e8edf5;
+  --ha-surface:      #ffffff;
+  --ha-banner:       #1c2d5a;
+  --ha-banner-deep:  #162447;
+  --ha-avatar-bg:    #5b8fd9;
+  --ha-accent:       #6aa3e0;
+  --ha-accent-hover: #4a88c8;
+
+  --ha-navy:         #1c2d5a;
+  --ha-navy-hover:   #162447;
+  --ha-indigo:       #2e307a;
+  --ha-indigo-light: #eef0fb;
+
+  /* Text */
+  --ha-text-dark:    #1a1f36;
+  --ha-text-mid:     #4a5068;
+  --ha-text-muted:   #9098b1;
+
+  /* Borders */
+  --ha-border:       #e2e6f0;
+  --ha-border-hover: #b8c4dd;
+
+  /* Skill level colours */
+  --ha-green:        #16a34a;
+  --ha-green-bg:     #f0fdf4;
+  --ha-blue:         #0284c7;
+  --ha-blue-bg:      #f0f9ff;
+  --ha-amber:        #d97706;
+  --ha-amber-bg:     #fffbeb;
+  --ha-purple:       #7c3aed;
+  --ha-purple-bg:    #faf5ff;
+
+  /* Elevation */
+  --ha-shadow-xs: 0 1px 3px rgba(28, 45, 90, .06);
+  --ha-shadow-sm: 0 2px 8px rgba(28, 45, 90, .08), 0 1px 3px rgba(28, 45, 90, .04);
+  --ha-shadow-md: 0 4px 16px rgba(28, 45, 90, .1),  0 2px 6px rgba(28, 45, 90, .06);
+
+  /* Shape */
+  --ha-r-sm: 8px;
+  --ha-r-md: 12px;
+  --ha-r-lg: 16px;
+
+  /* Motion */
+  --ha-ease: 200ms cubic-bezier(.4, 0, .2, 1);
+
+  /* Font — matches existing HireAtlas */
+  --ha-font: 'Plus Jakarta Sans', 'Gilroy', system-ui, sans-serif;
+}
+
+/* ── Reset ──────────────────────────────────────────────────── */
+.ha-root {
+  min-height: 100vh;
+  background: var(--ha-page-bg);
+  font-family: var(--ha-font);
+  color: var(--ha-text-dark);
+  padding-bottom: 80px;
+}
+
+/* ── Page wrapper — matches the ~920px centred column ──────── */
+.ha-page-wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes ha-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ha-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ha-pop {
+  from { opacity: 0; transform: scale(.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── State screens ──────────────────────────────────────────── */
+.ha-state-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 70px);
+  gap: 12px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.ha-state-emoji {
+  font-size: 52px;
+  line-height: 1;
+  animation: ha-pop .35s ease;
+}
+
+.ha-state-title {
+  margin: 4px 0 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--ha-text-dark);
+}
+
+.ha-state-msg {
+  margin: 0;
+  font-size: .9375rem;
+  color: var(--ha-text-mid);
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+.ha-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid var(--ha-border);
+  border-top-color: var(--ha-avatar-bg);
+  border-radius: 50%;
+  animation: ha-spin .75s linear infinite;
+}
+
+/* ── Back button ────────────────────────────────────────────── */
+.ha-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 20px;
+  padding: 7px 14px 7px 10px;
+  background: var(--ha-surface);
+  border: 1.5px solid var(--ha-border);
+  border-radius: var(--ha-r-sm);
+  color: var(--ha-text-mid);
+  font-family: var(--ha-font);
+  font-size: .8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--ha-shadow-xs);
+  transition: all var(--ha-ease);
+  width: fit-content;
+}
+
+.ha-back-btn:hover {
+  border-color: var(--ha-navy);
+  color: var(--ha-navy);
+  background: var(--ha-indigo-light);
+  transform: translateX(-2px);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BANNER — dark navy header block, pixel-matched to profile banner
+   ══════════════════════════════════════════════════════════════ */
+.ha-banner {
+  background: var(--ha-banner);
+  border-radius: var(--ha-r-lg);
+  padding: 32px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: var(--ha-shadow-md);
+  animation: ha-fade-up .4s ease both;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle grid-dot texture like the banner */
+.ha-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+.ha-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.ha-banner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.ha-banner-title {
+  margin: 0;
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+
+.ha-banner-company {
+  margin: 0;
+  font-size: .9375rem;
+  font-weight: 500;
+  color: var(--ha-accent);   /* bright blue, same as "Software Engineer @ Systems Limited" */
+}
+
+.ha-banner-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ha-banner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .75rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.65);
+}
+
+.ha-banner-chip--remote {
+  color: #7dd3a8;
+}
+
+.ha-banner-right {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   AVATAR — blue circle with white initials, matches "AT" circles
+   ══════════════════════════════════════════════════════════════ */
+.ha-avatar {
+  border-radius: 50%;
+  background: var(--ha-avatar-bg);
+  color: #ffffff;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: .02em;
+  /* ring — matches the white ring visible in the screenshot */
+  box-shadow: 0 0 0 3px rgba(255,255,255,.25);
+}
+
+.ha-avatar--lg {
+  width: 72px;
+  height: 72px;
+  font-size: 1.625rem;
+}
+
+.ha-avatar--md {
+  width: 52px;
+  height: 52px;
+  font-size: 1.1rem;
+}
+
+.ha-avatar--sm {
+  width: 44px;
+  height: 44px;
+  font-size: .9375rem;
+  box-shadow: none;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.ha-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: var(--ha-r-sm);
+  font-family: var(--ha-font);
+  font-size: .9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--ha-ease);
+  white-space: nowrap;
+}
+
+/* Primary navy apply button */
+.ha-btn--apply {
+  background: var(--ha-accent);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(106, 163, 224, .4);
+}
+
+.ha-btn--apply:hover {
+  background: var(--ha-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(106, 163, 224, .5);
+}
+
+.ha-btn--apply:active {
+  transform: translateY(0);
+}
+
+/* Outline button — matches the white "Edit" button style */
+.ha-btn--outline {
+  background: var(--ha-surface);
+  color: var(--ha-text-mid);
+  border: 1.5px solid var(--ha-border);
+  box-shadow: var(--ha-shadow-xs);
+}
+
+.ha-btn--outline:hover {
+  border-color: var(--ha-navy);
+  color: var(--ha-navy);
+  background: var(--ha-indigo-light);
+}
+
+.ha-btn--lg {
+  padding: 13px 32px;
+  font-size: 1rem;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   WHITE CARDS — matches the "Personal Info" card style
+   ══════════════════════════════════════════════════════════════ */
+.ha-card {
+  background: var(--ha-surface);
+  border-radius: var(--ha-r-lg);
+  box-shadow: var(--ha-shadow-sm);
+  overflow: hidden;
+  animation: ha-fade-up .42s ease both;
+}
+
+.ha-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 28px 0;
+  border-bottom: 1px solid var(--ha-border);
+  padding-bottom: 18px;
+}
+
+.ha-card-icon {
+  font-size: 1.125rem;
+  color: var(--ha-indigo);
+  flex-shrink: 0;
+}
+
+.ha-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ha-text-dark);
+  letter-spacing: -.01em;
+}
+
+.ha-card-body {
+  padding: 24px 28px;
+}
+
+/* flat variant — no header, just body padding */
+.ha-card--flat {
+  padding: 22px 28px;
+}
+
+.ha-card--flat .ha-card-body {
+  padding: 0;
+}
+
+/* ── Overview meta grid ──────────────────────────────────────── */
+.ha-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.ha-meta-pill {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-right: 1px solid var(--ha-border);
+  transition: background var(--ha-ease);
+}
+
+.ha-meta-pill:last-child {
+  border-right: none;
+}
+
+.ha-meta-pill:hover {
+  background: #f8f9fd;
+}
+
+.ha-meta-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ha-meta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ha-meta-label {
+  font-size: .6875rem;
+  font-weight: 700;
+  color: var(--ha-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.ha-meta-value {
+  font-size: .9375rem;
+  font-weight: 700;
+  color: var(--ha-text-dark);
+  line-height: 1.3;
+}
+
+/* ── Description ─────────────────────────────────────────────── */
+.ha-description {
+  line-height: 1.8;
+}
+
+.ha-description p {
+  margin: 0 0 14px;
+  font-size: .9375rem;
+  color: var(--ha-text-mid);
+}
+
+.ha-description p:last-child {
+  margin-bottom: 0;
+}
+
+.ha-empty {
+  margin: 0;
+  font-size: .9375rem;
+  color: var(--ha-text-muted);
+  font-style: italic;
+}
+
+/* ── Skills grid ─────────────────────────────────────────────── */
+.ha-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.ha-skill-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 16px;
+  background: #f8f9fd;
+  border: 1.5px solid var(--ha-border);
+  border-radius: var(--ha-r-md);
+  transition: border-color var(--ha-ease), transform var(--ha-ease), box-shadow var(--ha-ease);
+}
+
+.ha-skill-chip:hover {
+  border-color: var(--ha-avatar-bg);
+  transform: translateY(-2px);
+  box-shadow: var(--ha-shadow-sm);
+}
+
+.ha-skill-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ha-skill-name {
+  font-size: .9375rem;
+  font-weight: 700;
+  color: var(--ha-text-dark);
+}
+
+.ha-skill-cat {
+  font-size: .75rem;
+  color: var(--ha-text-muted);
+  font-weight: 500;
+}
+
+/* Level badges */
+.ha-skill-badge {
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: .6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.lvl-beginner     { background: var(--ha-green-bg);  color: var(--ha-green);  }
+.lvl-intermediate { background: var(--ha-blue-bg);   color: var(--ha-blue);   }
+.lvl-advanced     { background: var(--ha-amber-bg);  color: var(--ha-amber);  }
+.lvl-expert       { background: var(--ha-purple-bg); color: var(--ha-purple); }
+.lvl-default      { background: #f3f4f6; color: var(--ha-text-muted); }
+
+/* ── Qualifications list ─────────────────────────────────────── */
+.ha-quals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ha-qual-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #f8f9fd;
+  border: 1.5px solid var(--ha-border);
+  border-radius: var(--ha-r-md);
+  transition: border-color var(--ha-ease), transform var(--ha-ease);
+}
+
+.ha-qual-row:hover {
+  border-color: var(--ha-avatar-bg);
+  transform: translateX(4px);
+}
+
+.ha-qual-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ha-avatar-bg);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.ha-qual-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ha-qual-degree {
+  font-size: .9375rem;
+  font-weight: 700;
+  color: var(--ha-text-dark);
+}
+
+.ha-qual-grade {
+  font-size: .8125rem;
+  color: var(--ha-text-mid);
+}
+
+.ha-qual-grade strong {
+  color: var(--ha-text-dark);
+}
+
+/* ── Posted by / Creator ─────────────────────────────────────── */
+.ha-creator-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ha-creator-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ha-creator-name {
+  font-size: .9375rem;
+  font-weight: 700;
+  color: var(--ha-text-dark);
+}
+
+.ha-creator-email {
+  font-size: .8125rem;
+  color: var(--ha-avatar-bg);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--ha-ease);
+}
+
+.ha-creator-email:hover {
+  color: var(--ha-accent-hover);
+  text-decoration: underline;
+}
+
+/* ── Apply footer CTA ────────────────────────────────────────── */
+.ha-apply-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 28px 32px;
+  background: var(--ha-surface);
+  border-radius: var(--ha-r-lg);
+  border: 1.5px solid var(--ha-border);
+  box-shadow: var(--ha-shadow-sm);
+  margin-bottom: 12px;
+}
+
+.ha-apply-footer-text h3 {
+  margin: 0 0 4px;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--ha-text-dark);
+}
+
+.ha-apply-footer-text p {
+  margin: 0;
+  font-size: .875rem;
+  color: var(--ha-text-mid);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════ */
+
+/* Tablet: 2-col meta + 2-col skills */
+@media (max-width: 840px) {
+  .ha-meta-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ha-meta-pill {
+    border-bottom: 1px solid var(--ha-border);
+    border-right: none;
+  }
+
+  .ha-meta-pill:nth-child(odd) {
+    border-right: 1px solid var(--ha-border);
+  }
+
+  .ha-meta-pill:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  .ha-skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ha-banner-title {
+    font-size: 1.375rem;
+  }
+}
+
+/* Mobile: single column */
+@media (max-width: 560px) {
+  .ha-page-wrap {
+    padding: 0 12px;
+    gap: 12px;
+  }
+
+  .ha-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 22px;
+  }
+
+  .ha-banner-right {
+    width: 100%;
+  }
+
+  .ha-banner-right .ha-btn--apply {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ha-banner-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .ha-avatar--lg {
+    width: 58px;
+    height: 58px;
+    font-size: 1.3rem;
+  }
+
+  .ha-banner-title {
+    font-size: 1.25rem;
+  }
+
+  .ha-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ha-meta-pill {
+    border-right: none;
+    border-bottom: 1px solid var(--ha-border);
+  }
+
+  .ha-meta-pill:last-child {
+    border-bottom: none;
+  }
+
+  .ha-skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ha-card-header {
+    padding: 16px 18px 14px;
+  }
+
+  .ha-card-body {
+    padding: 18px;
+  }
+
+  .ha-card--flat {
+    padding: 16px 18px;
+  }
+
+  .ha-apply-footer {
+    flex-direction: column;
+    padding: 20px 18px;
+  }
+
+  .ha-apply-footer .ha-btn--apply {
+    width: 100%;
+    justify-content: center;
+  }
+}
