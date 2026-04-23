@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Search, Bell, User, Briefcase, FileText, Menu, X } from 'lucide-react';
-
+import API  from "../../services/api"; 
 export default function Navbar({
   activeTab,
   setActiveTab,
@@ -11,9 +11,18 @@ export default function Navbar({
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const mobileInputRef = useRef(null);
+  const [username, setUsername] = useState(""); 
+
+  useEffect(() => {
+    API.get("/user")
+      .then(({ data }) => setUsername(data.profile.personalInfo.name))
+      .catch((err) => console.error("Error fetching user name:", err));
+  }, []);
+
 
   // Auto-focus when mobile search opens
   useEffect(() => {
+    
     if (mobileSearchOpen && mobileInputRef.current) {
       mobileInputRef.current.focus();
     }
@@ -92,7 +101,7 @@ export default function Navbar({
             style={{ cursor: 'pointer' }}
           >
             <div className="avatar"><User size={18} /></div>
-            <span className="avatar-name">John Doe</span>
+            <span className="avatar-name">{username}</span>
           </div>
 
           {/* MOBILE: Hamburger */}

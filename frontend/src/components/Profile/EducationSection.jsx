@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import SectionCard from "./SectionCard";
 import TimelineItem from "./TimelineItem";
 import FormInput from "./FormInput";
-import { levelOptions } from "./mockData";
-// import { addEducation, updateEducation, deleteEducation } from "../services/profileApi";
 
+// import { addEducation, updateEducation, deleteEducation } from "../services/profileApi";
+const levelOptions = ["Matriculation","Intermediate","Bachelor's","Master's","PhD","Diploma","Other"];
 const EMPTY = {
   instituteName: "", level: "", degreeName: "",
   grade: "", startDate: "", endDate: "",

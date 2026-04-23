@@ -9,9 +9,7 @@ import SkillsSection       from "./SkillsSection";
 import API                 from "../../services/api";        // adjust path as needed
 
 const Profile = () => {
- // ✅ Fix 2 — already correct, keep as is
-const storedUser = JSON.parse(localStorage.getItem("user"));
-const userId = storedUser?.userID;  // capital D ✓
+ 
 
   const [user,       setUser]       = useState(null);
   const [education,  setEducation]  = useState([]);
@@ -21,22 +19,27 @@ const userId = storedUser?.userID;  // capital D ✓
   const [error,      setError]      = useState(null);
 
   useEffect(() => {
-    if (!userId) return;
+  
 
     setLoading(true);
-    API.get("/user")          // single request to your backend
-      .then(({ data }) => {
-        if (data.status !== "SUCCESS") throw new Error("Failed to load profile");
+     
+  API.get("/user")
+    .then(({ data }) => {
+      if (data.status !== "SUCCESS") throw new Error("Failed to load profile");
 
-        const { personalInfo, education, experience, skills } = data.profile;
-        setUser(personalInfo);
-        setEducation(education);
-        setExperience(experience);
-        setSkills(skills);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [userId]);
+      const { personalInfo, education, experience, skills } = data.profile;
+      setUser(personalInfo);
+      setEducation(education);
+      setExperience(experience);
+      setSkills(skills);
+    })
+    .catch((err) => {
+      console.error("Error fetching profile:", err);
+      setError(err.message);
+    })
+    .finally(() => setLoading(false));
+}, []);
+
 
   const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";

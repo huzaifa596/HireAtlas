@@ -3,10 +3,14 @@ import React, { useState } from "react";
 import SectionCard from "./SectionCard";
 import SkillBadge from "./SkillBadge";
 import FormInput from "./FormInput";
-import { skillOptions, categoryOptions, proficiencyOptions } from "./mockData";
+
 // import { addSkill, updateSkill, deleteSkill } from "../services/profileApi";
 
 const EMPTY_SKILL = { skillName: "", category: "", proficiency: "Beginner" };
+
+const skillOptions       = ["React.js","Vue.js","Angular","JavaScript","TypeScript","HTML5","CSS / Tailwind","Node.js","Express.js","Python","Django","FastAPI","Java","Spring Boot","SQL Server","PostgreSQL","MySQL","MongoDB","Redis","Git / GitHub","Docker","Kubernetes","AWS","Azure","Figma","Jira"];
+const categoryOptions    = ["Frontend","Backend","Database","Tools","DevOps","Design","Other"];
+const proficiencyOptions = ["Beginner","Intermediate","Expert"];
 
 const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
   const [skills,      setSkills]      = useState(initialSkills);
