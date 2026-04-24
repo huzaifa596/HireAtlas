@@ -121,7 +121,7 @@ export default function PostDetail({ postId, onBack }) {
   if (status === "loading") {
     return (
       <>
-        <Navbar />
+        
         <div className="ha-state-screen">
           <div className="ha-spinner" />
           <p className="ha-state-msg">Loading job details…</p>
@@ -134,7 +134,7 @@ export default function PostDetail({ postId, onBack }) {
   if (status === "not_found") {
     return (
       <>
-        <Navbar />
+        
         <div className="ha-state-screen">
           <div className="ha-state-emoji">🔍</div>
           <h2 className="ha-state-title">Post not found</h2>
@@ -153,7 +153,7 @@ export default function PostDetail({ postId, onBack }) {
   if (status === "error") {
     return (
       <>
-        <Navbar />
+        
         <div className="ha-state-screen">
           <div className="ha-state-emoji">⚠️</div>
           <h2 className="ha-state-title">Something went wrong</h2>
@@ -176,21 +176,12 @@ export default function PostDetail({ postId, onBack }) {
 
   return (
     <>
-      <Navbar />
+      
 
       <main className="ha-root">
         <div className="ha-page-wrap">
 
-          {/* ── Back button — calls onBack instead of navigate(-1) ── */}
-          <button className="ha-back-btn" onClick={onBack}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" strokeWidth="2.5"
-                 strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 5l-7 7 7 7" />
-            </svg>
-            Back to Posts
-          </button>
-
+        
           {/* ── Banner ── */}
           <div className="ha-banner">
             <div className="ha-banner-left">

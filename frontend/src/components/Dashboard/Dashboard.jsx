@@ -6,14 +6,13 @@ import MobileMenu from './MobileMenu';
 import PostDetail from '../PostDetails/PostDetail'; // ← ADD
 import './Dashboard.css';
 import API from '../../services/api.js';
-
 export default function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [status, setStatus] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('posts');
-  const [selectedPostId, setSelectedPostId] = useState(null); // ← ADD
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
@@ -24,7 +23,6 @@ export default function Dashboard() {
         const res = await API.get('dashboard/posts');
         const { status, posts } = res.data;
 
-        // Map DB columns to JobCard expected shape
         const mapped = posts.map((p) => ({
           id:              p.postId,
           title:           p.jobTitle,
@@ -65,21 +63,16 @@ export default function Dashboard() {
     );
   }, [searchQuery, posts]);
 
-  // ← ADD: swap entire view when a card is clicked
-  if (selectedPostId) {
-    return (
-      <PostDetail
-        postId={selectedPostId}
-        onBack={() => setSelectedPostId(null)}
-      />
-    );
-  }
+    const handleSetActiveTab = (tab) => {
+    setSelectedPostId(null);   // ← exit detail view when switching tabs
+    setActiveTab(tab);
+  };
 
   return (
     <div className="dashboard-root">
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleSetActiveTab}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         toggleMobileMenu={toggleMobileMenu}
@@ -99,7 +92,13 @@ export default function Dashboard() {
         <aside className="sidebar sidebar-left" />
 
         <section className="content-center">
-          {activeTab === 'profile' ? (
+          {/* ── Post Detail view ── */}
+          {selectedPostId ? (
+            <PostDetail
+              postId={selectedPostId}
+              onBack={() => setSelectedPostId(null)}
+            />
+          ) : activeTab === 'profile' ? (
             <Profile />
           ) : (
             <>
@@ -124,7 +123,7 @@ export default function Dashboard() {
                       key={job.id}
                       job={job}
                       index={i}
-                      onViewPost={setSelectedPostId} // ← ADD
+                      onViewPost={setSelectedPostId}
                     />
                   ))}
                 </div>

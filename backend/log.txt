@@ -146,6 +146,3 @@ User logged in: l240894@lhr.nu.edu.pk
  time: 2026-04-23T16:52:46.460Z
 User logged in: l240895@lhr.nu.edu.pk
  time: 2026-04-23T16:53:26.588Z
->>>>>>> e0e71a4a4d9cb0148b1356b2778e4703c20882eb
-User logged in: tester2@gmail.com
- time: 2026-04-23T22:03:50.050Z
