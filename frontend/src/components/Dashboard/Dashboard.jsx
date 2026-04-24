@@ -3,6 +3,7 @@ import Navbar from './Navbar';
 import JobCard from './JobCard';
 import Profile from '../Profile/Profile'
 import MobileMenu from './MobileMenu';
+import PostDetail from '../PostDetails/PostDetail'; // ← ADD
 import './Dashboard.css';
 import API from '../../services/api.js';
 
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('posts');
+  const [selectedPostId, setSelectedPostId] = useState(null); // ← ADD
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
@@ -63,6 +65,16 @@ export default function Dashboard() {
     );
   }, [searchQuery, posts]);
 
+  // ← ADD: swap entire view when a card is clicked
+  if (selectedPostId) {
+    return (
+      <PostDetail
+        postId={selectedPostId}
+        onBack={() => setSelectedPostId(null)}
+      />
+    );
+  }
+
   return (
     <div className="dashboard-root">
       <Navbar
@@ -87,33 +99,38 @@ export default function Dashboard() {
         <aside className="sidebar sidebar-left" />
 
         <section className="content-center">
-         {activeTab === 'profile' ? (
-          <Profile />
-        ) : (
-          <>
-            <div className="content-header">
-              <h1 className="content-title">
-                {activeTab === 'posts' ? 'My Job Posts' : 'My Applications'}
-              </h1>
-              <span className="content-count">
-                {filteredJobs.length} result{filteredJobs.length !== 1 ? 's' : ''}
-              </span>
-            </div>
+          {activeTab === 'profile' ? (
+            <Profile />
+          ) : (
+            <>
+              <div className="content-header">
+                <h1 className="content-title">
+                  {activeTab === 'posts' ? 'My Job Posts' : 'My Applications'}
+                </h1>
+                <span className="content-count">
+                  {filteredJobs.length} result{filteredJobs.length !== 1 ? 's' : ''}
+                </span>
+              </div>
 
-            {filteredJobs.length === 0 ? (
-              <div className="empty-state">
-                <p className="empty-title">No jobs found</p>
-                <p className="empty-sub">Try a different search term</p>
-              </div>
-            ) : (
-              <div className="jobs-list">
-                {filteredJobs.map((job, i) => (
-                  <JobCard key={job.id} job={job} index={i} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
+              {filteredJobs.length === 0 ? (
+                <div className="empty-state">
+                  <p className="empty-title">No jobs found</p>
+                  <p className="empty-sub">Try a different search term</p>
+                </div>
+              ) : (
+                <div className="jobs-list">
+                  {filteredJobs.map((job, i) => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      index={i}
+                      onViewPost={setSelectedPostId} // ← ADD
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </section>
 
         <aside className="sidebar sidebar-right" />

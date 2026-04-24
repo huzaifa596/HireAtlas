@@ -7,7 +7,7 @@ const TYPE_COLORS = {
   'Remote':     { bg: '#dcfce7', color: '#166534' },
 };
 
-export default function JobCard({ job, index }) {
+export default function JobCard({ job, index, onViewPost }) { // ← ADD onViewPost
   const typeStyle = TYPE_COLORS[job.type] || { bg: '#f1f5f9', color: '#475569' };
   const initial = job.company?.charAt(0).toUpperCase() ?? '?';
 
@@ -72,7 +72,10 @@ export default function JobCard({ job, index }) {
           <Users size={14} />
           Posted by {job.postedBy ?? 'Unknown'}
         </span>
-        <button className="view-btn">
+        <button
+          className="view-btn"
+          onClick={() => onViewPost(job.id)} // ← job.id not job.postId (mapped in Dashboard)
+        >
           View Details <ChevronRight size={15} />
         </button>
       </div>
