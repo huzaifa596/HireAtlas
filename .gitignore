@@ -3,3 +3,4 @@ dist
 dist-ssr
 *.local
 frontend/src/components/LoginSignup/SignIn/SignInForm.jsx
+eslint.config.js

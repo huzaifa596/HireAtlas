@@ -132,6 +132,12 @@ User logged in: tester2@gmail.com
  time: 2026-04-23T00:24:42.685Z
 User logged in: tester2@gmail.com
  time: 2026-04-23T00:26:53.526Z
+<<<<<<< HEAD
+User logged in: tester2@gmail.com
+ time: 2026-04-23T20:54:17.866Z
+User logged in: tester2@gmail.com
+ time: 2026-04-23T22:00:18.690Z
+=======
 User logged in: l240894@lhr.nu.edu.pk
  time: 2026-04-23T16:29:57.470Z
 User logged in: l240894@lhr.nu.edu.pk
@@ -140,11 +146,5 @@ User logged in: l240894@lhr.nu.edu.pk
  time: 2026-04-23T16:52:46.460Z
 User logged in: l240895@lhr.nu.edu.pk
  time: 2026-04-23T16:53:26.588Z
-User logged in: l240894@lhr.nu.edu.pk
- time: 2026-04-23T17:08:52.065Z
-User logged in: l240895@lhr.nu.edu.pk
- time: 2026-04-23T17:15:56.573Z
-User logged in: l240895@lhr.nu.edu.pk
- time: 2026-04-23T17:18:59.596Z
-User logged in: l240895@lhr.nu.edu.pk
- time: 2026-04-23T17:19:50.609Z
+User logged in: tester2@gmail.com
+ time: 2026-04-24T21:32:30.017Z
