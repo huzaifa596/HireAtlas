@@ -274,7 +274,7 @@ BEGIN
     WHERE postId = @postId;  
   
 END;  
-
+GO;
 -- ================================================================================================
 -- POST: GET OWN POSTS
 -- FIX: Replaced Category/EstimateSalary with correct DDL columns
