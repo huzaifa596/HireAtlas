@@ -78,7 +78,7 @@
 /* ─── Sections Scroll Area ─── */
 .filter-sidebar__sections {
   overflow-y: auto;
-  /* max-height: calc(100vh - 200px); */
+  max-height: calc(100vh - 200px);
   padding: 2px 0 4px;
 }
 
