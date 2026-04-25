@@ -1,0 +1,281 @@
+/* FilterSidebar.css */
+
+/* ─── Sidebar Container ─── */
+.filter-sidebar {
+  width: 252px;
+  min-width: 236px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e8edf5;
+  box-shadow: 0 2px 16px rgba(30, 58, 95, 0.07);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Geist', 'DM Sans', 'Segoe UI', sans-serif;
+  align-self: flex-start;
+  position: sticky;
+  top: 24px;
+}
+
+/* ─── Header ─── */
+.filter-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 13px;
+}
+
+.filter-sidebar__header-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.filter-sidebar__header-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a5f;
+  letter-spacing: -0.01em;
+}
+
+.filter-sidebar__total-badge {
+  background: #2563eb;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 1px 7px;
+  line-height: 18px;
+}
+
+.filter-sidebar__clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background-color 0.15s;
+}
+
+.filter-sidebar__clear-btn:hover {
+  background-color: #eff6ff;
+}
+
+/* ─── Divider ─── */
+.filter-sidebar__divider {
+  height: 1px;
+  background: #e8edf5;
+  margin: 0 14px;
+}
+
+/* ─── Sections Scroll Area ─── */
+.filter-sidebar__sections {
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding: 2px 0 4px;
+}
+
+/* ─── Individual Section ─── */
+.filter-section {
+  border-bottom: 1px solid #f0f4f9;
+}
+
+.filter-section__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.filter-section__label-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.filter-section__label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1e3a5f;
+  letter-spacing: 0.01em;
+}
+
+.filter-section__badge {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 0 6px;
+  line-height: 16px;
+}
+
+/* ─── Chevron Icon ─── */
+.chevron-icon {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+.chevron-icon--open {
+  transform: rotate(180deg);
+}
+
+/* ─── Option List ─── */
+.filter-section__options {
+  padding: 1px 18px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ─── Option Row ─── */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  padding: 4px 2px;
+  user-select: none;
+}
+
+/* ─── Control (Checkbox / Radio) ─── */
+.filter-control {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #d1d9e6;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.13s, background 0.13s;
+}
+
+.filter-control--radio {
+  border-radius: 50%;
+}
+
+.filter-control--checked {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.filter-control__radio-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  display: block;
+}
+
+/* ─── Option Text ─── */
+.filter-option__text {
+  font-size: 12.5px;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1.4;
+  transition: color 0.1s;
+}
+
+.filter-option__text--active {
+  color: #1e3a5f;
+  font-weight: 600;
+}
+
+/* ─── Location Input ─── */
+.location-input__wrapper {
+  padding: 2px 18px 12px;
+}
+
+.location-input__container {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: #f8fafc;
+  transition: border-color 0.15s;
+}
+
+.location-input__container:focus-within {
+  border-color: #2563eb;
+}
+
+.location-input__field {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12.5px;
+  color: #1e3a5f;
+  font-family: inherit;
+}
+
+.location-input__clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 11px;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.location-input__clear:hover {
+  color: #6b7280;
+}
+
+/* ─── Apply Button Area ─── */
+.filter-sidebar__apply-area {
+  padding: 12px 14px 16px;
+  border-top: 1px solid #e8edf5;
+}
+
+.filter-sidebar__apply-btn {
+  width: 100%;
+  background: #1e3a5f;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+  transition: background-color 0.15s;
+}
+
+.filter-sidebar__apply-btn:hover {
+  background: #2a4a73;
+}
+
+.filter-sidebar__apply-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ─── Search Icon Color ─── */
+.search-icon {
+  flex-shrink: 0;
+  color: #9ca3af;
+}

@@ -4,6 +4,7 @@ import JobCard from './JobCard';
 import Profile from '../Profile/Profile'
 import MobileMenu from './MobileMenu';
 import PostDetail from '../PostDetails/PostDetail'; // ← ADD
+import FilterSidebar from '../filterTab/FilterSidebar';
 import './Dashboard.css';
 import API from '../../services/api.js';
 export default function Dashboard() {
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('posts');
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const [filterParams,SetFilterParams]=useState({})
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
@@ -89,7 +91,11 @@ export default function Dashboard() {
       />
 
       <main className="dashboard-main">
-        <aside className="sidebar sidebar-left" />
+        <aside className="sidebar sidebar-left" >
+          <FilterSidebar onApply={(params)=>{
+            SetFilterParams(params)
+          }}/>
+        </aside>
 
         <section className="content-center">
           {/* ── Post Detail view ── */}

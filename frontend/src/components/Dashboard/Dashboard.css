@@ -348,13 +348,20 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
    ============================================= */
 .dashboard-main {
   display: flex;
-  justify-content: center; /* Centers content horizontally */
+  justify-content: center;
   padding-top: calc(var(--navbar-h) + 32px);
   padding-bottom: 48px;
   min-height: 100vh;
 }
 
-.sidebar-left,
+.sidebar-left {
+  flex: 0 0 auto;
+  min-width: 252px;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 20px;
+}
+
 .sidebar-right {
   flex: 1; /* Equal growth */
   min-width: 0;
@@ -667,15 +674,15 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
 
 /* ── 1024px: Collapse sidebars ── */
 @media (max-width: 1024px) {
-  .sidebar-left,
+  .sidebar-left,   /* ← Already exists, hides both sidebars */
   .sidebar-right {
-    display: none; /* Hide empty sidebars */
+    display: none;
   }
 
   .content-center {
-    flex: 1; /* Take full width */
+    flex: 1;
     max-width: 900px;
-    margin: 0 auto; /* Center with auto margins */
+    margin: 0 auto;
   }
 }
 
