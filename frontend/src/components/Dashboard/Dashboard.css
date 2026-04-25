@@ -44,6 +44,8 @@ input  { font-family: inherit; border: none; outline: none; background: none; }
 .dashboard-root {
   min-height: 100vh;
   background: var(--bg-gradient);
+  display:flex;
+  justify-content: center;
 }
 
 /* =============================================

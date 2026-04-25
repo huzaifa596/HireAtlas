@@ -1,6 +1,6 @@
 // FilterSidebar.jsx
 import { useState } from "react";
-import "./FilterSidebar.css";
+import "./filterTab.css";
 
 // ─── Salary buckets ───────────────────────────────────────────────────────
 const SALARY_BUCKETS = [

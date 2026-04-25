@@ -1,5 +1,8 @@
 /* FilterSidebar.css */
-
+/* Temporary debug - add to FilterSidebar.css */
+:root {
+  --navbar-h: 70px;  /* Redefine here if Dashboard.css :root isn't loaded first */
+}
 /* ─── Sidebar Container ─── */
 .filter-sidebar {
   width: 252px;
@@ -13,8 +16,9 @@
   overflow: hidden;
   font-family: 'Geist', 'DM Sans', 'Segoe UI', sans-serif;
   align-self: flex-start;
-  position: sticky;
-  top: 24px;
+  /* position: sticky; */
+  top: calc(var(--navbar-h) + 32px);
+  margin-top: 52px;
 }
 
 /* ─── Header ─── */
@@ -74,7 +78,7 @@
 /* ─── Sections Scroll Area ─── */
 .filter-sidebar__sections {
   overflow-y: auto;
-  max-height: calc(100vh - 200px);
+  /* max-height: calc(100vh - 200px); */
   padding: 2px 0 4px;
 }
 
