@@ -735,9 +735,9 @@ END;
         fieldOfStudy,
         minGrade
     FROM postQualification                  -- FIX: was Post_Qualification
-    WHERE postId = @postId;
+    WHERE postId = @postId
 END;
-GO
+GO;
 
 -- ================================================================================================
 -- POST: GET OWN POSTS
