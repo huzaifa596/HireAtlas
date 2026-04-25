@@ -52,10 +52,36 @@ const getSinglePost = async (req, res) => {
 
 
 const insert_into_post=async (req,res)=>{
+ 
+    try{
+    const {companyName,jobTitle,description,location,empType,jobCategory,experienceLevel,minsalary,maxsalary,skillsjson,qualjson,isRemote}=req.body
+
+    const pool   = await poolPromise;
+    const result=await pool.request()
+    .input('creatorId' ,sql.BigInt,req.user.userID)
+    .input('companyName',sql.VarChar(200),companyName)
+    .input('jobTitle',sql.varchar(150),jobTitle)
+    .input('empType',sql.varchar(50),empType)
+    .input('jobCategory',sql.varchar(100),jobCategory)
+    .input('experienceLevel',sql.varchar(100),experienceLevel)
+    .input('minsalary',sql.decimal(18,2),minsalary)
+    .input('maxsalary',sql.decimal(18,2),maxsalary)
+    .input('minsalary',sql.decimal(18,2),minsalary)
+    .input('isRemote',sql.Bit,isRemote)
+    .input('skillsjson',sql.NVarChar(MAX),skillsjson)
+    .input('qualjson',sql.NVarChar(MAX),qualjson)
+    .execute('sp_CreatePost');
+
+    const response=result.recordset[]
+    }
+    catch(err)
+    {
+        console.log('ERROR:',err);
+    }
 
     
 }
 
 
 
-module.exports = { getPosts, getSinglePost };
+module.exports = { getPosts, getSinglePost,insert_into_post };
