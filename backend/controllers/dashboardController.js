@@ -50,4 +50,12 @@ const getSinglePost = async (req, res) => {
     }
 };
 
+
+const insert_into_post=async (req,res)=>{
+
+    
+}
+
+
+
 module.exports = { getPosts, getSinglePost };
