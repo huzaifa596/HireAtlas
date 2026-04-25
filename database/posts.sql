@@ -16,29 +16,96 @@ CREATE PROCEDURE sp_CreatePost
     @minSalary       DECIMAL(18,2) = NULL,
     @maxSalary       DECIMAL(18,2) = NULL,
     @salCurrency     VARCHAR(10)   = 'PKR',
-    @isRemote        BIT           = 0
+    @isRemote        BIT           = 0,
+
+    -- Skills and qualification as JSON strings
+    @skillsJson      NVARCHAR(MAX) = NULL,
+    @qualJson        NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- ── Validations ────────────────────────────────────────────────
     IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @creatorId)
     BEGIN
-        SELECT 'USER_NOT_FOUND' AS Status, NULL AS PostID;
-        RETURN;
+        SELECT 'USER_NOT_FOUND' AS Status, NULL AS PostId; RETURN;
     END
 
-    INSERT INTO post (
-        creatorId, companyName, jobTitle, description, location,
-        empType, jobCategory, experienceLevel,
-        minSalary, maxSalary, salCurrency, isRemote
-    )
-    VALUES (
-        @creatorId, @companyName, @jobTitle, @description, @location,
-        @empType, @jobCategory, @experienceLevel,
-        @minSalary, @maxSalary, @salCurrency, @isRemote
-    );
+    IF @empType IS NOT NULL AND @empType NOT IN
+       ('Full-Time','Part-Time','Contract','Freelance','Internship')
+    BEGIN
+        SELECT 'INVALID_EMP_TYPE' AS Status, NULL AS PostId; RETURN;
+    END
 
-    SELECT 'SUCCESS' AS Status, SCOPE_IDENTITY() AS PostID;
+    IF @experienceLevel IS NOT NULL AND @experienceLevel NOT IN
+       ('Entry','Mid','Senior','Lead','Executive')
+    BEGIN
+        SELECT 'INVALID_EXPERIENCE_LEVEL' AS Status, NULL AS PostId; RETURN;
+    END
+
+    IF @minSalary IS NOT NULL AND @maxSalary IS NOT NULL AND @minSalary > @maxSalary
+    BEGIN
+        SELECT 'INVALID_SALARY_RANGE' AS Status, NULL AS PostId; RETURN;
+    END
+
+    -- ── Main Logic (all or nothing) ────────────────────────────────
+    BEGIN TRANSACTION;
+    BEGIN TRY
+
+        INSERT INTO post (
+            creatorId, companyName, jobTitle, description, location,
+            empType, jobCategory, experienceLevel,
+            minSalary, maxSalary, salCurrency, isRemote
+        )
+        VALUES (
+            @creatorId, @companyName, @jobTitle, @description, @location,
+            @empType, @jobCategory, @experienceLevel,
+            @minSalary, @maxSalary, @salCurrency, @isRemote
+        );
+
+        DECLARE @newPostId BIGINT = SCOPE_IDENTITY();
+
+        -- Insert skills if provided
+        IF @skillsJson IS NOT NULL
+        BEGIN
+            INSERT INTO postSkill (postId, skillId, requiredLevel)
+            SELECT
+                @newPostId,
+                skillId,
+                ISNULL(requiredLevel, 'Beginner')
+            FROM OPENJSON(@skillsJson)
+            WITH (
+                skillId       BIGINT      '$.skillId',
+                requiredLevel VARCHAR(50) '$.requiredLevel'
+            );
+        END
+
+        -- Insert qualification if provided
+        IF @qualJson IS NOT NULL
+        BEGIN
+            INSERT INTO postQualification (postId, minDegree, fieldOfStudy, minGrade)
+            SELECT
+                @newPostId,
+                minDegree,
+                fieldOfStudy,
+                minGrade
+            FROM OPENJSON(@qualJson)
+            WITH (
+                minDegree    VARCHAR(100) '$.minDegree',
+                fieldOfStudy VARCHAR(150) '$.fieldOfStudy',
+                minGrade     DECIMAL(5,2) '$.minGrade'
+            );
+        END
+
+        COMMIT TRANSACTION;
+        SELECT 'SUCCESS' AS Status, @newPostId AS PostId;
+
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        SELECT 'ERROR' AS Status, NULL AS PostId,
+               ERROR_MESSAGE() AS ErrorDetail;
+    END CATCH
 END;
 GO
 
