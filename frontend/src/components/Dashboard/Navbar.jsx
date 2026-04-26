@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Bell, User, Briefcase, FileText, Menu, X } from 'lucide-react';
+import { Search, Bell, User, Briefcase, FileText, Menu, X,Plus } from 'lucide-react';
+
 import API  from "../../services/api"; 
 export default function Navbar({
   activeTab,
@@ -62,6 +63,13 @@ export default function Navbar({
               <FileText size={15} /> My Applications
             </button>
           </div>
+        
+<button
+  className={`nav-tab ${activeTab === 'createPost' ? 'active' : ''}`}
+  onClick={() => setActiveTab('createPost')}
+>
+  <Plus size={15} /> Create Post
+</button>
         </div>
 
         {/* CENTER: Desktop search */}

@@ -7,6 +7,8 @@ import PostDetail from '../PostDetails/PostDetail'; // ← ADD
 import FilterSidebar from '../filterTab/FilterSidebar';
 import './Dashboard.css';
 import API from '../../services/api.js';
+import CreatePost from '../insertpost/CreatePost';
+
 export default function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [status, setStatus] = useState('');
@@ -80,6 +82,7 @@ export default function Dashboard() {
         toggleMobileMenu={toggleMobileMenu}
         isMobileMenuOpen={isMobileMenuOpen}
       />
+    
 
       <MobileMenu
         isOpen={isMobileMenuOpen}
@@ -97,46 +100,47 @@ export default function Dashboard() {
           }}/>
         </aside>
 
-        <section className="content-center">
-          {/* ── Post Detail view ── */}
-          {selectedPostId ? (
-            <PostDetail
-              postId={selectedPostId}
-              onBack={() => setSelectedPostId(null)}
-            />
-          ) : activeTab === 'profile' ? (
-            <Profile />
-          ) : (
-            <>
-              <div className="content-header">
-                <h1 className="content-title">
-                  {activeTab === 'posts' ? 'My Job Posts' : 'My Applications'}
-                </h1>
-                <span className="content-count">
-                  {filteredJobs.length} result{filteredJobs.length !== 1 ? 's' : ''}
-                </span>
-              </div>
+       <section className="content-center">
+  {selectedPostId ? (
+    <PostDetail
+      postId={selectedPostId}
+      onBack={() => setSelectedPostId(null)}
+    />
+  ) : activeTab === 'profile' ? (
+    <Profile />
+  ) : activeTab === 'createPost' ? (   // ← ADD THIS
+    <CreatePost />
+  ) : (
+    <>
+      <div className="content-header">
+        <h1 className="content-title">
+          {activeTab === 'posts' ? 'My Job Posts' : 'My Applications'}
+        </h1>
+        <span className="content-count">
+          {filteredJobs.length} result{filteredJobs.length !== 1 ? 's' : ''}
+        </span>
+      </div>
 
-              {filteredJobs.length === 0 ? (
-                <div className="empty-state">
-                  <p className="empty-title">No jobs found</p>
-                  <p className="empty-sub">Try a different search term</p>
-                </div>
-              ) : (
-                <div className="jobs-list">
-                  {filteredJobs.map((job, i) => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      index={i}
-                      onViewPost={setSelectedPostId}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </section>
+      {filteredJobs.length === 0 ? (
+        <div className="empty-state">
+          <p className="empty-title">No jobs found</p>
+          <p className="empty-sub">Try a different search term</p>
+        </div>
+      ) : (
+        <div className="jobs-list">
+          {filteredJobs.map((job, i) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              index={i}
+              onViewPost={setSelectedPostId}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  )}
+</section>
 
         <aside className="sidebar sidebar-right" />
       </main>
