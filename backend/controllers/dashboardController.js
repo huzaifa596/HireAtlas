@@ -51,37 +51,58 @@ const getSinglePost = async (req, res) => {
 };
 
 
-// const insert_into_post=async (req,res)=>{
- 
-//     try{
-//     const {companyName,jobTitle,description,location,empType,jobCategory,experienceLevel,minsalary,maxsalary,skillsjson,qualjson,isRemote}=req.body
+const insert_into_post = async (req, res) => {
+    try {
+        const {
+            companyName, jobTitle, description, location,
+            empType, jobCategory, experienceLevel,
+            minSalary, maxSalary, salCurrency,
+            isRemote, skills, qualification
+        } = req.body;
 
-//     const pool   = await poolPromise;
-//     const result=await pool.request()
-//     .input('creatorId' ,sql.BigInt,req.user.userID)
-//     .input('companyName',sql.VarChar(200),companyName)
-//     .input('jobTitle',sql.varchar(150),jobTitle)
-//     .input('empType',sql.varchar(50),empType)
-//     .input('jobCategory',sql.varchar(100),jobCategory)
-//     .input('experienceLevel',sql.varchar(100),experienceLevel)
-//     .input('minsalary',sql.decimal(18,2),minsalary)
-//     .input('maxsalary',sql.decimal(18,2),maxsalary)
-//     .input('minsalary',sql.decimal(18,2),minsalary)
-//     .input('isRemote',sql.Bit,isRemote)
-//     .input('skillsjson',sql.NVarChar(MAX),skillsjson)
-//     .input('qualjson',sql.NVarChar(MAX),qualjson)
-//     .execute('sp_CreatePost');
+        const pool = await poolPromise;
 
-//     const response=result.recordset[]
-//     }
-//     catch(err)
-//     {
-//         console.log('ERROR:',err);
-//     }
+        const result = await pool.request()
+            .input('creatorId',       sql.BigInt,           req.user.userID)
+            .input('companyName',     sql.VarChar(200),     companyName     ?? null)
+            .input('jobTitle',        sql.VarChar(150),     jobTitle)
+            .input('description',     sql.VarChar(1000),    description     ?? null)
+            .input('location',        sql.VarChar(150),     location        ?? null)
+            .input('empType',         sql.VarChar(50),      empType         ?? null)
+            .input('jobCategory',     sql.VarChar(100),     jobCategory     ?? null)
+            .input('experienceLevel', sql.VarChar(50),      experienceLevel ?? null)
+            .input('minSalary',       sql.Decimal(18,2),    minSalary       ?? null)
+            .input('maxSalary',       sql.Decimal(18,2),    maxSalary       ?? null)
+            .input('salCurrency',     sql.VarChar(10),      salCurrency     ?? 'PKR')
+            .input('isRemote',        sql.Bit,              isRemote        ?? 0)
+            .input('skillsJson',      sql.NVarChar(sql.MAX), skills        ? JSON.stringify(skills)        : null)
+            .input('qualJson',        sql.NVarChar(sql.MAX), qualification  ? JSON.stringify(qualification) : null)
+            .execute('sp_CreatePost');
 
-    
-// }
+        const spResult = result.recordset[0];
+
+        if (spResult.Status === 'SUCCESS') {
+            return res.status(201).json({
+                message: 'Post created successfully',
+                postId: spResult.PostId
+            });
+        }
+
+        const statusMap = {
+            'USER_NOT_FOUND':           { code: 404, message: 'User not found' },
+            'INVALID_SALARY_RANGE':     { code: 400, message: 'Min salary cannot exceed max salary' },
+            'ERROR':                    { code: 500, message: spResult.ErrorDetail || 'Database error' },
+        };
+
+        const mapped = statusMap[spResult.Status] ?? { code: 500, message: 'Unknown error' };
+        return res.status(mapped.code).json({ message: mapped.message });
+
+    } catch (err) {
+        console.error('ERROR:', err);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
 
 
 
-module.exports = { getPosts, getSinglePost};
+module.exports = { getPosts, getSinglePost,insert_into_post};
