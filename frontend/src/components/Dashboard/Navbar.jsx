@@ -15,9 +15,13 @@ export default function Navbar({
   const [username, setUsername] = useState(""); 
 
   useEffect(() => {
-    API.get("/user")
-      .then(({ data }) => setUsername(data.profile.personalInfo.name))
-      .catch((err) => console.error("Error fetching user name:", err));
+   API.get("/user")
+    .then(({ data }) => {
+      console.log("FULL response data:", data); // 👈 log the whole thing
+      setUsername(data.profile.personalInfo.name);
+    })
+    .catch((err) => console.error("Error fetching user name:", err));
+
   }, []);
 
 
@@ -54,13 +58,13 @@ export default function Navbar({
               className={`nav-tab ${activeTab === 'posts' ? 'active' : ''}`}
               onClick={() => setActiveTab('posts')}
             >
-              <Briefcase size={15} /> My Posts
+              <Briefcase size={15} />Posts
             </button>
             <button
               className={`nav-tab ${activeTab === 'applications' ? 'active' : ''}`}
               onClick={() => setActiveTab('applications')}
             >
-              <FileText size={15} /> My Applications
+              <FileText size={15} /> My Posts
             </button>
           </div>
         

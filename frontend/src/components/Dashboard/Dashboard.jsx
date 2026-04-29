@@ -114,7 +114,7 @@ export default function Dashboard() {
     <>
       <div className="content-header">
         <h1 className="content-title">
-          {activeTab === 'posts' ? 'My Job Posts' : 'My Applications'}
+          {activeTab === 'posts' ? 'Posts' : 'My Posts'}
         </h1>
         <span className="content-count">
           {filteredJobs.length} result{filteredJobs.length !== 1 ? 's' : ''}

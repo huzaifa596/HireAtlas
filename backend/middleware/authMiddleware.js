@@ -16,6 +16,10 @@ const verifyToken = (req, res, next) =>
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
+
+       
+console.log("DECODED JWT:", decoded); // 👈 shows exact keys in the token
+req.user = decoded;
         req.user = decoded; // { userID, email }
         next();
     } catch (err) {

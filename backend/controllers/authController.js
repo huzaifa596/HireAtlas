@@ -92,7 +92,7 @@ const login = async (req, res) => {
             });
         }
 
-        const isMatch = await bcrypt.compare(password, user.Password);
+        const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(401).json({ 
@@ -102,22 +102,22 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { userID: user.UserID, email: user.Email },
-            JWT_SECRET,
-            { expiresIn: '7d' }
-        );
+    { userID: user.userId, email: user.email },  // lowercase userId, email
+    JWT_SECRET,
+    { expiresIn: '7d' }
+);
 
         await fs.appendFile('log.txt', `User logged in: ${email}\n time: ${new Date().toISOString()}\n`);  // ✅ awaited
         return res.status(200).json({
-            status:  'SUCCESS',
-            message: 'Login successful',
-            token,
-            user: {
-                userID: user.UserID,
-                name:   user.Name,
-                email:  user.Email
-            }
-        });
+    status:  'SUCCESS',
+    message: 'Login successful',
+    token,
+    user: {
+        userID: user.userId,  // ✅ was user.UserID
+        name:   user.name,    // ✅ was user.Name
+        email:  user.email    // ✅ was user.Email
+    }
+});
 
     } catch (err) {
         console.error('Login error:', err);

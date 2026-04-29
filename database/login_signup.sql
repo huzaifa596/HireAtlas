@@ -47,7 +47,7 @@ BEGIN
             NULL AS UserID,
             NULL AS Name,
             NULL AS Email,
-            NULL AS Password;
+            NULL AS password;
         RETURN;
     END
 

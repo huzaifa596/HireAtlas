@@ -8,6 +8,8 @@ const getProfile = async (req, res) => {
       .input('UserId', sql.BigInt, req.user.userID)
       .execute('GetUserProfile');
 
+      console.log("Querying with UserID:", req.user.userID);
+
     return res.status(200).json({
       status: 'SUCCESS',
       profile: {
