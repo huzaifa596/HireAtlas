@@ -3,6 +3,7 @@ const sql = require("mssql/msnodesqlv8");
 
 const isWindowsAuth = !process.env.DB_USER && !process.env.DB_PASSWORD;
 
+
 const dbConfig = {
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
@@ -12,13 +13,8 @@ const dbConfig = {
     : null,
   // Standard config for SQL Auth (your buddy)
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  options: {
-    instanceName: "localhost",
-    encrypt: false,
-    trustServerCertificate: true,
-    trustedConnection: isWindowsAuth,
-  },
+  password: process.env.DB_PASSWORD
+  
 };
 
 // If Windows Auth, we remove user/pass so they don't conflict

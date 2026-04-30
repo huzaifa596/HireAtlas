@@ -32,6 +32,6 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
 
   console.log(`🚀 Server running on port ${PORT}`);
-
+console.log("database name",process.env.DB_SERVER);
 
 });
