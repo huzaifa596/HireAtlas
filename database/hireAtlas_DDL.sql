@@ -1,7 +1,7 @@
-CREATE DATABASE hireatlas
+CREATE DATABASE freshdb
 GO
 
-USE hireatlas;
+USE freshdb;
 
 CREATE TABLE appUser
 (

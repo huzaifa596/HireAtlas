@@ -4,47 +4,61 @@ import "./filterTab.css";
 
 // ─── Salary buckets ───────────────────────────────────────────────────────
 const SALARY_BUCKETS = [
-  { value: "0-30000",       label: "Under PKR 30,000",       min: 0,      max: 30000  },
-  { value: "30000-60000",   label: "PKR 30,000 – 60,000",   min: 30000,  max: 60000  },
-  { value: "60000-100000",  label: "PKR 60,000 – 100,000",  min: 60000,  max: 100000 },
-  { value: "100000-200000", label: "PKR 100,000 – 200,000", min: 100000, max: 200000 },
-  { value: "200000-999999", label: "PKR 200,000+",          min: 200000, max: null   },
+  { value: "0-30000", label: "Under PKR 30,000", min: 0, max: 30000 },
+  {
+    value: "30000-60000",
+    label: "PKR 30,000 – 60,000",
+    min: 30000,
+    max: 60000,
+  },
+  {
+    value: "60000-100000",
+    label: "PKR 60,000 – 100,000",
+    min: 60000,
+    max: 100000,
+  },
+  {
+    value: "100000-200000",
+    label: "PKR 100,000 – 200,000",
+    min: 100000,
+    max: 200000,
+  },
+  { value: "200000-999999", label: "PKR 200,000+", min: 200000, max: null },
 ];
 
 // ─── Default state ────────────────────────────────────────────────────────
 const DEFAULT_STATE = {
-  empType:         [],
+  empType: [],
   experienceLevel: [],
-  isRemote:        "any",
-  jobCategory:     [],
-  salaryRange:     [],
-  postedWithin:    "any",
-  location:        "",
-  sortBy:          "newest",
+  isRemote: "any",
+  jobCategory: [],
+  salaryRange: [],
+  postedWithin: "any",
+  location: "",
+  sortBy: "newest",
 };
 
 // ─── Build API params ─────────────────────────────────────────────────────
 export function buildApiParams(filters) {
   const params = {};
 
-  if (filters.empType?.length)
-    params.empType = filters.empType;
+  if (filters.empType?.length) params.empType = filters.empType;
 
   if (filters.experienceLevel?.length)
     params.experienceLevel = filters.experienceLevel;
 
-  if (filters.isRemote !== "any")
-    params.isRemote = Number(filters.isRemote);
+  if (filters.isRemote !== "any") params.isRemote = Number(filters.isRemote);
 
-  if (filters.jobCategory?.length)
-    params.jobCategory = filters.jobCategory;
+  if (filters.jobCategory?.length) params.jobCategory = filters.jobCategory;
 
   if (filters.salaryRange?.length) {
-    const matched = SALARY_BUCKETS.filter(b => filters.salaryRange.includes(b.value));
-    params.minSalary = Math.min(...matched.map(b => b.min));
-    params.maxSalary = matched.some(b => b.max === null)
+    const matched = SALARY_BUCKETS.filter((b) =>
+      filters.salaryRange.includes(b.value),
+    );
+    params.minSalary = Math.min(...matched.map((b) => b.min));
+    params.maxSalary = matched.some((b) => b.max === null)
       ? null
-      : Math.max(...matched.map(b => b.max));
+      : Math.max(...matched.map((b) => b.max));
   }
 
   if (filters.postedWithin !== "any") {
@@ -53,8 +67,7 @@ export function buildApiParams(filters) {
     params.postedAfter = d.toISOString().split("T")[0];
   }
 
-  if (filters.location?.trim())
-    params.location = filters.location.trim();
+  if (filters.location?.trim()) params.location = filters.location.trim();
 
   params.sortBy = filters.sortBy ?? "newest";
 
@@ -68,10 +81,10 @@ const filterSections = [
     label: "Employment Type",
     type: "check",
     options: [
-      { value: "Full-Time",  label: "Full Time"  },
-      { value: "Part-Time",  label: "Part Time"  },
-      { value: "Contract",   label: "Contract"   },
-      { value: "Freelance",  label: "Freelance"  },
+      { value: "Full-Time", label: "Full Time" },
+      { value: "Part-Time", label: "Part Time" },
+      { value: "Contract", label: "Contract" },
+      { value: "Freelance", label: "Freelance" },
       { value: "Internship", label: "Internship" },
     ],
   },
@@ -80,11 +93,11 @@ const filterSections = [
     label: "Experience Level",
     type: "check",
     options: [
-      { value: "Entry",     label: "Entry Level"    },
-      { value: "Mid",       label: "Mid Level"      },
-      { value: "Senior",    label: "Senior Level"   },
-      { value: "Lead",      label: "Lead / Manager" },
-      { value: "Executive", label: "Executive"      },
+      { value: "Entry", label: "Entry Level" },
+      { value: "Mid", label: "Mid Level" },
+      { value: "Senior", label: "Senior Level" },
+      { value: "Lead", label: "Lead / Manager" },
+      { value: "Executive", label: "Executive" },
     ],
   },
   {
@@ -92,9 +105,9 @@ const filterSections = [
     label: "Work Mode",
     type: "radio",
     options: [
-      { value: "any", label: "Any"         },
-      { value: "1",   label: "Remote Only" },
-      { value: "0",   label: "On-site"     },
+      { value: "any", label: "Any" },
+      { value: "1", label: "Remote Only" },
+      { value: "0", label: "On-site" },
     ],
   },
   {
@@ -103,13 +116,13 @@ const filterSections = [
     type: "check",
     options: [
       { value: "Technology", label: "Technology" },
-      { value: "Design",     label: "Design"     },
-      { value: "Marketing",  label: "Marketing"  },
-      { value: "Finance",    label: "Finance"    },
+      { value: "Design", label: "Design" },
+      { value: "Marketing", label: "Marketing" },
+      { value: "Finance", label: "Finance" },
       { value: "Healthcare", label: "Healthcare" },
-      { value: "Education",  label: "Education"  },
-      { value: "Research",   label: "Research"   },
-      { value: "Sales",      label: "Sales"      },
+      { value: "Education", label: "Education" },
+      { value: "Research", label: "Research" },
+      { value: "Sales", label: "Sales" },
       { value: "Operations", label: "Operations" },
     ],
   },
@@ -124,10 +137,10 @@ const filterSections = [
     label: "Date Posted",
     type: "radio",
     options: [
-      { value: "1",   label: "Last 24 hours" },
-      { value: "7",   label: "Last 7 days"   },
-      { value: "30",  label: "Last 30 days"  },
-      { value: "any", label: "Anytime"       },
+      { value: "1", label: "Last 24 hours" },
+      { value: "7", label: "Last 7 days" },
+      { value: "30", label: "Last 30 days" },
+      { value: "any", label: "Anytime" },
     ],
   },
   {
@@ -135,9 +148,9 @@ const filterSections = [
     label: "Sort By",
     type: "radio",
     options: [
-      { value: "newest",        label: "Newest First"         },
+      { value: "newest", label: "Newest First" },
       { value: "salaryHighest", label: "Highest Salary First" },
-      { value: "salaryLowest",  label: "Lowest Salary First"  },
+      { value: "salaryLowest", label: "Lowest Salary First" },
     ],
   },
 ];
@@ -252,61 +265,6 @@ function FilterSection({ section, value, onChange }) {
   );
 }
 
-function LocationInput({ value, onChange }) {
-  const [open, setOpen] = useState(true);
-  const hasValue = value?.trim().length > 0;
-
-  return (
-    <div className="filter-section">
-      <button
-        className="filter-section__header"
-        onClick={() => setOpen((o) => !o)}
-      >
-        <span className="filter-section__label-row">
-          <span className="filter-section__label">Location</span>
-          {hasValue && <span className="filter-section__badge">1</span>}
-        </span>
-        <ChevronIcon open={open} />
-      </button>
-      {open && (
-        <div className="location-input__wrapper">
-          <div className="location-input__container">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#9ca3af"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="search-icon"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              type="text"
-              placeholder="City or area..."
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              className="location-input__field"
-            />
-            {hasValue && (
-              <button
-                className="location-input__clear"
-                onClick={() => onChange("")}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── Main export ──────────────────────────────────────────────────────────
 export default function FilterSidebar({ onApply }) {
   const [filters, setFilters] = useState(DEFAULT_STATE);
@@ -360,11 +318,6 @@ export default function FilterSidebar({ onApply }) {
 
       {/* ── Sections ── */}
       <div className="filter-sidebar__sections">
-        <LocationInput
-          value={filters.location}
-          onChange={(val) => set("location", val)}
-        />
-
         {filterSections.map((sec) => (
           <FilterSection
             key={sec.id}
