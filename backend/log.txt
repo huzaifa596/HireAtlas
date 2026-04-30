@@ -186,3 +186,15 @@ User logged in: tester1@gmail.com
  time: 2026-04-29T23:34:47.538Z
 User logged in: tester2@gmail.com
  time: 2026-04-29T23:36:55.598Z
+New user signed up: hello@gmail.com
+ time: 2026-04-30T00:07:14.879Z
+User logged in: hello@gmail.com
+ time: 2026-04-30T00:07:39.713Z
+New user signed up: hell123@gmail.com
+ time: 2026-04-30T00:09:00.659Z
+New user signed up: hello123@gmail.com
+ time: 2026-04-30T00:10:02.433Z
+User logged in: hello123@gmail.com
+ time: 2026-04-30T00:10:22.776Z
+User logged in: hello123@gmail.com
+ time: 2026-04-30T22:08:58.227Z
