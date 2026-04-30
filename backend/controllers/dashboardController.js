@@ -104,5 +104,20 @@ const insert_into_post = async (req, res) => {
 };
 
 
+const getmypost = async (req, res) => {
+    try {
+        const pool = await poolPromise;
 
-module.exports = { getPosts, getSinglePost,insert_into_post};
+        const result = await pool.request()
+            .input('userId', sql.BigInt, req.user.userID) 
+            .query('SELECT * FROM post WHERE creatorId = @userId');
+
+        return res.status(200).json({ status: 'SUCCESS', posts: result.recordset });
+
+    } catch (err) {
+        console.error('Get my posts error:', err);
+        return res.status(500).json({ status: 'ERROR', message: 'Could not fetch posts' });
+    }
+};
+
+module.exports = { getPosts, getSinglePost,insert_into_post,getmypost};
