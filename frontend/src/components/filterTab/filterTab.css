@@ -1,7 +1,7 @@
 /* FilterSidebar.css */
 /* Temporary debug - add to FilterSidebar.css */
 :root {
-  --navbar-h: 70px;  /* Redefine here if Dashboard.css :root isn't loaded first */
+  --navbar-h: 70px; /* Redefine here if Dashboard.css :root isn't loaded first */
 }
 /* ─── Sidebar Container ─── */
 .filter-sidebar {
@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: 'Geist', 'DM Sans', 'Segoe UI', sans-serif;
+  font-family: "Geist", "DM Sans", "Segoe UI", sans-serif;
   align-self: flex-start;
   /* position: sticky; */
   top: calc(var(--navbar-h) + 32px);
@@ -162,7 +162,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: border-color 0.13s, background 0.13s;
+  transition:
+    border-color 0.13s,
+    background 0.13s;
 }
 
 .filter-control--radio {
@@ -194,51 +196,6 @@
 .filter-option__text--active {
   color: #1e3a5f;
   font-weight: 600;
-}
-
-/* ─── Location Input ─── */
-.location-input__wrapper {
-  padding: 2px 18px 12px;
-}
-
-.location-input__container {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 7px 10px;
-  background: #f8fafc;
-  transition: border-color 0.15s;
-}
-
-.location-input__container:focus-within {
-  border-color: #2563eb;
-}
-
-.location-input__field {
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 12.5px;
-  color: #1e3a5f;
-  font-family: inherit;
-}
-
-.location-input__clear {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #9ca3af;
-  font-size: 11px;
-  padding: 0;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.location-input__clear:hover {
-  color: #6b7280;
 }
 
 /* ─── Apply Button Area ─── */

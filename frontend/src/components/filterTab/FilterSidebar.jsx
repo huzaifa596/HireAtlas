@@ -143,16 +143,6 @@ const filterSections = [
       { value: "any", label: "Anytime" },
     ],
   },
-  {
-    id: "sortBy",
-    label: "Sort By",
-    type: "radio",
-    options: [
-      { value: "newest", label: "Newest First" },
-      { value: "salaryHighest", label: "Highest Salary First" },
-      { value: "salaryLowest", label: "Lowest Salary First" },
-    ],
-  },
 ];
 
 // ─── Helper: count active selections ──────────────────────────────────────
