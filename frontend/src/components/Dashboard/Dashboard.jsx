@@ -10,48 +10,49 @@ import API from "../../services/api.js";
 import CreatePost from "../insertpost/CreatePost";
 
 const mapPost = (p) => ({
-  id:              p.postId,
-  title:           p.jobTitle,
-  company:         p.companyName,
-  location:        p.isRemote ? "Remote" : p.location || "N/A",
+  id: p.postId,
+  title: p.jobTitle,
+  company: p.companyName,
+  location: p.isRemote ? "Remote" : p.location || "N/A",
   salary:
     p.minSalary && p.maxSalary
       ? `$${Number(p.minSalary).toLocaleString()} – $${Number(p.maxSalary).toLocaleString()}`
       : "Not specified",
-  type:            p.isRemote ? "Remote" : p.empType || "Full-time",
-  posted:          p.postedDate ? new Date(p.postedDate).toLocaleDateString() : "Recently",
-  description:     p.description || "",
-  tags:            [p.jobCategory, p.experienceLevel, p.empType].filter(Boolean),
-  applicants:      0,
-  postedBy:        p.postedBy,
-  postedByEmail:   p.postedByEmail,
+  type: p.isRemote ? "Remote" : p.empType || "Full-time",
+  posted: p.postedDate
+    ? new Date(p.postedDate).toLocaleDateString()
+    : "Recently",
+  description: p.description || "",
+  tags: [p.jobCategory, p.experienceLevel, p.empType].filter(Boolean),
+  applicants: 0,
+  postedBy: p.postedBy,
+  postedByEmail: p.postedByEmail,
   experienceLevel: p.experienceLevel,
 });
 
 export default function Dashboard() {
-  const [posts,           setPosts]           = useState([]);
-  const [isMobileMenuOpen,setIsMobileMenuOpen] = useState(false);
-  const [searchQuery,     setSearchQuery]     = useState("");
-  const [activeTab,       setActiveTab]       = useState("posts");
-  const [selectedPostId,  setSelectedPostId]  = useState(null);
-  const [filterParams,    setFilterParams]    = useState({});
-  const [page,            setPage]            = useState(1);
-  const [totalPages,      setTotalPages]      = useState(1);
-  const [loading,         setLoading]         = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("posts");
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [filterParams, setFilterParams] = useState({});
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const LIMIT = 20;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
-  const closeMobileMenu  = () => setIsMobileMenuOpen(false);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   // ── Fetch all posts OR my posts ───────────────────────────────────────────
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
       // 'applications' is what Navbar passes for "My Posts" tab
-      const endpoint = activeTab === "myPosts"
-        ? "dashboard/myposts"
-        : "dashboard/posts";
+      const endpoint =
+        activeTab === "myPosts" ? "dashboard/myposts" : "dashboard/posts";
 
       const res = await API.get(endpoint);
       setPosts(res.data.posts.map(mapPost));
@@ -99,12 +100,13 @@ export default function Dashboard() {
   const handleApplyFilters = (params) => {
     setPage(1);
     setFilterParams(params);
+    window.scrollTo(0, 0);
   };
 
   const handleSetActiveTab = (tab) => {
     setSelectedPostId(null);
     setPosts([]);
-    setFilterParams({});  // clear filters when switching tabs
+    setFilterParams({}); // clear filters when switching tabs
     setPage(1);
     setActiveTab(tab);
   };
@@ -117,7 +119,7 @@ export default function Dashboard() {
       (job) =>
         job.title.toLowerCase().includes(q) ||
         job.company.toLowerCase().includes(q) ||
-        job.tags.some((tag) => tag.toLowerCase().includes(q))
+        job.tags.some((tag) => tag.toLowerCase().includes(q)),
     );
   }, [searchQuery, posts]);
 
@@ -163,7 +165,8 @@ export default function Dashboard() {
                   {activeTab === "posts" ? "Posts" : "My Posts"}
                 </h1>
                 <span className="content-count">
-                  {filteredJobs.length} result{filteredJobs.length !== 1 ? "s" : ""}
+                  {filteredJobs.length} result
+                  {filteredJobs.length !== 1 ? "s" : ""}
                 </span>
               </div>
 
@@ -194,11 +197,19 @@ export default function Dashboard() {
                 Object.keys(filterParams).length > 0 &&
                 totalPages > 1 && (
                   <div className="pagination">
-                    <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+                    <button
+                      disabled={page === 1}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
                       ← Prev
                     </button>
-                    <span>Page {page} of {totalPages}</span>
-                    <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+                    <span>
+                      Page {page} of {totalPages}
+                    </span>
+                    <button
+                      disabled={page === totalPages}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
                       Next →
                     </button>
                   </div>
