@@ -156,4 +156,62 @@ const deleteEducation = async (req, res) => {
 };
 
 
-module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation};
+const saveExperience = async (req, res) => {
+  try {
+    const { expId, companyName, jobTitle, description, startDate, endDate } = req.body;
+
+    const pool = await poolPromise;
+
+    let spResult;
+
+    if (expId) {
+      // ── UPDATE existing entry ──
+      const result = await pool.request()
+        .input('expId',       sql.BigInt,       expId)
+        .input('userId',      sql.BigInt,       req.user.userID)
+        .input('companyName', sql.VarChar(200),  companyName  ?? null)
+        .input('jobTitle',    sql.VarChar(150),  jobTitle     ?? null)
+        .input('description', sql.VarChar(1000), description  ?? null)
+        .input('startDate',   sql.Date,          startDate    ?? null)
+        .input('endDate',     sql.Date,          endDate      ?? null)
+        .execute('sp_UpdateExperience');
+
+      spResult = result.recordset[0];
+
+    } else {
+      // ── ADD new entry ──
+      const result = await pool.request()
+        .input('userId',      sql.BigInt,       req.user.userID)
+        .input('companyName', sql.VarChar(200),  companyName)
+        .input('jobTitle',    sql.VarChar(150),  jobTitle)
+        .input('description', sql.VarChar(1000), description  ?? null)
+        .input('startDate',   sql.Date,          startDate)
+        .input('endDate',     sql.Date,          endDate      ?? null)
+        .execute('sp_AddExperience');
+
+      spResult = result.recordset[0];
+    }
+
+    const statusMap = {
+      'USER_NOT_FOUND':          { code: 404, message: 'User not found' },
+      'EXPERIENCE_NOT_FOUND':    { code: 404, message: 'Experience entry not found' },
+      'MISSING_REQUIRED_FIELDS': { code: 400, message: 'companyName, jobTitle and startDate are required' },
+    };
+
+    if (statusMap[spResult.Status]) {
+      const { code, message } = statusMap[spResult.Status];
+      return res.status(code).json({ status: 'ERROR', message });
+    }
+
+    return res.status(200).json({
+      status: 'SUCCESS',
+      experience: spResult
+    });
+
+  } catch (err) {
+    console.error('Save experience error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not save experience' });
+  }
+};
+
+module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience};
