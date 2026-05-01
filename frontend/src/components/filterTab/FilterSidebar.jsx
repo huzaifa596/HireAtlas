@@ -42,20 +42,23 @@ const DEFAULT_STATE = {
 export function buildApiParams(filters) {
   const params = {};
 
-  if (filters.empType?.length) params.empType = filters.empType;
+  if (filters.empType?.length) params.empType = filters.empType.join(",");
 
   if (filters.experienceLevel?.length)
-    params.experienceLevel = filters.experienceLevel;
+    params.experienceLevel = filters.experienceLevel.join(",");
 
   if (filters.isRemote !== "any") params.isRemote = Number(filters.isRemote);
 
-  if (filters.jobCategory?.length) params.jobCategory = filters.jobCategory;
+  if (filters.jobCategory?.length)
+    params.jobCategory = filters.jobCategory.join(",");
 
   if (filters.salaryRange?.length) {
     const matched = SALARY_BUCKETS.filter((b) =>
       filters.salaryRange.includes(b.value),
     );
+
     params.minSalary = Math.min(...matched.map((b) => b.min));
+
     params.maxSalary = matched.some((b) => b.max === null)
       ? null
       : Math.max(...matched.map((b) => b.max));
@@ -64,12 +67,8 @@ export function buildApiParams(filters) {
   if (filters.postedWithin !== "any") {
     const d = new Date();
     d.setDate(d.getDate() - Number(filters.postedWithin));
-    params.postedAfter = d.toISOString().split("T")[0];
+    params.postedDate = d.toISOString().split("T")[0];
   }
-
-  if (filters.location?.trim()) params.location = filters.location.trim();
-
-  params.sortBy = filters.sortBy ?? "newest";
 
   return params;
 }
@@ -133,7 +132,7 @@ const filterSections = [
     options: SALARY_BUCKETS.map(({ value, label }) => ({ value, label })),
   },
   {
-    id: "postedWithin",
+    id: "postedDate",
     label: "Date Posted",
     type: "radio",
     options: [
@@ -265,9 +264,7 @@ export default function FilterSidebar({ onApply }) {
     (filters.isRemote !== "any" ? 1 : 0) +
     (filters.jobCategory?.length || 0) +
     (filters.salaryRange?.length || 0) +
-    (filters.postedWithin !== "any" ? 1 : 0) +
-    (filters.sortBy !== "newest" ? 1 : 0) +
-    (filters.location?.trim() ? 1 : 0);
+    (filters.postedWithin !== "any" ? 1 : 0);
 
   const set = (id, val) => setFilters((prev) => ({ ...prev, [id]: val }));
   const reset = () => setFilters(DEFAULT_STATE);
