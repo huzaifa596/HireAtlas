@@ -225,3 +225,9 @@ User logged in: hello123@gmail.com
 >>>>>>> 3435a6a38564adc484bfdd2af451b37832049865
 User logged in: tester2@gmail.com
  time: 2026-05-01T12:15:55.739Z
+User logged in: hello123@gmail.com
+ time: 2026-05-01T15:32:38.653Z
+New user signed up: ahmed@gmail.com
+ time: 2026-05-01T15:34:16.648Z
+User logged in: ahmed@gmail.com
+ time: 2026-05-01T15:34:32.857Z
