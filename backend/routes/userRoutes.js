@@ -6,4 +6,5 @@ const verifyToken = require('../middleware/authMiddleware');
 console.log("getProfile:", getProfile);
 router.get('/', verifyToken, getProfile);
 router.patch('/personal',    verifyToken, updatePersonalInfo);  
+router.post('/education',  verifyToken, addEducation);        
 module.exports = router; 

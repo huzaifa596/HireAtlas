@@ -66,4 +66,45 @@ const updatePersonalInfo = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updatePersonalInfo };
+
+const addEducation = async (req, res) => {
+  try {
+    const { instituteName, level, degreeName, grade, startDate, endDate } = req.body;
+
+    const pool = await poolPromise;
+    const result = await pool.request()
+      .input('userId',        sql.BigInt,      req.user.userID)
+      .input('instituteName', sql.VarChar(200), instituteName)
+      .input('level',         sql.VarChar(100), level)
+      .input('degreeName',    sql.VarChar(150), degreeName)
+      .input('grade',         sql.VarChar(50),  grade    ?? null)
+      .input('startDate',     sql.Date,         startDate)
+      .input('endDate',       sql.Date,         endDate  ?? null)
+      .execute('sp_AddEducation');
+
+    const spResult = result.recordset[0];
+
+    const statusMap = {
+      'USER_NOT_FOUND':         { code: 404, message: 'User not found' },
+      'MISSING_REQUIRED_FIELDS':{ code: 400, message: 'instituteName, level, degreeName and startDate are required' },
+    };
+
+    if (statusMap[spResult.Status]) {
+      const { code, message } = statusMap[spResult.Status];
+      return res.status(code).json({ status: 'ERROR', message });
+    }
+
+    return res.status(201).json({
+      status: 'SUCCESS',
+      education: spResult
+    });
+
+  } catch (err) {
+    console.error('Add education error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not add education' });
+  }
+};
+
+
+
+module.exports = { getProfile, updatePersonalInfo,addEducation };
