@@ -127,5 +127,33 @@ const saveEducation = async (req, res) => {
 };
 
 
+const deleteEducation = async (req, res) => {
+  try {
+    const eduId = parseInt(req.params.eduId);
 
-module.exports = { getProfile, updatePersonalInfo,saveEducation };
+    if (!eduId || isNaN(eduId)) {
+      return res.status(400).json({ status: 'ERROR', message: 'Invalid education ID' });
+    }
+
+    const pool = await poolPromise;
+    const result = await pool.request()
+      .input('eduId',  sql.BigInt, eduId)
+      .input('userId', sql.BigInt, req.user.userID)
+      .execute('sp_DeleteEducation');
+
+    const spResult = result.recordset[0];
+
+    if (spResult.Status === 'EDUCATION_NOT_FOUND') {
+      return res.status(404).json({ status: 'ERROR', message: 'Education entry not found' });
+    }
+
+    return res.status(200).json({ status: 'SUCCESS', message: 'Education entry deleted' });
+
+  } catch (err) {
+    console.error('Delete education error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not delete education' });
+  }
+};
+
+
+module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation};

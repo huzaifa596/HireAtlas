@@ -235,3 +235,5 @@ New user signed up: ahmed@gmail.com
  time: 2026-05-01T15:34:16.648Z
 User logged in: ahmed@gmail.com
  time: 2026-05-01T15:34:32.857Z
+User logged in: tester2@gmail.com
+ time: 2026-05-01T20:54:14.380Z

@@ -129,3 +129,24 @@ BEGIN
     WHERE eduId = @eduId;
 END;
 GO
+
+
+-------------------------
+
+CREATE PROCEDURE sp_DeleteEducation
+    @eduId  BIGINT,
+    @userId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM userEducation WHERE eduId = @eduId AND userId = @userId)
+    BEGIN
+        SELECT 'EDUCATION_NOT_FOUND' AS Status; RETURN;
+    END
+
+    DELETE FROM userEducation WHERE eduId = @eduId AND userId = @userId;
+
+    SELECT 'SUCCESS' AS Status;
+END;
+GO
