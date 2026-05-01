@@ -55,6 +55,8 @@ export default function Dashboard() {
       console.error(
         "Error in deleting the post function api fetch in dashboard.jsx",
       );
+      console.error("Status:", err.response?.status);
+      console.error("Data:", err.response?.data);
     }
   };
 
@@ -157,7 +159,9 @@ export default function Dashboard() {
 
       <main className="dashboard-main">
         <aside className="sidebar sidebar-left">
-          <FilterSidebar onApply={handleApplyFilters} />
+          {(activeTab === "posts" || activeTab === "myPosts") && (
+            <FilterSidebar onApply={handleApplyFilters} />
+          )}
         </aside>
 
         <section className="content-center">

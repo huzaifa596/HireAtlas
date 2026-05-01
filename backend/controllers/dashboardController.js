@@ -140,7 +140,7 @@ const getmypost = async (req, res) => {
     const result = await pool
       .request()
       .input("userId", sql.BigInt, req.user.userID)
-      .query("SELECT * FROM post WHERE creatorId = @userId");
+      .query("SELECT * FROM post WHERE creatorId = @userId AND isActive=1");
 
     return res.status(200).json({ status: "SUCCESS", posts: result.recordset });
   } catch (err) {
@@ -164,15 +164,28 @@ const deleteMyPost = async (req, res) => {
     const result = await pool
       .request()
       .input("postId", sql.BigInt, postId)
-      .query("UPDATE post SET isActive = 0 WHERE postId = @postId");
+      .input("creatorId", sql.BigInt, req.user.userID) // ← must match SP param name
+      .execute("sp_DeletePost");
 
-    if (result.rowsAffected[0] === 0) {
-      return res
-        .status(404)
-        .json({ status: "ERROR", message: "Post not found" });
+    // SP returns SELECT with Status column
+    const status = result.recordset?.[0]?.Status;
+
+    if (status === "POST_NOT_FOUND_OR_UNAUTHORIZED") {
+      return res.status(403).json({
+        status: "ERROR",
+        message: "Post not found or you are not authorized",
+      });
     }
 
-    return res.status(200).json({ status: "SUCCESS", message: "Post deleted" });
+    if (status === "SUCCESS") {
+      return res
+        .status(200)
+        .json({ status: "SUCCESS", message: "Post deleted" });
+    }
+
+    return res
+      .status(500)
+      .json({ status: "ERROR", message: "Unexpected response from DB" });
   } catch (err) {
     console.error("Error deleting post:", err);
     return res.status(500).json({
@@ -181,7 +194,6 @@ const deleteMyPost = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   getPosts,
   getSinglePost,
