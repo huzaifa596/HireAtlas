@@ -66,27 +66,48 @@ const updatePersonalInfo = async (req, res) => {
   }
 };
 
-
-const addEducation = async (req, res) => {
+const saveEducation = async (req, res) => {
   try {
-    const { instituteName, level, degreeName, grade, startDate, endDate } = req.body;
+    const { eduId, instituteName, level, degreeName, grade, startDate, endDate } = req.body;
 
     const pool = await poolPromise;
-    const result = await pool.request()
-      .input('userId',        sql.BigInt,      req.user.userID)
-      .input('instituteName', sql.VarChar(200), instituteName)
-      .input('level',         sql.VarChar(100), level)
-      .input('degreeName',    sql.VarChar(150), degreeName)
-      .input('grade',         sql.VarChar(50),  grade    ?? null)
-      .input('startDate',     sql.Date,         startDate)
-      .input('endDate',       sql.Date,         endDate  ?? null)
-      .execute('sp_AddEducation');
 
-    const spResult = result.recordset[0];
+    let spResult;
+
+    if (eduId) {
+      // ── UPDATE existing entry ──
+      const result = await pool.request()
+        .input('eduId',         sql.BigInt,      eduId)
+        .input('userId',        sql.BigInt,      req.user.userID)
+        .input('instituteName', sql.VarChar(200), instituteName ?? null)
+        .input('level',         sql.VarChar(100), level         ?? null)
+        .input('degreeName',    sql.VarChar(150), degreeName    ?? null)
+        .input('grade',         sql.VarChar(50),  grade         ?? null)
+        .input('startDate',     sql.Date,         startDate     ?? null)
+        .input('endDate',       sql.Date,         endDate       ?? null)
+        .execute('sp_UpdateEducation');
+
+      spResult = result.recordset[0];
+
+    } else {
+      // ── ADD new entry ──
+      const result = await pool.request()
+        .input('userId',        sql.BigInt,      req.user.userID)
+        .input('instituteName', sql.VarChar(200), instituteName)
+        .input('level',         sql.VarChar(100), level)
+        .input('degreeName',    sql.VarChar(150), degreeName)
+        .input('grade',         sql.VarChar(50),  grade      ?? null)
+        .input('startDate',     sql.Date,         startDate)
+        .input('endDate',       sql.Date,         endDate    ?? null)
+        .execute('sp_AddEducation');
+
+      spResult = result.recordset[0];
+    }
 
     const statusMap = {
-      'USER_NOT_FOUND':         { code: 404, message: 'User not found' },
-      'MISSING_REQUIRED_FIELDS':{ code: 400, message: 'instituteName, level, degreeName and startDate are required' },
+      'USER_NOT_FOUND':          { code: 404, message: 'User not found' },
+      'EDUCATION_NOT_FOUND':     { code: 404, message: 'Education entry not found' },
+      'MISSING_REQUIRED_FIELDS': { code: 400, message: 'instituteName, level, degreeName and startDate are required' },
     };
 
     if (statusMap[spResult.Status]) {
@@ -94,17 +115,17 @@ const addEducation = async (req, res) => {
       return res.status(code).json({ status: 'ERROR', message });
     }
 
-    return res.status(201).json({
+    return res.status(200).json({
       status: 'SUCCESS',
       education: spResult
     });
 
   } catch (err) {
-    console.error('Add education error:', err);
-    return res.status(500).json({ status: 'ERROR', message: 'Could not add education' });
+    console.error('Save education error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not save education' });
   }
 };
 
 
 
-module.exports = { getProfile, updatePersonalInfo,addEducation };
+module.exports = { getProfile, updatePersonalInfo,saveEducation };
