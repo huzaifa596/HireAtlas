@@ -62,7 +62,7 @@ export default function Navbar({
             </button>
             <button
               className={`nav-tab ${activeTab === 'applications' ? 'active' : ''}`}
-              onClick={() => setActiveTab('applications')}
+              onClick={() => setActiveTab('myPosts')}
             >
               <FileText size={15} /> My Posts
             </button>

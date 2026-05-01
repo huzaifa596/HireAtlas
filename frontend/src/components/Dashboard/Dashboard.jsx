@@ -21,40 +21,48 @@ export default function Dashboard() {
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await API.get('dashboard/posts');
-        const { status, posts } = res.data;
+ // Replace your current useEffect with this:
 
-        const mapped = posts.map((p) => ({
-          id:              p.postId,
-          title:           p.jobTitle,
-          company:         p.companyName,
-          location:        p.isRemote ? 'Remote' : (p.location || 'N/A'),
-          salary:          p.minSalary && p.maxSalary
-                             ? `$${Number(p.minSalary).toLocaleString()} – $${Number(p.maxSalary).toLocaleString()}`
-                             : 'Not specified',
-          type:            p.isRemote ? 'Remote' : (p.empType || 'Full-time'),
-          posted:          p.postedDate
-                             ? new Date(p.postedDate).toLocaleDateString()
-                             : 'Recently',
-          description:     p.description || '',
-          tags:            [p.jobCategory, p.experienceLevel, p.empType].filter(Boolean),
-          applicants:      0,
-          postedBy:        p.postedBy,
-          postedByEmail:   p.postedByEmail,
-          experienceLevel: p.experienceLevel,
-        }));
+useEffect(() => {
+  const fetchPosts = async () => {
+    try {
+      
+      const endpoint = activeTab === 'myPosts' ? 'dashboard/myposts' : 'dashboard/posts';
+      const res = await API.get(endpoint);
+      const { posts } = res.data;
 
-        setStatus(status);
-        setPosts(mapped);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+      const mapped = posts.map((p) => ({
+        id:              p.postId,
+        title:           p.jobTitle,
+        company:         p.companyName,
+        location:        p.isRemote ? 'Remote' : (p.location || 'N/A'),
+        salary:          p.minSalary && p.maxSalary
+                           ? `$${Number(p.minSalary).toLocaleString()} – $${Number(p.maxSalary).toLocaleString()}`
+                           : 'Not specified',
+        type:            p.isRemote ? 'Remote' : (p.empType || 'Full-time'),
+        posted:          p.postedDate
+                           ? new Date(p.postedDate).toLocaleDateString()
+                           : 'Recently',
+        description:     p.description || '',
+        tags:            [p.jobCategory, p.experienceLevel, p.empType].filter(Boolean),
+        applicants:      0,
+        postedBy:        p.postedBy,
+        postedByEmail:   p.postedByEmail,
+        experienceLevel: p.experienceLevel,
+      }));
+
+      setPosts(mapped);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  
+  if (activeTab === 'posts' || activeTab === 'myPosts') {
     fetchPosts();
-  }, []);
+  }
+
+}, [activeTab]); // ✅ re-runs whenever tab changes
 
   const filteredJobs = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -68,8 +76,9 @@ export default function Dashboard() {
   }, [searchQuery, posts]);
 
     const handleSetActiveTab = (tab) => {
-    setSelectedPostId(null);   // ← exit detail view when switching tabs
-    setActiveTab(tab);
+    setSelectedPostId(null);
+  setPosts([]);          // ✅ clear old posts so previous list doesn't flash
+  setActiveTab(tab);
   };
 
   return (
@@ -114,7 +123,7 @@ export default function Dashboard() {
     <>
       <div className="content-header">
         <h1 className="content-title">
-          {activeTab === 'posts' ? 'Posts' : 'My Posts'}
+          {activeTab === 'posts' ? 'Posts' : 'myPosts'}
         </h1>
         <span className="content-count">
           {filteredJobs.length} result{filteredJobs.length !== 1 ? 's' : ''}
