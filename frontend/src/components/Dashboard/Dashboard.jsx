@@ -9,6 +9,27 @@ import "./Dashboard.css";
 import API from "../../services/api.js";
 import CreatePost from "../insertpost/CreatePost";
 
+const mapPost = (p) => ({
+  id: p.postId,
+  title: p.jobTitle,
+  company: p.companyName,
+  location: p.isRemote ? "Remote" : p.location || "N/A",
+  salary:
+    p.minSalary && p.maxSalary
+      ? `$${Number(p.minSalary).toLocaleString()} – $${Number(p.maxSalary).toLocaleString()}`
+      : "Not specified",
+  type: p.isRemote ? "Remote" : p.empType || "Full-time",
+  posted: p.postedDate
+    ? new Date(p.postedDate).toLocaleDateString()
+    : "Recently",
+  description: p.description || "",
+  tags: [p.jobCategory, p.experienceLevel, p.empType].filter(Boolean),
+  applicants: 0,
+  postedBy: p.postedBy,
+  postedByEmail: p.postedByEmail,
+  experienceLevel: p.experienceLevel,
+});
+
 export default function Dashboard() {
   const [posts, setPosts] = useState([]);
   const [status, setStatus] = useState("");
@@ -16,7 +37,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("posts");
   const [selectedPostId, setSelectedPostId] = useState(null);
-  const [filterParams, setFilterParams] = useState({}); // fixed casing
+  const [filterParams, setFilterParams] = useState({});
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -25,29 +46,6 @@ export default function Dashboard() {
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  // ── Map raw API record → JobCard shape ────────────────────────────────
-  const mapPost = (p) => ({
-    id: p.postId,
-    title: p.jobTitle,
-    company: p.companyName,
-    location: p.isRemote ? "Remote" : p.location || "N/A",
-    salary:
-      p.minSalary && p.maxSalary
-        ? `$${Number(p.minSalary).toLocaleString()} – $${Number(p.maxSalary).toLocaleString()}`
-        : "Not specified",
-    type: p.isRemote ? "Remote" : p.empType || "Full-time",
-    posted: p.postedDate
-      ? new Date(p.postedDate).toLocaleDateString()
-      : "Recently",
-    description: p.description || "",
-    tags: [p.jobCategory, p.experienceLevel, p.empType].filter(Boolean),
-    applicants: 0,
-    postedBy: p.postedBy,
-    postedByEmail: p.postedByEmail,
-    experienceLevel: p.experienceLevel,
-  });
-
-  // ── Default fetch (no filters) ────────────────────────────────────────
   const fetchAllPosts = useCallback(async () => {
     setLoading(true);
     try {
@@ -55,7 +53,7 @@ export default function Dashboard() {
       const { status, posts } = res.data;
       setStatus(status);
       setPosts(posts.map(mapPost));
-      setTotalPages(1); // default endpoint has no pagination
+      setTotalPages(1);
     } catch (err) {
       console.error("fetchAllPosts:", err);
     } finally {
@@ -63,7 +61,6 @@ export default function Dashboard() {
     }
   }, []);
 
-  // ── Filtered fetch ────────────────────────────────────────────────────
   const fetchFilteredPosts = useCallback(async (params, currentPage = 1) => {
     setLoading(true);
     try {
@@ -80,19 +77,16 @@ export default function Dashboard() {
     }
   }, []);
 
-  // ── Initial load ──────────────────────────────────────────────────────
+  // ── Single unified effect ─────────────────────────────────────────────
   useEffect(() => {
-    fetchAllPosts();
-  }, [fetchAllPosts]);
+    const hasFilters = Object.keys(filterParams).length > 0;
+    if (hasFilters) {
+      fetchFilteredPosts(filterParams, page);
+    } else {
+      fetchAllPosts();
+    }
+  }, [filterParams, page, fetchAllPosts, fetchFilteredPosts]);
 
-  // ── Re-fetch when filters or page change ──────────────────────────────
-  useEffect(() => {
-    // If no filter params are active, stay on the default data
-    if (Object.keys(filterParams).length === 0) return;
-    fetchFilteredPosts(filterParams, page);
-  }, [filterParams, page, fetchFilteredPosts]);
-
-  // ── Client-side search on top of whatever `posts` is ─────────────────
   const filteredJobs = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return posts;
@@ -104,16 +98,10 @@ export default function Dashboard() {
     );
   }, [searchQuery, posts]);
 
-  // ── Filter apply handler ──────────────────────────────────────────────
+  // ── Simplified filter handler ─────────────────────────────────────────
   const handleApplyFilters = (params) => {
-    setPage(1); // reset to page 1 on new filter
+    setPage(1);
     setFilterParams(params);
-
-    // If sidebar was cleared (no params), go back to default feed
-    if (Object.keys(params).length === 0) {
-      fetchAllPosts();
-      setFilterParams({});
-    }
   };
 
   const handleSetActiveTab = (tab) => {
@@ -190,7 +178,6 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* ── Pagination (only shown when filters are active) ── */}
               {Object.keys(filterParams).length > 0 && totalPages > 1 && (
                 <div className="pagination">
                   <button

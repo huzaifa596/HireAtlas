@@ -11,10 +11,9 @@ const filterJobs = async (req, res) => {
       jobCategory,
       minSalary,
       maxSalary,
-      postedAfter,
+      postedDate,
       location,
       companyName,
-      sortBy = "newest",
       page = 1,
       limit = 20,
     } = req.query;
@@ -23,14 +22,7 @@ const filterJobs = async (req, res) => {
     limit = Math.min(100, Math.max(1, Number(limit)));
     const offset = (page - 1) * limit;
 
-    //Whitelist sort (prevents SQL injection)
-    const sortMap = {
-      newest: "postedDate DESC",
-      oldest: "postedDate ASC",
-      salary_high: "maxSalary DESC",
-      salary_low: "minSalary ASC",
-    };
-    const orderBy = sortMap[sortBy] || sortMap.newest;
+    const orderBy = "postedDate DESC";
 
     // Build request with ALL possible parameters
     const pool = await poolPromise;
@@ -58,7 +50,7 @@ const filterJobs = async (req, res) => {
       sql.Decimal(18, 2),
       maxSalary ? Number(maxSalary) : null,
     );
-    request.input("postedAfter", sql.Date, postedAfter || null);
+    request.input("postedDate", sql.Date, postedDate || null);
     request.input(
       "location",
       sql.NVarChar(150),
@@ -81,7 +73,7 @@ const filterJobs = async (req, res) => {
       AND (@jobCategory IS NULL OR jobCategory IN (SELECT value FROM STRING_SPLIT(@jobCategory, ',')))
       AND (@minSalary IS NULL OR maxSalary >= @minSalary)
       AND (@maxSalary IS NULL OR minSalary <= @maxSalary)
-      AND (@postedAfter IS NULL OR postedDate >= @postedAfter)
+      AND (@postedDate IS NULL OR postedDate = @postedDate)
       AND (@location IS NULL OR location LIKE @location)
       AND (@companyName IS NULL OR companyName LIKE @companyName)
     `;

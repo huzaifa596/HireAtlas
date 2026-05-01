@@ -51,11 +51,14 @@ export function buildApiParams(filters) {
 
   if (filters.jobCategory?.length)
     params.jobCategory = filters.jobCategory.join(",");
+
   if (filters.salaryRange?.length) {
     const matched = SALARY_BUCKETS.filter((b) =>
       filters.salaryRange.includes(b.value),
     );
+
     params.minSalary = Math.min(...matched.map((b) => b.min));
+
     params.maxSalary = matched.some((b) => b.max === null)
       ? null
       : Math.max(...matched.map((b) => b.max));
@@ -64,12 +67,8 @@ export function buildApiParams(filters) {
   if (filters.postedWithin !== "any") {
     const d = new Date();
     d.setDate(d.getDate() - Number(filters.postedWithin));
-    params.postedAfter = d.toISOString().split("T")[0];
+    params.postedDate = d.toISOString().split("T")[0];
   }
-
-  if (filters.location?.trim()) params.location = filters.location.trim();
-
-  params.sortBy = filters.sortBy ?? "newest";
 
   return params;
 }
@@ -133,7 +132,7 @@ const filterSections = [
     options: SALARY_BUCKETS.map(({ value, label }) => ({ value, label })),
   },
   {
-    id: "postedWithin",
+    id: "postedDate",
     label: "Date Posted",
     type: "radio",
     options: [
