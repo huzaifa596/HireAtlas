@@ -42,15 +42,15 @@ const DEFAULT_STATE = {
 export function buildApiParams(filters) {
   const params = {};
 
-  if (filters.empType?.length) params.empType = filters.empType;
+  if (filters.empType?.length) params.empType = filters.empType.join(",");
 
   if (filters.experienceLevel?.length)
-    params.experienceLevel = filters.experienceLevel;
+    params.experienceLevel = filters.experienceLevel.join(",");
 
   if (filters.isRemote !== "any") params.isRemote = Number(filters.isRemote);
 
-  if (filters.jobCategory?.length) params.jobCategory = filters.jobCategory;
-
+  if (filters.jobCategory?.length)
+    params.jobCategory = filters.jobCategory.join(",");
   if (filters.salaryRange?.length) {
     const matched = SALARY_BUCKETS.filter((b) =>
       filters.salaryRange.includes(b.value),
@@ -265,9 +265,7 @@ export default function FilterSidebar({ onApply }) {
     (filters.isRemote !== "any" ? 1 : 0) +
     (filters.jobCategory?.length || 0) +
     (filters.salaryRange?.length || 0) +
-    (filters.postedWithin !== "any" ? 1 : 0) +
-    (filters.sortBy !== "newest" ? 1 : 0) +
-    (filters.location?.trim() ? 1 : 0);
+    (filters.postedWithin !== "any" ? 1 : 0);
 
   const set = (id, val) => setFilters((prev) => ({ ...prev, [id]: val }));
   const reset = () => setFilters(DEFAULT_STATE);
