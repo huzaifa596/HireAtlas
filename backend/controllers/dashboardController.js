@@ -153,17 +153,31 @@ const getmypost = async (req, res) => {
 
 const deleteMyPost = async (req, res) => {
   try {
+    const postId = parseInt(req.params.postId);
+    if (!postId || isNaN(postId)) {
+      return res
+        .status(400)
+        .json({ status: "ERROR", message: "Invalid postId" });
+    }
+
     const pool = await poolPromise;
     const result = await pool
       .request()
-      .input("postid", sql.BigInt, req.post.postId)
-      .query("UPDATE post SET isActive=0 WHERE postId=@postId");
-    return res.status(200).json({ status: "SUCCESS", posts: result.recordset });
+      .input("postId", sql.BigInt, postId)
+      .query("UPDATE post SET isActive = 0 WHERE postId = @postId");
+
+    if (result.rowsAffected[0] === 0) {
+      return res
+        .status(404)
+        .json({ status: "ERROR", message: "Post not found" });
+    }
+
+    return res.status(200).json({ status: "SUCCESS", message: "Post deleted" });
   } catch (err) {
-    console.error("Error deleting post: ", err);
+    console.error("Error deleting post:", err);
     return res.status(500).json({
-      status: "Error",
-      message: "Couldnt delete the post due to some server error",
+      status: "ERROR",
+      message: "Couldn't delete the post due to server error",
     });
   }
 };

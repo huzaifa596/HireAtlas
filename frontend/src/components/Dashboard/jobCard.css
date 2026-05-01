@@ -1,28 +1,48 @@
 .delete-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #fee2e2;
+  top: 18px;
+  right: 18px;
+  background: #fff;
   color: #dc2626;
-  border: none;
-  border-radius: 6px;
-  width: 28px;
-  height: 28px;
+  border: 1.5px solid #fecaca;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition:
-    background 0.2s,
-    transform 0.15s;
-  z-index: 2;
+  transition: all 0.2s ease;
+  z-index: 10;
+  padding: 0;
 }
 
 .delete-btn:hover {
-  background: #fecaca;
-  transform: scale(1.05);
+  background: #fee2e2;
+  border-color: #ef4444;
+  transform: scale(1.08);
 }
 
-.delete-btn:active {
-  transform: scale(0.95);
+/* Prevent the date/type badge from sliding under the X */
+.card-meta {
+  padding-right: 34px;
+}
+
+/* Mobile: bigger touch target + adjusted spacing */
+@media (max-width: 768px) {
+  .delete-btn {
+    width: 34px;
+    height: 34px;
+    top: 14px;
+    right: 14px;
+  }
+
+  .card-meta {
+    padding-right: 44px;
+  }
+
+  .delete-btn svg {
+    width: 16px;
+    height: 16px;
+  }
 }

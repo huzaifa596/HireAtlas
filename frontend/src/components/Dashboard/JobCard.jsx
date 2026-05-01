@@ -31,12 +31,15 @@ export default function JobCard({
   const initial = job.company?.charAt(0).toUpperCase() ?? "?";
 
   return (
-    <article className="job-card" style={{ animationDelay: `${index * 80}ms` }}>
+    <article
+      className="job-card"
+      style={{ animationDelay: `${index * 80}ms`, position: "relative" }}
+    >
       {isMyPost && (
         <button
           className="delete-btn"
           onClick={() => onDelete?.(job.id)}
-          style={{ position: "absolute", top: 12, right: 12 }}
+          aria-label="Delete post"
         >
           <X size={16} />
         </button>

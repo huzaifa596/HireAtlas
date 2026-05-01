@@ -233,3 +233,9 @@ User logged in: ahmed@gmail.com
  time: 2026-05-01T15:34:32.857Z
 User logged in: hello123@gmail.com
  time: 2026-05-01T15:36:59.451Z
+User logged in: hello123@gmail.com
+ time: 2026-05-01T21:56:26.918Z
+New user signed up: akmal.Ibrahim@gmail.com
+ time: 2026-05-01T22:26:29.717Z
+User logged in: akmal.ibrahim@gmail.com
+ time: 2026-05-01T22:27:24.177Z
