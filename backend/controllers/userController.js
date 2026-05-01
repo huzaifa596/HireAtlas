@@ -214,4 +214,33 @@ const saveExperience = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience};
+
+const deleteExperience = async (req, res) => {
+  try {
+    const expId = parseInt(req.params.expId);
+
+    if (!expId || isNaN(expId)) {
+      return res.status(400).json({ status: 'ERROR', message: 'Invalid experience ID' });
+    }
+
+    const pool = await poolPromise;
+    const result = await pool.request()
+      .input('expId',  sql.BigInt, expId)
+      .input('userId', sql.BigInt, req.user.userID)
+      .execute('sp_DeleteExperience');
+
+    const spResult = result.recordset[0];
+
+    if (spResult.Status === 'EXPERIENCE_NOT_FOUND') {
+      return res.status(404).json({ status: 'ERROR', message: 'Experience entry not found' });
+    }
+
+    return res.status(200).json({ status: 'SUCCESS', message: 'Experience entry deleted' });
+
+  } catch (err) {
+    console.error('Delete experience error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not delete experience' });
+  }
+};
+
+module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience};
