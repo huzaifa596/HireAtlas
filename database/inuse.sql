@@ -319,3 +319,24 @@ END;
 GO;
 
 ----------------------------------------
+CREATE PROCEDURE sp_DeletePost
+    @postId    BIGINT,
+    @creatorId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM post WHERE postId = @postId AND creatorId = @creatorId)
+    BEGIN
+        SELECT 'POST_NOT_FOUND_OR_UNAUTHORIZED' AS Status;
+        RETURN;
+    END
+
+    UPDATE post
+    SET    isActive = 0
+    WHERE  postId    = @postId
+      AND  creatorId = @creatorId;
+
+    SELECT 'SUCCESS' AS Status;
+END;
+GO

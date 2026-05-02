@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import SectionCard from "./SectionCard";
 import TimelineItem from "./TimelineItem";
 import FormInput from "./FormInput";
+import API from '../../services/api';
 
-// import { addEducation, updateEducation, deleteEducation } from "../services/profileApi";
 const levelOptions = ["Matriculation","Intermediate","Bachelor's","Master's","PhD","Diploma","Other"];
 const EMPTY = {
   instituteName: "", level: "", degreeName: "",
@@ -16,16 +16,35 @@ const fmt = (d) => {
   return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 };
 
+// ── Moved OUTSIDE EducationSection ──
+const EntryForm = ({ form, errors, isSaving, editingId, onField, onSave, onCancel }) => (
+  <div className="entry-form">
+    <div className="entry-form__grid">
+      <FormInput label="Institute Name"   name="instituteName" required placeholder="e.g. LUMS"              value={form.instituteName} onChange={onField("instituteName")} error={errors.instituteName} />
+      <FormInput label="Level"            name="level"         required type="select" options={levelOptions}  value={form.level}         onChange={onField("level")}         error={errors.level} />
+      <FormInput label="Degree / Program" name="degreeName"    required placeholder="e.g. BS Computer Science" value={form.degreeName}   onChange={onField("degreeName")}    error={errors.degreeName} />
+      <FormInput label="Grade / GPA"      name="grade"                  placeholder="e.g. 3.8/4.0 or 85%"   value={form.grade}         onChange={onField("grade")}         error={errors.grade} />
+      <FormInput label="Start Date"       name="startDate"     required type="date"                          value={form.startDate}     onChange={onField("startDate")}     error={errors.startDate} />
+      <FormInput label="End Date"         name="endDate"                type="date"                          value={form.endDate}       onChange={onField("endDate")}       error={errors.endDate} />
+    </div>
+    <div className="entry-form__actions">
+      <button className="btn btn--ghost btn--sm" onClick={onCancel}>Cancel</button>
+      <button className="btn btn--primary btn--sm" onClick={onSave} disabled={isSaving}>
+        {isSaving ? <span className="spinner" /> : editingId === "new" ? "Add Entry" : "Update Entry"}
+      </button>
+    </div>
+  </div>
+);
+
 const EducationSection = ({ userId, education: init, onEducationUpdated }) => {
   const [education, setEducation] = useState(init);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingId, setEditingId] = useState(null); // eduId | "new" | null
+  const [editingId, setEditingId] = useState(null);
   const [form,      setForm]      = useState({ ...EMPTY });
   const [errors,    setErrors]    = useState({});
   const [isSaving,  setIsSaving]  = useState(false);
   const [feedback,  setFeedback]  = useState(null);
 
-  // Section-level edit toggle (enables per-entry edit/delete buttons)
   const handleEdit   = () => { setIsEditing(true);  setFeedback(null); };
   const handleCancel = () => { setIsEditing(false); setEditingId(null); setForm({ ...EMPTY }); setErrors({}); };
   const handleSave   = () => { setIsEditing(false); setEditingId(null); };
@@ -52,20 +71,31 @@ const EducationSection = ({ userId, education: init, onEducationUpdated }) => {
     return e;
   };
 
+  // ── field handler now returns an onChange function directly ──
+  const onField = (key) => (e) => {
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+    if (errors[key]) setErrors((er) => ({ ...er, [key]: undefined }));
+  };
+
   const handleSaveEntry = async () => {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setIsSaving(true);
     setFeedback(null);
     try {
-      await new Promise((r) => setTimeout(r, 700)); // replace with real API call
+      const payload = editingId === "new"
+        ? { ...form }
+        : { ...form, eduId: editingId };
+
+      const response = await API.patch('/user/education', payload);
+      const saved = response.data.education;
+
       let updated;
       if (editingId === "new") {
-        const entry = { ...form, eduId: Date.now() };
-        updated = [entry, ...education];
+        updated = [saved, ...education];
         setFeedback({ type: "success", message: "Education entry added." });
       } else {
-        updated = education.map((e) => e.eduId === editingId ? { ...e, ...form } : e);
+        updated = education.map((e) => e.eduId === editingId ? saved : e);
         setFeedback({ type: "success", message: "Education entry updated." });
       }
       setEducation(updated);
@@ -83,7 +113,7 @@ const EducationSection = ({ userId, education: init, onEducationUpdated }) => {
   const handleDeleteEntry = async (eduId) => {
     if (!window.confirm("Remove this education entry?")) return;
     try {
-      await new Promise((r) => setTimeout(r, 400));
+      await API.delete(`/user/education/${eduId}`);
       const updated = education.filter((e) => e.eduId !== eduId);
       setEducation(updated);
       onEducationUpdated?.(updated);
@@ -101,34 +131,6 @@ const EducationSection = ({ userId, education: init, onEducationUpdated }) => {
     if (editingId === "new") setIsEditing(false);
   };
 
-  const field = (key) => ({
-    value: form[key] ?? "",
-    onChange: (e) => {
-      setForm((f) => ({ ...f, [key]: e.target.value }));
-      if (errors[key]) setErrors((er) => ({ ...er, [key]: undefined }));
-    },
-    error: errors[key],
-  });
-
-  const EntryForm = () => (
-    <div className="entry-form">
-      <div className="entry-form__grid">
-        <FormInput label="Institute Name" name="instituteName" required placeholder="e.g. LUMS" {...field("instituteName")} />
-        <FormInput label="Level"          name="level"         required type="select" options={levelOptions} {...field("level")} />
-        <FormInput label="Degree / Program" name="degreeName" required placeholder="e.g. BS Computer Science" {...field("degreeName")} />
-        <FormInput label="Grade / GPA"    name="grade"         placeholder="e.g. 3.8/4.0 or 85%" {...field("grade")} />
-        <FormInput label="Start Date"     name="startDate"     required type="date" {...field("startDate")} />
-        <FormInput label="End Date"       name="endDate"       type="date" {...field("endDate")} />
-      </div>
-      <div className="entry-form__actions">
-        <button className="btn btn--ghost btn--sm" onClick={handleCancelEntry}>Cancel</button>
-        <button className="btn btn--primary btn--sm" onClick={handleSaveEntry} disabled={isSaving}>
-          {isSaving ? <span className="spinner" /> : editingId === "new" ? "Add Entry" : "Update Entry"}
-        </button>
-      </div>
-    </div>
-  );
-
   return (
     <SectionCard
       title="Education" icon="🎓"
@@ -144,7 +146,11 @@ const EducationSection = ({ userId, education: init, onEducationUpdated }) => {
             {editingId === edu.eduId ? (
               <div className="timeline-edit-wrapper">
                 <div className="timeline-edit-header">Editing: {edu.instituteName}</div>
-                <EntryForm />
+                <EntryForm
+                  form={form} errors={errors} isSaving={isSaving}
+                  editingId={editingId} onField={onField}
+                  onSave={handleSaveEntry} onCancel={handleCancelEntry}
+                />
               </div>
             ) : (
               <TimelineItem
@@ -163,7 +169,11 @@ const EducationSection = ({ userId, education: init, onEducationUpdated }) => {
         {editingId === "new" && (
           <div className="timeline-edit-wrapper timeline-edit-wrapper--new">
             <div className="timeline-edit-header">➕ New Education Entry</div>
-            <EntryForm />
+            <EntryForm
+              form={form} errors={errors} isSaving={isSaving}
+              editingId={editingId} onField={onField}
+              onSave={handleSaveEntry} onCancel={handleCancelEntry}
+            />
           </div>
         )}
 

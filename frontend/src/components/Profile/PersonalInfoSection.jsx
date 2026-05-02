@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 import SectionCard from "./SectionCard";
 import FormInput from "./FormInput";
+import API from '../../services/api';
 // import { updateUserProfile } from "../services/profileApi"; // uncomment when backend ready
 
 /**
@@ -106,16 +107,14 @@ const PersonalInfoSection = ({ user, onUserUpdated }) => {
       */
 
       // ── Mock: simulate network delay ──
-      await new Promise((r) => setTimeout(r, 900));
-      const updatedUser = {
-        ...form,
-        // If a new CV was selected, pretend the server returned its name
-        ...(cvFile && {
-          cvFileName: cvFile.name,
-          cvPath: `/uploads/cvs/${cvFile.name}`,
-        }),
-      };
-      onUserUpdated(updatedUser);
+const response = await API.patch('/user/personal', {
+  name:  form.name,
+  email: form.email,
+  phone: form.phone  || null,
+  age:   form.age    || null,
+});
+
+onUserUpdated(response.data.personalInfo);
       // ────────────────────────────────
 
       setCvFile(null);

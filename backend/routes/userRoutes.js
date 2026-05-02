@@ -6,7 +6,7 @@ const verifyToken = require('../middleware/authMiddleware');
 console.log("getProfile:", getProfile);
 router.get('/', verifyToken, getProfile);
 router.patch('/personal',    verifyToken, updatePersonalInfo);  
-router.post('/education',  verifyToken, saveEducation);  
+router.patch('/education',  verifyToken, saveEducation);  
 router.delete('/education/:eduId',   verifyToken, deleteEducation);  
 router.patch('/experience',        verifyToken, saveExperience);   
 router.delete('/experience/:expId',  verifyToken, deleteExperience);  
