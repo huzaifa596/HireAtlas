@@ -1,6 +1,10 @@
 // controllers/applicationController.js
 require("dotenv").config();
 const { sql, poolPromise } = require("../config/db");
+const {
+  sendApplicationConfirmation,
+  sendNewApplicationNotification,
+} = require("./emailSender");
 
 const submitApplication = async (req, res) => {
   const postId = parseInt(req.params.postId);
@@ -19,6 +23,27 @@ const submitApplication = async (req, res) => {
       .execute("sp_SubmitApplication");
 
     const row = result.recordset[0];
+    console.log("Email row data:", row);
+    console.log("Applicant email:", row.applicantEmail);
+    console.log("Employer email:", row.employerEmail);
+    // Fire both emails in background
+    Promise.all([
+      sendApplicationConfirmation({
+        to: row.applicantEmail,
+        applicantName: row.applicantName,
+        jobTitle: row.jobTitle,
+        companyName: row.companyName,
+      }),
+      sendNewApplicationNotification({
+        to: row.employerEmail,
+        employerName: row.employerName,
+        applicantName: row.applicantName,
+        applicantEmail: row.applicantEmail,
+        jobTitle: row.jobTitle,
+      }),
+    ]).catch((emailErr) => {
+      console.error("Email failed:", emailErr.message);
+    });
 
     return res.status(201).json({
       message: "Application submitted successfully.",
@@ -27,7 +52,6 @@ const submitApplication = async (req, res) => {
   } catch (err) {
     const msg = err.message?.trim();
 
-    // CV missing on profile — specific actionable error
     if (msg === "NO_CV_ON_PROFILE") {
       return res.status(422).json({
         code: "NO_CV_ON_PROFILE",
@@ -35,8 +59,8 @@ const submitApplication = async (req, res) => {
       });
     }
 
-    // Other business-rule errors raised by the SP
     if (err.number === 50000 || err.class === 16) {
+      console.log("SP error message:", msg);
       return res.status(409).json({ message: msg });
     }
 
@@ -44,7 +68,6 @@ const submitApplication = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
-
 //===============================================================================
 
 const getMyApplications = async (req, res) => {

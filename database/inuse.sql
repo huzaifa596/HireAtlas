@@ -390,14 +390,25 @@ BEGIN
         RETURN;
     END
 
-    -- 5. Atomic insert
+    -- 5. Atomic insert + return all email data in one shot
     BEGIN TRY
         BEGIN TRANSACTION;
 
             INSERT INTO application (postId, applicantId, cvPath)
             VALUES (@postId, @applicantId, @cvPath);
 
-            SELECT SCOPE_IDENTITY() AS applicationId;
+            SELECT
+                SCOPE_IDENTITY()        AS applicationId,
+                applicant.name          AS applicantName,
+                applicant.email         AS applicantEmail,
+                p.jobTitle              AS jobTitle,
+                p.companyName           AS companyName,
+                employer.name           AS employerName,
+                employer.email          AS employerEmail
+            FROM post p
+            INNER JOIN appUser applicant ON applicant.userId = @applicantId
+            INNER JOIN appUser employer  ON employer.userId  = p.creatorId
+            WHERE p.postId = @postId;
 
         COMMIT TRANSACTION;
     END TRY
@@ -414,6 +425,7 @@ BEGIN
     END CATCH
 END;
 GO
+
 
 CREATE VIEW vw_MyApplications AS
 SELECT
