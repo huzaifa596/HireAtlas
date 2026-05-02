@@ -2,15 +2,11 @@
 require("dotenv").config();
 const { sql, poolPromise } = require("../config/db");
 
-// ──────────────────────────────────────────────
-// POST /api/applications
-// Body: { postId }
-// ──────────────────────────────────────────────
 const submitApplication = async (req, res) => {
-  const { postId } = req.body;
-  const applicantId = req.user.userId;
+  const postId = parseInt(req.params.postId);
+  const applicantId = req.user.userID;
 
-  if (!postId) {
+  if (!postId || isNaN(postId)) {
     return res.status(400).json({ message: "postId is required." });
   }
 
@@ -49,4 +45,107 @@ const submitApplication = async (req, res) => {
   }
 };
 
-module.exports = { submitApplication };
+//===============================================================================
+
+const getMyApplications = async (req, res) => {
+  const applicantId = req.user.userID;
+
+  try {
+    const pool = await poolPromise;
+    const result = await pool
+      .request()
+      .input("applicantId", sql.BigInt, applicantId)
+      .execute("sp_GetMyApplications");
+
+    return res.status(200).json({
+      applications: result.recordset,
+    });
+  } catch (err) {
+    console.error("getMyApplications:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// ──────────────────────────────────────────────────────────────
+// GET /applications/post/:postId
+// Returns all candidates who applied to a specific post
+// Only the employer who created the post can access this
+// ──────────────────────────────────────────────────────────────
+const getPostCandidates = async (req, res) => {
+  const postId = parseInt(req.params.postId);
+  const employerId = req.user.userID;
+
+  if (!postId || isNaN(postId)) {
+    return res.status(400).json({ message: "postId is required." });
+  }
+
+  try {
+    const pool = await poolPromise;
+    const result = await pool
+      .request()
+      .input("postId", sql.BigInt, postId)
+      .input("employerId", sql.BigInt, employerId)
+      .execute("sp_GetPostCandidates");
+
+    return res.status(200).json({
+      applications: result.recordset,
+    });
+  } catch (err) {
+    const msg = err.message?.trim();
+
+    if (err.number === 50000 || err.class === 16) {
+      return res.status(403).json({ message: msg });
+    }
+
+    console.error("getPostCandidates:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+// ──────────────────────────────────────────────────────────────
+// PATCH /applications/:applicationId/status
+// Employer updates the status of an application
+// ──────────────────────────────────────────────────────────────
+const updateApplicationStatus = async (req, res) => {
+  const applicationId = parseInt(req.params.applicationId);
+  const { status } = req.body;
+  const employerId = req.user.userID;
+
+  if (!status) {
+    return res.status(400).json({ message: "status is required." });
+  }
+
+  try {
+    const pool = await poolPromise;
+    const result = await pool
+      .request()
+      .input("applicationId", sql.BigInt, applicationId)
+      .input("employerId", sql.BigInt, employerId)
+      .input("newStatus", sql.VarChar(50), status)
+      .execute("sp_UpdateApplicationStatus");
+
+    const row = result.recordset[0];
+
+    return res.status(200).json({
+      message: "Status updated successfully.",
+      applicationId: row.applicationId,
+      status: row.status,
+    });
+  } catch (err) {
+    const msg = err.message?.trim();
+
+    if (err.number === 50000 || err.class === 16) {
+      return res.status(403).json({ message: msg });
+    }
+
+    console.error("updateApplicationStatus:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+module.exports = {
+  submitApplication,
+  getMyApplications,
+  getPostCandidates,
+  updateApplicationStatus,
+};

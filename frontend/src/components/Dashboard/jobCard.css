@@ -46,3 +46,32 @@
     height: 16px;
   }
 }
+/* ── Add these to your existing jobCard.css ── */
+
+.card-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.candidates-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #f1f5f9;
+  color: #1e3a8a;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.candidates-btn:hover {
+  background: #e0f2fe;
+  border-color: #bae6fd;
+}

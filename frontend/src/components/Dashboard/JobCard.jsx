@@ -24,10 +24,10 @@ export default function JobCard({
   onViewPost,
   isMyPost,
   onDelete,
+  onSeeCandidates, // ← new prop
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // ← ADD onViewPost
   const typeStyle = TYPE_COLORS[job.type] || {
     bg: "#f1f5f9",
     color: "#475569",
@@ -40,7 +40,6 @@ export default function JobCard({
   }
 
   function handleDeleteClick() {
-    console.log("handleDeleteClick fired");
     setShowConfirm(true);
   }
 
@@ -54,7 +53,7 @@ export default function JobCard({
         type="confirm"
         title="Delete this post"
         confirmDanger={true}
-        message={`Are you sure you want to delete to delete ${job.title} at company ${job.company}`}
+        message={`Are you sure you want to delete ${job.title} at company ${job.company}?`}
         onClose={() => setShowConfirm(false)}
         onConfirm={handleConfirmDelete}
         confirmLabel="Confirm"
@@ -70,6 +69,7 @@ export default function JobCard({
           <X size={16} />
         </button>
       )}
+
       <div className="card-top">
         <div className="company-logo">{initial}</div>
         <div className="card-meta">
@@ -86,13 +86,11 @@ export default function JobCard({
         </div>
       </div>
 
-      {/* Title + Company */}
       <div className="card-heading">
         <h3 className="job-title">{job.title}</h3>
         <p className="job-company">{job.company}</p>
       </div>
 
-      {/* Info row */}
       <div className="card-info-row">
         <span className="info-chip">
           <MapPin size={13} /> {job.location}
@@ -107,10 +105,8 @@ export default function JobCard({
         )}
       </div>
 
-      {/* Description */}
       <p className="job-description">{job.description}</p>
 
-      {/* Tags */}
       {job.tags?.length > 0 && (
         <div className="tags-row">
           {job.tags.map((tag) => (
@@ -121,18 +117,27 @@ export default function JobCard({
         </div>
       )}
 
-      {/* Footer */}
       <div className="card-footer">
         <span className="applicants-count">
           <Users size={14} />
           Posted by {job.postedBy ?? "Unknown"}
         </span>
-        <button
-          className="view-btn"
-          onClick={() => onViewPost(job.id)} // ← job.id not job.postId (mapped in Dashboard)
-        >
-          View Details <ChevronRight size={15} />
-        </button>
+
+        <div className="card-footer-actions">
+          {/* See Candidates — only on My Posts */}
+          {isMyPost && (
+            <button
+              className="candidates-btn"
+              onClick={() => onSeeCandidates?.(job.id, job.title)}
+            >
+              <Users size={14} /> See Candidates
+            </button>
+          )}
+
+          <button className="view-btn" onClick={() => onViewPost(job.id)}>
+            View Details <ChevronRight size={15} />
+          </button>
+        </div>
       </div>
     </article>
   );

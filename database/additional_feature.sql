@@ -5,7 +5,7 @@ GO
 
 -----
 ALTER tABle appUser
-ADD cvfileName varchar(255) NULL;
+ADD cvFileName varchar(255) NULL;
 GO
 
 CREATE PROCEDURE sp_UpdatePersonalInfo

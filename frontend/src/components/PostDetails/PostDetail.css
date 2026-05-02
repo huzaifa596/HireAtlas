@@ -16,42 +16,44 @@
 /* ── Tokens ─────────────────────────────────────────────────── */
 :root {
   /* Palette */
-  --ha-page-bg:      #e8edf5;
-  --ha-surface:      #ffffff;
-  --ha-banner:       #1c2d5a;
-  --ha-banner-deep:  #162447;
-  --ha-avatar-bg:    #5b8fd9;
-  --ha-accent:       #6aa3e0;
+  --ha-page-bg: #e8edf5;
+  --ha-surface: #ffffff;
+  --ha-banner: #1c2d5a;
+  --ha-banner-deep: #162447;
+  --ha-avatar-bg: #5b8fd9;
+  --ha-accent: #6aa3e0;
   --ha-accent-hover: #4a88c8;
 
-  --ha-navy:         #1c2d5a;
-  --ha-navy-hover:   #162447;
-  --ha-indigo:       #2e307a;
+  --ha-navy: #1c2d5a;
+  --ha-navy-hover: #162447;
+  --ha-indigo: #2e307a;
   --ha-indigo-light: #eef0fb;
 
   /* Text */
-  --ha-text-dark:    #1a1f36;
-  --ha-text-mid:     #4a5068;
-  --ha-text-muted:   #9098b1;
+  --ha-text-dark: #1a1f36;
+  --ha-text-mid: #4a5068;
+  --ha-text-muted: #9098b1;
 
   /* Borders */
-  --ha-border:       #e2e6f0;
+  --ha-border: #e2e6f0;
   --ha-border-hover: #b8c4dd;
 
   /* Skill level colours */
-  --ha-green:        #16a34a;
-  --ha-green-bg:     #f0fdf4;
-  --ha-blue:         #0284c7;
-  --ha-blue-bg:      #f0f9ff;
-  --ha-amber:        #d97706;
-  --ha-amber-bg:     #fffbeb;
-  --ha-purple:       #7c3aed;
-  --ha-purple-bg:    #faf5ff;
+  --ha-green: #16a34a;
+  --ha-green-bg: #f0fdf4;
+  --ha-blue: #0284c7;
+  --ha-blue-bg: #f0f9ff;
+  --ha-amber: #d97706;
+  --ha-amber-bg: #fffbeb;
+  --ha-purple: #7c3aed;
+  --ha-purple-bg: #faf5ff;
 
   /* Elevation */
-  --ha-shadow-xs: 0 1px 3px rgba(28, 45, 90, .06);
-  --ha-shadow-sm: 0 2px 8px rgba(28, 45, 90, .08), 0 1px 3px rgba(28, 45, 90, .04);
-  --ha-shadow-md: 0 4px 16px rgba(28, 45, 90, .1),  0 2px 6px rgba(28, 45, 90, .06);
+  --ha-shadow-xs: 0 1px 3px rgba(28, 45, 90, 0.06);
+  --ha-shadow-sm:
+    0 2px 8px rgba(28, 45, 90, 0.08), 0 1px 3px rgba(28, 45, 90, 0.04);
+  --ha-shadow-md:
+    0 4px 16px rgba(28, 45, 90, 0.1), 0 2px 6px rgba(28, 45, 90, 0.06);
 
   /* Shape */
   --ha-r-sm: 8px;
@@ -59,10 +61,10 @@
   --ha-r-lg: 16px;
 
   /* Motion */
-  --ha-ease: 200ms cubic-bezier(.4, 0, .2, 1);
+  --ha-ease: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Font — matches existing HireAtlas */
-  --ha-font: 'Plus Jakarta Sans', 'Gilroy', system-ui, sans-serif;
+  --ha-font: "Plus Jakarta Sans", "Gilroy", system-ui, sans-serif;
 }
 
 /* ── Reset ──────────────────────────────────────────────────── */
@@ -86,17 +88,31 @@
 
 /* ── Animations ─────────────────────────────────────────────── */
 @keyframes ha-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes ha-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes ha-pop {
-  from { opacity: 0; transform: scale(.8); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ── State screens ──────────────────────────────────────────── */
@@ -114,7 +130,7 @@
 .ha-state-emoji {
   font-size: 52px;
   line-height: 1;
-  animation: ha-pop .35s ease;
+  animation: ha-pop 0.35s ease;
 }
 
 .ha-state-title {
@@ -126,7 +142,7 @@
 
 .ha-state-msg {
   margin: 0;
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   color: var(--ha-text-mid);
   max-width: 340px;
   line-height: 1.6;
@@ -138,7 +154,7 @@
   border: 3px solid var(--ha-border);
   border-top-color: var(--ha-avatar-bg);
   border-radius: 50%;
-  animation: ha-spin .75s linear infinite;
+  animation: ha-spin 0.75s linear infinite;
 }
 
 /* ── Back button ────────────────────────────────────────────── */
@@ -153,7 +169,7 @@
   border-radius: var(--ha-r-sm);
   color: var(--ha-text-mid);
   font-family: var(--ha-font);
-  font-size: .8125rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--ha-shadow-xs);
@@ -180,7 +196,7 @@
   justify-content: space-between;
   gap: 24px;
   box-shadow: var(--ha-shadow-md);
-  animation: ha-fade-up .4s ease both;
+  animation: ha-fade-up 0.4s ease both;
   position: relative;
   overflow: hidden;
 }
@@ -190,7 +206,11 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px
+  );
   background-size: 28px 28px;
   pointer-events: none;
 }
@@ -218,14 +238,16 @@
   font-weight: 800;
   color: #ffffff;
   line-height: 1.2;
-  letter-spacing: -.02em;
+  letter-spacing: -0.02em;
 }
 
 .ha-banner-company {
   margin: 0;
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--ha-accent);   /* bright blue, same as "Software Engineer @ Systems Limited" */
+  color: var(
+    --ha-accent
+  ); /* bright blue, same as "Software Engineer @ Systems Limited" */
 }
 
 .ha-banner-chips {
@@ -239,9 +261,9 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: .75rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  color: rgba(255,255,255,.65);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .ha-banner-chip--remote {
@@ -266,9 +288,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  letter-spacing: .02em;
+  letter-spacing: 0.02em;
   /* ring — matches the white ring visible in the screenshot */
-  box-shadow: 0 0 0 3px rgba(255,255,255,.25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
 
 .ha-avatar--lg {
@@ -286,7 +308,7 @@
 .ha-avatar--sm {
   width: 44px;
   height: 44px;
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   box-shadow: none;
 }
 
@@ -300,7 +322,7 @@
   border: none;
   border-radius: var(--ha-r-sm);
   font-family: var(--ha-font);
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   cursor: pointer;
   transition: all var(--ha-ease);
@@ -311,13 +333,13 @@
 .ha-btn--apply {
   background: var(--ha-accent);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(106, 163, 224, .4);
+  box-shadow: 0 4px 14px rgba(106, 163, 224, 0.4);
 }
 
 .ha-btn--apply:hover {
   background: var(--ha-accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(106, 163, 224, .5);
+  box-shadow: 0 6px 20px rgba(106, 163, 224, 0.5);
 }
 
 .ha-btn--apply:active {
@@ -351,7 +373,7 @@
   border-radius: var(--ha-r-lg);
   box-shadow: var(--ha-shadow-sm);
   overflow: hidden;
-  animation: ha-fade-up .42s ease both;
+  animation: ha-fade-up 0.42s ease both;
 }
 
 .ha-card-header {
@@ -374,7 +396,7 @@
   font-size: 1rem;
   font-weight: 700;
   color: var(--ha-text-dark);
-  letter-spacing: -.01em;
+  letter-spacing: -0.01em;
 }
 
 .ha-card-body {
@@ -427,15 +449,15 @@
 }
 
 .ha-meta-label {
-  font-size: .6875rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   color: var(--ha-text-muted);
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: 0.06em;
 }
 
 .ha-meta-value {
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: var(--ha-text-dark);
   line-height: 1.3;
@@ -448,7 +470,7 @@
 
 .ha-description p {
   margin: 0 0 14px;
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   color: var(--ha-text-mid);
 }
 
@@ -458,7 +480,7 @@
 
 .ha-empty {
   margin: 0;
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   color: var(--ha-text-muted);
   font-style: italic;
 }
@@ -478,7 +500,10 @@
   background: #f8f9fd;
   border: 1.5px solid var(--ha-border);
   border-radius: var(--ha-r-md);
-  transition: border-color var(--ha-ease), transform var(--ha-ease), box-shadow var(--ha-ease);
+  transition:
+    border-color var(--ha-ease),
+    transform var(--ha-ease),
+    box-shadow var(--ha-ease);
 }
 
 .ha-skill-chip:hover {
@@ -496,13 +521,13 @@
 }
 
 .ha-skill-name {
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: var(--ha-text-dark);
 }
 
 .ha-skill-cat {
-  font-size: .75rem;
+  font-size: 0.75rem;
   color: var(--ha-text-muted);
   font-weight: 500;
 }
@@ -511,18 +536,33 @@
 .ha-skill-badge {
   padding: 2px 8px;
   border-radius: 20px;
-  font-size: .6875rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: 0.04em;
   white-space: nowrap;
 }
 
-.lvl-beginner     { background: var(--ha-green-bg);  color: var(--ha-green);  }
-.lvl-intermediate { background: var(--ha-blue-bg);   color: var(--ha-blue);   }
-.lvl-advanced     { background: var(--ha-amber-bg);  color: var(--ha-amber);  }
-.lvl-expert       { background: var(--ha-purple-bg); color: var(--ha-purple); }
-.lvl-default      { background: #f3f4f6; color: var(--ha-text-muted); }
+.lvl-beginner {
+  background: var(--ha-green-bg);
+  color: var(--ha-green);
+}
+.lvl-intermediate {
+  background: var(--ha-blue-bg);
+  color: var(--ha-blue);
+}
+.lvl-advanced {
+  background: var(--ha-amber-bg);
+  color: var(--ha-amber);
+}
+.lvl-expert {
+  background: var(--ha-purple-bg);
+  color: var(--ha-purple);
+}
+.lvl-default {
+  background: #f3f4f6;
+  color: var(--ha-text-muted);
+}
 
 /* ── Qualifications list ─────────────────────────────────────── */
 .ha-quals-list {
@@ -539,7 +579,9 @@
   background: #f8f9fd;
   border: 1.5px solid var(--ha-border);
   border-radius: var(--ha-r-md);
-  transition: border-color var(--ha-ease), transform var(--ha-ease);
+  transition:
+    border-color var(--ha-ease),
+    transform var(--ha-ease);
 }
 
 .ha-qual-row:hover {
@@ -563,13 +605,13 @@
 }
 
 .ha-qual-degree {
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: var(--ha-text-dark);
 }
 
 .ha-qual-grade {
-  font-size: .8125rem;
+  font-size: 0.8125rem;
   color: var(--ha-text-mid);
 }
 
@@ -591,13 +633,13 @@
 }
 
 .ha-creator-name {
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: var(--ha-text-dark);
 }
 
 .ha-creator-email {
-  font-size: .8125rem;
+  font-size: 0.8125rem;
   color: var(--ha-avatar-bg);
   text-decoration: none;
   font-weight: 500;
@@ -633,7 +675,7 @@
 
 .ha-apply-footer-text p {
   margin: 0;
-  font-size: .875rem;
+  font-size: 0.875rem;
   color: var(--ha-text-mid);
 }
 
@@ -656,7 +698,7 @@
     border-right: 1px solid var(--ha-border);
   }
 
-  .ha-meta-pill:nth-last-child(-n+2) {
+  .ha-meta-pill:nth-last-child(-n + 2) {
     border-bottom: none;
   }
 
@@ -745,4 +787,16 @@
     width: 100%;
     justify-content: center;
   }
+}
+/* ── Add this to your existing PostDetail.css ── */
+
+.ha-btn--applied {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  cursor: default;
+}
+
+.ha-btn--applied:disabled {
+  opacity: 1;
 }
