@@ -243,4 +243,82 @@ const deleteExperience = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience};
+const saveSkill = async (req, res) => {
+  try {
+    const { userSkillId, skillName, category, proficiency } = req.body;
+
+    const pool = await poolPromise;
+    let spResult;
+
+    if (userSkillId) {
+      // ── UPDATE existing skill proficiency ──
+      const result = await pool.request()
+        .input('userSkillId', sql.BigInt,     userSkillId)
+        .input('userId',      sql.BigInt,     req.user.userID)
+        .input('proficiency', sql.VarChar(50), proficiency ?? 'Beginner')
+        .execute('sp_UpdateUserSkill');
+
+      spResult = result.recordset[0];
+
+    } else {
+      // ── ADD new skill ──
+      const result = await pool.request()
+        .input('userId',      sql.BigInt,      req.user.userID)
+        .input('skillName',   sql.VarChar(100), skillName)
+        .input('category',    sql.VarChar(50),  category    ?? null)
+        .input('proficiency', sql.VarChar(50),  proficiency ?? 'Beginner')
+        .execute('sp_AddUserSkill');
+
+      spResult = result.recordset[0];
+    }
+
+    const statusMap = {
+      'USER_NOT_FOUND':       { code: 404, message: 'User not found' },
+      'SKILL_NOT_FOUND':      { code: 404, message: 'Skill not found' },
+      'INVALID_SKILL_NAME':   { code: 400, message: 'Skill name is required' },
+      'SKILL_ALREADY_EXISTS': { code: 409, message: 'You already have this skill' },
+    };
+
+    if (statusMap[spResult.Status]) {
+      const { code, message } = statusMap[spResult.Status];
+      return res.status(code).json({ status: 'ERROR', message });
+    }
+
+    return res.status(200).json({ status: 'SUCCESS', skill: spResult });
+
+  } catch (err) {
+    console.error('Save skill error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not save skill' });
+  }
+};
+
+const deleteSkill = async (req, res) => {
+  try {
+    const userSkillId = parseInt(req.params.userSkillId);
+
+    if (!userSkillId || isNaN(userSkillId)) {
+      return res.status(400).json({ status: 'ERROR', message: 'Invalid skill ID' });
+    }
+
+    const pool = await poolPromise;
+    const result = await pool.request()
+      .input('userSkillId', sql.BigInt, userSkillId)
+      .input('userId',      sql.BigInt, req.user.userID)
+      .execute('sp_DeleteUserSkill');
+
+    const spResult = result.recordset[0];
+
+    if (spResult.Status === 'SKILL_NOT_FOUND') {
+      return res.status(404).json({ status: 'ERROR', message: 'Skill not found' });
+    }
+
+    return res.status(200).json({ status: 'SUCCESS', message: 'Skill deleted' });
+
+  } catch (err) {
+    console.error('Delete skill error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not delete skill' });
+  }
+};
+
+
+module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience,deleteSkill,saveSkill,};
