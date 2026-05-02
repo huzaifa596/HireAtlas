@@ -1,9 +1,8 @@
-// sections/ExperienceSection.jsx
 import React, { useState } from "react";
 import SectionCard from "./SectionCard";
 import TimelineItem from "./TimelineItem";
 import FormInput from "./FormInput";
-// import { addExperience, updateExperience, deleteExperience } from "../services/profileApi";
+import API from '../../services/api';
 
 const EMPTY = {
   companyName: "", jobTitle: "", description: "",
@@ -14,6 +13,29 @@ const fmt = (d) => {
   if (!d) return "Present";
   return new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 };
+
+// ── Moved OUTSIDE ExperienceSection ──
+const EntryForm = ({ form, errors, isSaving, editingId, onField, onSave, onCancel }) => (
+  <div className="entry-form">
+    <div className="entry-form__grid">
+      <FormInput label="Company Name" name="companyName" required placeholder="e.g. Systems Limited" value={form.companyName} onChange={onField("companyName")} error={errors.companyName} />
+      <FormInput label="Job Title"    name="jobTitle"    required placeholder="e.g. Software Engineer" value={form.jobTitle}   onChange={onField("jobTitle")}   error={errors.jobTitle} />
+      <FormInput label="Start Date"   name="startDate"   required type="date"                          value={form.startDate}  onChange={onField("startDate")}  error={errors.startDate} />
+      <FormInput label="End Date"     name="endDate"             type="date"                           value={form.endDate}    onChange={onField("endDate")}    error={errors.endDate} />
+    </div>
+    <FormInput
+      label="Description" name="description" type="textarea" rows={4}
+      placeholder="Describe your role, responsibilities, and key achievements..."
+      value={form.description} onChange={onField("description")} error={errors.description}
+    />
+    <div className="entry-form__actions">
+      <button className="btn btn--ghost btn--sm" onClick={onCancel}>Cancel</button>
+      <button className="btn btn--primary btn--sm" onClick={onSave} disabled={isSaving}>
+        {isSaving ? <span className="spinner" /> : editingId === "new" ? "Add Entry" : "Update Entry"}
+      </button>
+    </div>
+  </div>
+);
 
 const ExperienceSection = ({ userId, experience: init, onExperienceUpdated }) => {
   const [experience, setExperience] = useState(init);
@@ -49,20 +71,30 @@ const ExperienceSection = ({ userId, experience: init, onExperienceUpdated }) =>
     return e;
   };
 
+  const onField = (key) => (e) => {
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+    if (errors[key]) setErrors((er) => ({ ...er, [key]: undefined }));
+  };
+
   const handleSaveEntry = async () => {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setIsSaving(true);
     setFeedback(null);
     try {
-      await new Promise((r) => setTimeout(r, 700));
+      const payload = editingId === "new"
+        ? { ...form }
+        : { ...form, expId: editingId };
+
+      const response = await API.patch('/user/experience', payload);
+      const saved = response.data.experience;
+
       let updated;
       if (editingId === "new") {
-        const entry = { ...form, expId: Date.now() };
-        updated = [entry, ...experience];
+        updated = [saved, ...experience];
         setFeedback({ type: "success", message: "Experience entry added." });
       } else {
-        updated = experience.map((e) => e.expId === editingId ? { ...e, ...form } : e);
+        updated = experience.map((e) => e.expId === editingId ? saved : e);
         setFeedback({ type: "success", message: "Experience entry updated." });
       }
       setExperience(updated);
@@ -80,7 +112,7 @@ const ExperienceSection = ({ userId, experience: init, onExperienceUpdated }) =>
   const handleDeleteEntry = async (expId) => {
     if (!window.confirm("Remove this experience entry?")) return;
     try {
-      await new Promise((r) => setTimeout(r, 400));
+      await API.delete(`/user/experience/${expId}`);
       const updated = experience.filter((e) => e.expId !== expId);
       setExperience(updated);
       onExperienceUpdated?.(updated);
@@ -97,37 +129,6 @@ const ExperienceSection = ({ userId, experience: init, onExperienceUpdated }) =>
     setErrors({});
     if (editingId === "new") setIsEditing(false);
   };
-
-  const field = (key) => ({
-    value: form[key] ?? "",
-    onChange: (e) => {
-      setForm((f) => ({ ...f, [key]: e.target.value }));
-      if (errors[key]) setErrors((er) => ({ ...er, [key]: undefined }));
-    },
-    error: errors[key],
-  });
-
-  const EntryForm = () => (
-    <div className="entry-form">
-      <div className="entry-form__grid">
-        <FormInput label="Company Name" name="companyName" required placeholder="e.g. Systems Limited" {...field("companyName")} />
-        <FormInput label="Job Title"    name="jobTitle"    required placeholder="e.g. Software Engineer" {...field("jobTitle")} />
-        <FormInput label="Start Date"   name="startDate"   required type="date" {...field("startDate")} />
-        <FormInput label="End Date"     name="endDate"     type="date" {...field("endDate")} />
-      </div>
-      <FormInput
-        label="Description" name="description" type="textarea" rows={4}
-        placeholder="Describe your role, responsibilities, and key achievements..."
-        {...field("description")}
-      />
-      <div className="entry-form__actions">
-        <button className="btn btn--ghost btn--sm" onClick={handleCancelEntry}>Cancel</button>
-        <button className="btn btn--primary btn--sm" onClick={handleSaveEntry} disabled={isSaving}>
-          {isSaving ? <span className="spinner" /> : editingId === "new" ? "Add Entry" : "Update Entry"}
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <SectionCard
@@ -146,7 +147,11 @@ const ExperienceSection = ({ userId, experience: init, onExperienceUpdated }) =>
                 <div className="timeline-edit-header">
                   Editing: {exp.jobTitle} @ {exp.companyName}
                 </div>
-                <EntryForm />
+                <EntryForm
+                  form={form} errors={errors} isSaving={isSaving}
+                  editingId={editingId} onField={onField}
+                  onSave={handleSaveEntry} onCancel={handleCancelEntry}
+                />
               </div>
             ) : (
               <TimelineItem
@@ -165,7 +170,11 @@ const ExperienceSection = ({ userId, experience: init, onExperienceUpdated }) =>
         {editingId === "new" && (
           <div className="timeline-edit-wrapper timeline-edit-wrapper--new">
             <div className="timeline-edit-header">➕ New Experience Entry</div>
-            <EntryForm />
+            <EntryForm
+              form={form} errors={errors} isSaving={isSaving}
+              editingId={editingId} onField={onField}
+              onSave={handleSaveEntry} onCancel={handleCancelEntry}
+            />
           </div>
         )}
 
