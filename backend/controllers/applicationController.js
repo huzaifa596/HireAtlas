@@ -66,11 +66,6 @@ const getMyApplications = async (req, res) => {
   }
 };
 
-// ──────────────────────────────────────────────────────────────
-// GET /applications/post/:postId
-// Returns all candidates who applied to a specific post
-// Only the employer who created the post can access this
-// ──────────────────────────────────────────────────────────────
 const getPostCandidates = async (req, res) => {
   const postId = parseInt(req.params.postId);
   const employerId = req.user.userID;
@@ -102,10 +97,6 @@ const getPostCandidates = async (req, res) => {
   }
 };
 
-// ──────────────────────────────────────────────────────────────
-// PATCH /applications/:applicationId/status
-// Employer updates the status of an application
-// ──────────────────────────────────────────────────────────────
 const updateApplicationStatus = async (req, res) => {
   const applicationId = parseInt(req.params.applicationId);
   const { status } = req.body;
