@@ -427,7 +427,8 @@ SELECT
     p.location,
     p.empType,
     p.experienceLevel,
-    p.isRemote
+    p.isRemote,
+    p.isActive
 FROM application a
 INNER JOIN post p ON p.postId = a.postId;
 GO
@@ -442,7 +443,7 @@ SELECT
     u.email AS applicantEmail,
     u.cvPath AS cvPath
 FROM application a
-INNER JOIN appUser u ON u.userId = a.applicantId;
+INNER JOIN appUser u ON u.userId = a.applicantId
 GO
 
 
@@ -465,6 +466,7 @@ BEGIN
         isRemote
     FROM vw_MyApplications
     WHERE applicantId = @applicantId
+    AND isActive=1
     ORDER BY applicationDate DESC;
 END;
 GO
