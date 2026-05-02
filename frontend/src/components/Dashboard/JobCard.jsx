@@ -8,6 +8,8 @@ import {
   X,
 } from "lucide-react";
 import "./jobCard.css";
+import AlertBox from "../alertBox/alert.jsx";
+import { useState } from "react";
 
 const TYPE_COLORS = {
   "Full-time": { bg: "#e0f2fe", color: "#0369a1" },
@@ -23,6 +25,8 @@ export default function JobCard({
   isMyPost,
   onDelete,
 }) {
+  const [showConfirm, setShowConfirm] = useState(false);
+
   // ← ADD onViewPost
   const typeStyle = TYPE_COLORS[job.type] || {
     bg: "#f1f5f9",
@@ -30,15 +34,37 @@ export default function JobCard({
   };
   const initial = job.company?.charAt(0).toUpperCase() ?? "?";
 
+  function handleConfirmDelete() {
+    setShowConfirm(false);
+    onDelete?.(job.id);
+  }
+
+  function handleDeleteClick() {
+    console.log("handleDeleteClick fired");
+    setShowConfirm(true);
+  }
+
   return (
     <article
       className="job-card"
       style={{ animationDelay: `${index * 80}ms`, position: "relative" }}
     >
+      <AlertBox
+        isOpen={showConfirm}
+        type="confirm"
+        title="Delete this post"
+        confirmDanger={true}
+        message={`Are you sure you want to delete to delete ${job.title} at company ${job.company}`}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleConfirmDelete}
+        confirmLabel="Confirm"
+        cancelLabel="Cancel"
+      />
+
       {isMyPost && (
         <button
           className="delete-btn"
-          onClick={() => onDelete?.(job.id)}
+          onClick={handleDeleteClick}
           aria-label="Delete post"
         >
           <X size={16} />
