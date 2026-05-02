@@ -1,5 +1,7 @@
 require('dotenv').config();
 const { sql, poolPromise } = require('../config/db');
+const multer = require('multer');
+const path   = require('path');
 
 const getProfile = async (req, res) => {
   try {
@@ -321,4 +323,73 @@ const deleteSkill = async (req, res) => {
 };
 
 
-module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience,deleteSkill,saveSkill,};
+// ── Multer config ──
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/cvs/'),
+  filename:    (req, file, cb) => {
+    const ext      = path.extname(file.originalname);
+    const filename = `user_${req.user.userID}_${Date.now()}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.pdf', '.doc', '.docx'];
+    const ext     = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error('Only PDF, DOC, DOCX allowed'));
+  }
+});
+
+// ── Upload CV handler ──
+const uploadCv = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ status: 'ERROR', message: 'No file uploaded' });
+    }
+
+    const cvFileName = req.file.originalname;
+    const cvPath     = `uploads/cvs/${req.file.filename}`;
+
+    const pool = await poolPromise;
+    const result = await pool.request()
+      .input('userId',     sql.BigInt,      req.user.userID)
+      .input('name',       sql.VarChar(100), req.body.name)
+      .input('email',      sql.VarChar(150), req.body.email)
+      .input('phone',      sql.VarChar(20),  req.body.phone      ?? null)
+      .input('age',        sql.Int,          req.body.age        ?? null)
+      .input('cvPath',     sql.VarChar(500), cvPath)
+      .input('cvFileName', sql.VarChar(255), cvFileName)
+      .execute('sp_UpdatePersonalInfo');
+
+    const spResult = result.recordset[0];
+
+    const statusMap = {
+      'USER_NOT_FOUND':       { code: 404, message: 'User not found' },
+      'INVALID_NAME':         { code: 400, message: 'Name is required' },
+      'INVALID_EMAIL':        { code: 400, message: 'Email is required' },
+      'EMAIL_ALREADY_EXISTS': { code: 409, message: 'Email already in use' },
+    };
+
+    if (statusMap[spResult.Status]) {
+      const { code, message } = statusMap[spResult.Status];
+      return res.status(code).json({ status: 'ERROR', message });
+    }
+
+    return res.status(200).json({
+      status: 'SUCCESS',
+      personalInfo: spResult
+    });
+
+  } catch (err) {
+    console.error('Upload CV error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not upload CV' });
+  }
+};
+
+
+
+module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience,deleteSkill,saveSkill,uploadCv, upload};

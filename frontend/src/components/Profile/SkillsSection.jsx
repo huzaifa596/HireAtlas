@@ -1,16 +1,14 @@
-// sections/SkillsSection.jsx
 import React, { useState } from "react";
 import SectionCard from "./SectionCard";
 import SkillBadge from "./SkillBadge";
 import FormInput from "./FormInput";
-
-// import { addSkill, updateSkill, deleteSkill } from "../services/profileApi";
-
-const EMPTY_SKILL = { skillName: "", category: "", proficiency: "Beginner" };
+import API from '../../services/api';
 
 const skillOptions       = ["React.js","Vue.js","Angular","JavaScript","TypeScript","HTML5","CSS / Tailwind","Node.js","Express.js","Python","Django","FastAPI","Java","Spring Boot","SQL Server","PostgreSQL","MySQL","MongoDB","Redis","Git / GitHub","Docker","Kubernetes","AWS","Azure","Figma","Jira"];
 const categoryOptions    = ["Frontend","Backend","Database","Tools","DevOps","Design","Other"];
 const proficiencyOptions = ["Beginner","Intermediate","Expert"];
+
+const EMPTY_SKILL = { skillName: "", category: "", proficiency: "Beginner" };
 
 const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
   const [skills,      setSkills]      = useState(initialSkills);
@@ -34,8 +32,8 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
 
   const validate = () => {
     const e = {};
-    if (!form.skillName?.trim()) e.skillName = "Skill name is required";
-    if (!form.category)          e.category  = "Category is required";
+    if (!form.skillName?.trim()) e.skillName  = "Skill name is required";
+    if (!form.category)          e.category   = "Category is required";
     if (!form.proficiency)       e.proficiency = "Proficiency is required";
     if (skills.some((s) => s.skillName.toLowerCase() === form.skillName.toLowerCase()))
       e.skillName = "This skill is already added";
@@ -48,16 +46,22 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
     setIsSaving(true);
     setFeedback(null);
     try {
-      await new Promise((r) => setTimeout(r, 500));
-      const entry = { ...form, userSkillId: Date.now() };
-      const updated = [...skills, entry];
+      const response = await API.patch('/user/skills', {
+        skillName:   form.skillName,
+        category:    form.category,
+        proficiency: form.proficiency,
+      });
+
+      const saved = response.data.skill;
+      const updated = [...skills, saved];
       setSkills(updated);
       onSkillsUpdated?.(updated);
       setFeedback({ type: "success", message: `"${form.skillName}" added.` });
       setForm({ ...EMPTY_SKILL });
       setShowAddForm(false);
-    } catch {
-      setFeedback({ type: "error", message: "Failed to add skill." });
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to add skill.";
+      setFeedback({ type: "error", message: msg });
     } finally {
       setIsSaving(false);
     }
@@ -66,7 +70,7 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
   const handleRemoveSkill = async (userSkillId, skillName) => {
     if (!window.confirm(`Remove "${skillName}"?`)) return;
     try {
-      await new Promise((r) => setTimeout(r, 400));
+      await API.delete(`/user/skills/${userSkillId}`);
       const updated = skills.filter((s) => s.userSkillId !== userSkillId);
       setSkills(updated);
       onSkillsUpdated?.(updated);
@@ -78,9 +82,14 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
 
   const handleUpdateProficiency = async (userSkillId, newProficiency) => {
     try {
-      await new Promise((r) => setTimeout(r, 300));
+      const response = await API.patch('/user/skills', {
+        userSkillId,
+        proficiency: newProficiency,
+      });
+
+      const saved = response.data.skill;
       const updated = skills.map((s) =>
-        s.userSkillId === userSkillId ? { ...s, proficiency: newProficiency } : s
+        s.userSkillId === userSkillId ? { ...s, proficiency: saved.proficiency } : s
       );
       setSkills(updated);
       onSkillsUpdated?.(updated);
@@ -107,7 +116,6 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
       onAdd={handleAddNew} addLabel="Add Skill"
       feedback={feedback}
     >
-      {/* ── Flat badge list — no category grouping ── */}
       {skills.length === 0 && !showAddForm && (
         <div className="empty-state">
           <span>⚡</span>
@@ -124,7 +132,6 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
               isEditing={isEditing || showAddForm}
               onRemove={() => handleRemoveSkill(skill.userSkillId, skill.skillName)}
             />
-            {/* Proficiency quick-change — visible in edit mode */}
             {(isEditing || showAddForm) && (
               <select
                 className="skill-proficiency-select"
@@ -141,12 +148,11 @@ const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
         ))}
       </div>
 
-      {/* ── Add Skill form ── */}
       {showAddForm && (
         <div className="entry-form entry-form--skills">
           <div className="entry-form__grid entry-form__grid--3">
-            <FormInput label="Skill Name" name="skillName" type="select" required options={skillOptions} {...field("skillName")} />
-            <FormInput label="Category"   name="category"  type="select" required options={categoryOptions} {...field("category")} />
+            <FormInput label="Skill Name"  name="skillName"   type="select" required options={skillOptions}       {...field("skillName")} />
+            <FormInput label="Category"    name="category"    type="select" required options={categoryOptions}    {...field("category")} />
             <FormInput label="Proficiency" name="proficiency" type="select" required options={proficiencyOptions} {...field("proficiency")} />
           </div>
           <div className="entry-form__actions">

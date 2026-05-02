@@ -4,12 +4,17 @@ ALTER COLUMN grade VARCHAR(50) NULL;
 GO
 
 -----
+
+GO
+
 CREATE PROCEDURE sp_UpdatePersonalInfo
-    @userId BIGINT,
-    @name   VARCHAR(100),
-    @email  VARCHAR(150),
-    @phone  VARCHAR(20)  = NULL,
-    @age    INT          = NULL
+    @userId     BIGINT,
+    @name       VARCHAR(100),
+    @email      VARCHAR(150),
+    @phone      VARCHAR(20)  = NULL,
+    @age        INT          = NULL,
+    @cvPath     VARCHAR(500) = NULL,
+    @cvFileName VARCHAR(255) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -29,27 +34,27 @@ BEGIN
         SELECT 'INVALID_EMAIL' AS Status; RETURN;
     END
 
-    -- Check email not taken by someone else
     IF EXISTS (SELECT 1 FROM appUser WHERE email = @email AND userId != @userId)
     BEGIN
         SELECT 'EMAIL_ALREADY_EXISTS' AS Status; RETURN;
     END
 
     UPDATE appUser
-    SET name  = @name,
-        email = @email,
-        phone = @phone,
-        age   = @age
+    SET name       = @name,
+        email      = @email,
+        phone      = @phone,
+        age        = @age,
+        cvPath     = ISNULL(@cvPath,     cvPath),      -- only update if provided
+        cvFileName = ISNULL(@cvFileName, cvFileName)   -- only update if provided
     WHERE userId = @userId;
 
     SELECT
-        userId, name, email, phone, age,
+        userId, name, email, phone, age, cvPath, cvFileName,
         'SUCCESS' AS Status
     FROM appUser
     WHERE userId = @userId;
 END;
 GO
-
 
 ---------------------------------
 
@@ -354,5 +359,67 @@ BEGIN
     DELETE FROM userSkill WHERE userSkillId = @userSkillId AND userId = @userId;
 
     SELECT 'SUCCESS' AS Status;
+END;
+GO
+
+
+--------------------------------------------
+
+
+
+ALTER PROCEDURE GetUserProfile
+    @UserId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Personal Info
+    SELECT
+        userId,
+        name,
+        email,
+        phone,
+        age,
+        cvPath
+    FROM appUser
+    WHERE userId = @UserId;
+
+    -- Education Info
+    SELECT
+        eduId,
+        instituteName,
+        level,
+        degreeName,
+        grade,
+        startDate,
+        endDate
+    FROM userEducation
+    WHERE userId = @UserId
+    ORDER BY startDate DESC;
+
+    -- Experience Info
+    SELECT
+        expId,
+        companyName,
+        jobTitle,
+        description,
+        startDate,
+        endDate
+    FROM userExperience
+    WHERE userId = @UserId
+    ORDER BY startDate DESC;
+
+    -- Skills Info
+    SELECT
+        us.userSkillId,        -- ← added this
+        s.skillId,
+        s.skillName,
+        s.category,
+        us.proficiency
+    FROM userSkill us
+    INNER JOIN skill s ON us.skillId = s.skillId
+    WHERE us.userId = @UserId
+    ORDER BY s.category, s.skillName;
+
 END;
 GO

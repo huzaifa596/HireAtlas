@@ -28,6 +28,8 @@ app.use('/api/dashboard', dashboardRoutes);
 
 app.use('/api/user',user);
 
+app.use('/uploads', express.static('uploads'));
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
 

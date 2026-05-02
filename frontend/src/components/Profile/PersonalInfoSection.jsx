@@ -1,36 +1,22 @@
-// sections/PersonalInfoSection.jsx
 import React, { useState, useRef } from "react";
 import SectionCard from "./SectionCard";
 import FormInput from "./FormInput";
 import API from '../../services/api';
-// import { updateUserProfile } from "../services/profileApi"; // uncomment when backend ready
 
-/**
- * PersonalInfoSection
- *
- * Handles: name, email, phone, age, CV download + CV replace/upload.
- * CV upload sends multipart/form-data to the backend via updateUserProfile().
- */
 const PersonalInfoSection = ({ user, onUserUpdated }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving,  setIsSaving]  = useState(false);
   const [feedback,  setFeedback]  = useState(null);
-
-  // Form field state
-  const [form, setForm] = useState({ ...user });
-
-  // CV file state — kept separate from form because it's a File object
-  const [cvFile,     setCvFile]     = useState(null);   // selected File object
-  const [cvPreview,  setCvPreview]  = useState(null);   // display name shown in UI
-  const [errors,     setErrors]     = useState({});
+  const [form,      setForm]      = useState({ ...user });
+  const [cvFile,    setCvFile]    = useState(null);
+  const [cvPreview, setCvPreview] = useState(null);
+  const [errors,    setErrors]    = useState({});
 
   const cvInputRef = useRef(null);
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
   const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
 
-  // ── Edit / Cancel ─────────────────────────────────────────────────────────────
   const handleEdit = () => {
     setForm({ ...user });
     setCvFile(null);
@@ -48,14 +34,15 @@ const PersonalInfoSection = ({ user, onUserUpdated }) => {
     setIsEditing(false);
   };
 
-  // ── CV file selection ─────────────────────────────────────────────────────────
   const handleCvChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Basic client-side validation
-    const allowed = ["application/pdf", "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    const allowed = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ];
     if (!allowed.includes(file.type)) {
       setErrors((prev) => ({ ...prev, cv: "Only PDF or Word documents are accepted." }));
       return;
@@ -76,7 +63,6 @@ const PersonalInfoSection = ({ user, onUserUpdated }) => {
     if (cvInputRef.current) cvInputRef.current.value = "";
   };
 
-  // ── Validation ────────────────────────────────────────────────────────────────
   const validate = () => {
     const errs = {};
     if (!form.name?.trim())  errs.name  = "Name is required";
@@ -87,7 +73,6 @@ const PersonalInfoSection = ({ user, onUserUpdated }) => {
     return errs;
   };
 
-  // ── Save ──────────────────────────────────────────────────────────────────────
   const handleSave = async () => {
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
@@ -96,39 +81,47 @@ const PersonalInfoSection = ({ user, onUserUpdated }) => {
     setFeedback(null);
 
     try {
-      /* Real API call — uncomment and remove the setTimeout below:
-      const updatedUser = await updateUserProfile(user.userId, {
-        name:  form.name,
-        email: form.email,
-        phone: form.phone,
-        age:   form.age,
-      }, cvFile);
+      let updatedUser;
+
+      if (cvFile) {
+        // ── CV selected → multipart/form-data ──
+        const formData = new FormData();
+        formData.append('cv',    cvFile);
+        formData.append('name',  form.name);
+        formData.append('email', form.email);
+        if (form.phone) formData.append('phone', form.phone);
+        if (form.age)   formData.append('age',   form.age);
+
+        const response = await API.post('/user/cv', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        updatedUser = response.data.personalInfo;
+
+      } else {
+        // ── No CV → normal JSON ──
+        const response = await API.patch('/user/personal', {
+          name:  form.name,
+          email: form.email,
+          phone: form.phone || null,
+          age:   form.age   || null,
+        });
+        updatedUser = response.data.personalInfo;
+      }
+
       onUserUpdated(updatedUser);
-      */
-
-      // ── Mock: simulate network delay ──
-const response = await API.patch('/user/personal', {
-  name:  form.name,
-  email: form.email,
-  phone: form.phone  || null,
-  age:   form.age    || null,
-});
-
-onUserUpdated(response.data.personalInfo);
-      // ────────────────────────────────
-
       setCvFile(null);
       setCvPreview(null);
       setFeedback({ type: "success", message: "Personal info updated successfully." });
       setIsEditing(false);
+
     } catch (err) {
-      setFeedback({ type: "error", message: err.message || "Failed to save. Please try again." });
+      const msg = err.response?.data?.message || "Failed to save. Please try again.";
+      setFeedback({ type: "error", message: msg });
     } finally {
       setIsSaving(false);
     }
   };
 
-  // ── Field binding helper ──────────────────────────────────────────────────────
   const field = (key) => ({
     value: form[key] ?? "",
     onChange: (e) => {
@@ -138,7 +131,6 @@ onUserUpdated(response.data.personalInfo);
     error: errors[key],
   });
 
-  // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <SectionCard
       title="Personal Info"
@@ -150,8 +142,8 @@ onUserUpdated(response.data.personalInfo);
       onCancel={handleCancel}
       feedback={feedback}
     >
-      {/* ════════════════ VIEW MODE ════════════════ */}
       {!isEditing ? (
+        /* ════════════════ VIEW MODE ════════════════ */
         <div className="personal-view">
           <div className="personal-view__avatar">
             <div className="avatar-circle">{getInitials(user.name)}</div>
@@ -173,12 +165,15 @@ onUserUpdated(response.data.personalInfo);
                 <span className="info-row__value">{user.age ? `${user.age} years old` : "—"}</span>
               </div>
 
-              {/* CV row — download + quick-replace */}
               <div className="info-row">
                 <span className="info-row__icon">📄</span>
                 {user.cvPath ? (
                   <div className="cv-view-row">
-                    <a href={user.cvPath} download={user.cvFileName} className="info-row__link">
+                     <a
+                      href={`http://localhost:3000/${user.cvPath}`}
+                      download={user.cvFileName}
+                      className="info-row__link"
+                    >
                       {user.cvFileName || "Download CV"}
                     </a>
                     <span className="cv-view-row__sep">·</span>
@@ -191,7 +186,6 @@ onUserUpdated(response.data.personalInfo);
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            // Switch to edit mode pre-loaded with new CV
                             handleEdit();
                             setCvFile(file);
                             setCvPreview(file.name);
@@ -203,10 +197,15 @@ onUserUpdated(response.data.personalInfo);
                 ) : (
                   <label className="btn btn--ghost btn--xs">
                     Upload CV
-                    <input type="file" accept=".pdf,.doc,.docx" hidden onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) { handleEdit(); setCvFile(file); setCvPreview(file.name); }
-                    }} />
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      hidden
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) { handleEdit(); setCvFile(file); setCvPreview(file.name); }
+                      }}
+                    />
                   </label>
                 )}
               </div>
@@ -222,52 +221,35 @@ onUserUpdated(response.data.personalInfo);
           </div>
 
           <div className="personal-edit__form">
-            {/* Row 1 — Name + Age */}
             <div className="form-row form-row--2">
-              <FormInput
-                label="Full Name" name="name" required
-                placeholder="Your full name"
-                {...field("name")}
-              />
-              <FormInput
-                label="Age" name="age" type="number"
-                placeholder="e.g. 26"
-                {...field("age")}
-              />
+              <FormInput label="Full Name" name="name" required placeholder="Your full name" {...field("name")} />
+              <FormInput label="Age"       name="age"  type="number" placeholder="e.g. 26"   {...field("age")} />
             </div>
 
-            {/* Row 2 — Email + Phone */}
             <div className="form-row form-row--2">
-              <FormInput
-                label="Email" name="email" type="email" required
-                placeholder="you@example.com"
-                {...field("email")}
-              />
-              <FormInput
-                label="Phone" name="phone" type="tel"
-                placeholder="+92 300 0000000"
-                {...field("phone")}
-              />
+              <FormInput label="Email" name="email" type="email" required placeholder="you@example.com"  {...field("email")} />
+              <FormInput label="Phone" name="phone" type="tel"            placeholder="+92 300 0000000"   {...field("phone")} />
             </div>
 
-            {/* Row 3 — CV upload */}
             <div className="cv-upload-row">
               <div className="cv-upload-row__label">
                 <span>📄</span>
                 <span>CV / Resume</span>
               </div>
 
-              {/* Show current CV if no new file chosen */}
               {!cvPreview && user.cvPath && (
                 <div className="cv-current">
                   <span className="cv-current__name">Current: {user.cvFileName || "CV on file"}</span>
-                  <a href={user.cvPath} download={user.cvFileName} className="info-row__link cv-current__download">
+                   <a
+                    href={`http://localhost:3000/${user.cvPath}`}
+                    download={user.cvFileName}
+                    className="info-row__link cv-current__download"
+                  >
                     Download
                   </a>
                 </div>
               )}
 
-              {/* New file selected — show preview chip */}
               {cvPreview && (
                 <div className="cv-preview-chip">
                   <span>📎 {cvPreview}</span>
@@ -282,7 +264,6 @@ onUserUpdated(response.data.personalInfo);
                 </div>
               )}
 
-              {/* File picker */}
               <label className="btn btn--outline btn--sm cv-upload-btn">
                 {cvPreview ? "Choose Different File" : user.cvPath ? "Replace CV" : "Upload CV"}
                 <input
@@ -294,9 +275,7 @@ onUserUpdated(response.data.personalInfo);
                 />
               </label>
 
-              {errors.cv && (
-                <span className="form-input__error-msg">{errors.cv}</span>
-              )}
+              {errors.cv && <span className="form-input__error-msg">{errors.cv}</span>}
               <span className="cv-upload-hint">Accepted: PDF, DOC, DOCX · Max 5 MB</span>
             </div>
           </div>
