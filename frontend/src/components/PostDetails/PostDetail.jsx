@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
-import Navbar from "../Dashboard/Navbar";
+import AlertBox from "../alertBox/alert.jsx";
 import "./PostDetail.css";
 
 /* ─── helpers ──────────────────────────────────────────────── */
@@ -22,18 +22,20 @@ const fmtDate = (iso) => {
   });
 };
 
-const initials = (name = "") =>
-  name
+const initials = (name) => {
+  if (!name) return "";
+  return name
     .split(" ")
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? "")
     .join("");
+};
 
 const LEVEL_CLASS = {
-  beginner:     "lvl-beginner",
+  beginner: "lvl-beginner",
   intermediate: "lvl-intermediate",
-  advanced:     "lvl-advanced",
-  expert:       "lvl-expert",
+  advanced: "lvl-advanced",
+  expert: "lvl-expert",
 };
 
 /* ─── sub-components ───────────────────────────────────────── */
@@ -71,118 +73,166 @@ function MetaPill({ icon, label, value }) {
 }
 
 /* ─── main component ───────────────────────────────────────── */
-// Props (no React Router):
-//   postId  — the ID to fetch, passed down from Dashboard
-//   onBack  — callback to return to the job list (setSelectedPostId(null))
 export default function PostDetail({ postId, onBack }) {
-  const [post,           setPost]   = useState(null);
-  const [skills,         setSkills] = useState([]);
-  const [qualifications, setQuals]  = useState([]);
-  const [status,         setStatus] = useState("loading");
+  const [post, setPost] = useState(null);
+  const [skills, setSkills] = useState([]);
+  const [qualifications, setQuals] = useState([]);
+  const [status, setStatus] = useState("loading");
 
+  // Apply state
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+
+  const closeAlert = () => setAlert((a) => ({ ...a, isOpen: false }));
+
+  /* ─── fetch post ─────────────────────────────────────────── */
   useEffect(() => {
     let cancelled = false;
-
     setStatus("loading");
 
     API.get(`dashboard/posts/${postId}`)
-
       .then(({ data }) => {
-
         if (cancelled) return;
+        const postData = data.post;
+        const skillsData = data.post?.skills ?? [];
+        const qualsData = data.post?.qualifications ?? [];
 
-        // Express returns: { status, post: { ...postDetails[0], skills, qualifications } }
-        const postData  = data.post;
-        const skillsData = data.post?.skills        ?? [];
-        const qualsData  = data.post?.qualifications ?? [];
-
-        // Express sends 404 with { status: 'ERROR', message: 'Post not found' }
-        // SP itself returns Status: 'POST_NOT_FOUND' in the first record
-        if (!postData || postData.Status === 'POST_NOT_FOUND') {
+        if (!postData || postData.Status === "POST_NOT_FOUND") {
           setStatus("not_found");
           return;
         }
         setPost(postData);
-        setSkills(skillsData ?? []);
-        setQuals(qualsData ?? []);
+        setSkills(skillsData);
+        setQuals(qualsData);
         setStatus("ok");
       })
       .catch((err) => {
         if (cancelled) return;
-        // Express returns 404 for not found — everything else is a server error
         const httpStatus = err?.response?.status;
         setStatus(httpStatus === 404 ? "not_found" : "error");
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [postId]);
+
+  /* ─── apply handler ──────────────────────────────────────── */
+  const handleApply = async () => {
+    if (applying || applied) return;
+    setApplying(true);
+    try {
+      await API.post(`/applications/${postId}`);
+      setApplied(true);
+      setAlert({
+        isOpen: true,
+        type: "success",
+        title: "Application Submitted!",
+        message: `You have successfully applied for ${post.jobTitle} at ${post.companyName}.`,
+      });
+    } catch (err) {
+      const data = err?.response?.data;
+      const code = data?.code;
+      const msg = data?.message;
+
+      if (code === "NO_CV_ON_PROFILE") {
+        setAlert({
+          isOpen: true,
+          type: "error",
+          title: "CV Required",
+          message: "Please upload your CV in your profile before applying.",
+        });
+      } else {
+        setAlert({
+          isOpen: true,
+          type: "error",
+          title: "Application Failed",
+          message: msg || "Something went wrong. Please try again.",
+        });
+      }
+    } finally {
+      setApplying(false);
+    }
+  };
 
   /* ── Loading ── */
   if (status === "loading") {
     return (
-      <>
-        
-        <div className="ha-state-screen">
-          <div className="ha-spinner" />
-          <p className="ha-state-msg">Loading job details…</p>
-        </div>
-      </>
+      <div className="ha-state-screen">
+        <div className="ha-spinner" />
+        <p className="ha-state-msg">Loading job details…</p>
+      </div>
     );
   }
 
   /* ── Not found ── */
   if (status === "not_found") {
     return (
-      <>
-        
-        <div className="ha-state-screen">
-          <div className="ha-state-emoji">🔍</div>
-          <h2 className="ha-state-title">Post not found</h2>
-          <p className="ha-state-msg">
-            This listing may have been removed or the link is incorrect.
-          </p>
-          <button className="ha-btn ha-btn--outline" onClick={onBack}>
-            ← Back to Posts
-          </button>
-        </div>
-      </>
+      <div className="ha-state-screen">
+        <div className="ha-state-emoji">🔍</div>
+        <h2 className="ha-state-title">Post not found</h2>
+        <p className="ha-state-msg">
+          This listing may have been removed or the link is incorrect.
+        </p>
+        <button className="ha-btn ha-btn--outline" onClick={onBack}>
+          ← Back to Posts
+        </button>
+      </div>
     );
   }
 
   /* ── Error ── */
   if (status === "error") {
     return (
-      <>
-        
-        <div className="ha-state-screen">
-          <div className="ha-state-emoji">⚠️</div>
-          <h2 className="ha-state-title">Something went wrong</h2>
-          <p className="ha-state-msg">We couldn't load this post. Please try again.</p>
-          <button className="ha-btn ha-btn--outline" onClick={() => window.location.reload()}>
-            Retry
-          </button>
-        </div>
-      </>
+      <div className="ha-state-screen">
+        <div className="ha-state-emoji">⚠️</div>
+        <h2 className="ha-state-title">Something went wrong</h2>
+        <p className="ha-state-msg">
+          We couldn't load this post. Please try again.
+        </p>
+        <button
+          className="ha-btn ha-btn--outline"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      </div>
     );
   }
 
   /* ── Salary string ── */
-  const minF   = fmt(post.minSalary, post.salCurrency);
-  const maxF   = fmt(post.maxSalary, post.salCurrency);
-  const salary = minF && maxF ? `${minF} – ${maxF}`
-               : minF         ? `From ${minF}`
-               : maxF         ? `Up to ${maxF}`
-               :                "Not disclosed";
+  const minF = fmt(post.minSalary, post.salCurrency);
+  const maxF = fmt(post.maxSalary, post.salCurrency);
+  const salary =
+    minF && maxF
+      ? `${minF} – ${maxF}`
+      : minF
+        ? `From ${minF}`
+        : maxF
+          ? `Up to ${maxF}`
+          : "Not disclosed";
 
   return (
     <>
-      
+      {/* ── Alert Box ── */}
+      <AlertBox
+        isOpen={alert.isOpen}
+        type={alert.type}
+        title={alert.title}
+        message={alert.message}
+        onClose={closeAlert}
+        confirmLabel="OK"
+      />
 
       <main className="ha-root">
         <div className="ha-page-wrap">
-
-        
-          {/* ── Banner ── */}
+          {/* ── Banner — NO Apply button here ── */}
           <div className="ha-banner">
             <div className="ha-banner-left">
               <Avatar name={post.companyName} size="lg" />
@@ -204,18 +254,27 @@ export default function PostDetail({ postId, onBack }) {
                 </div>
               </div>
             </div>
-            <div className="ha-banner-right">
-              <button className="ha-btn ha-btn--apply">Apply Now</button>
-            </div>
           </div>
 
           {/* ── Overview ── */}
           <div className="ha-card ha-card--flat">
             <div className="ha-meta-grid">
-              <MetaPill icon="💰" label="Salary Range"     value={salary} />
-              <MetaPill icon="⏱️" label="Employment Type"  value={post.empType} />
-              <MetaPill icon="📈" label="Experience Level" value={post.experienceLevel} />
-              <MetaPill icon="🗂️" label="Job Category"     value={post.jobCategory} />
+              <MetaPill icon="💰" label="Salary Range" value={salary} />
+              <MetaPill
+                icon="⏱️"
+                label="Employment Type"
+                value={post.empType}
+              />
+              <MetaPill
+                icon="📈"
+                label="Experience Level"
+                value={post.experienceLevel}
+              />
+              <MetaPill
+                icon="🗂️"
+                label="Job Category"
+                value={post.jobCategory}
+              />
             </div>
           </div>
 
@@ -223,9 +282,11 @@ export default function PostDetail({ postId, onBack }) {
           <SectionCard title="Job Description" icon="📄">
             {post.description ? (
               <div className="ha-description">
-                {post.description.split("\n").map((para, i) =>
-                  para.trim() ? <p key={i}>{para}</p> : <br key={i} />
-                )}
+                {post.description
+                  .split("\n")
+                  .map((para, i) =>
+                    para.trim() ? <p key={i}>{para}</p> : <br key={i} />,
+                  )}
               </div>
             ) : (
               <p className="ha-empty">No description provided.</p>
@@ -242,7 +303,9 @@ export default function PostDetail({ postId, onBack }) {
                   <div key={s.skillId} className="ha-skill-chip">
                     <div className="ha-skill-top">
                       <span className="ha-skill-name">{s.skillName}</span>
-                      <span className={`ha-skill-badge ${LEVEL_CLASS[s.requiredLevel?.toLowerCase()] ?? "lvl-default"}`}>
+                      <span
+                        className={`ha-skill-badge ${LEVEL_CLASS[s.requiredLevel?.toLowerCase()] ?? "lvl-default"}`}
+                      >
                         {s.requiredLevel}
                       </span>
                     </div>
@@ -287,7 +350,10 @@ export default function PostDetail({ postId, onBack }) {
               <Avatar name={post.creatorName} size="sm" />
               <div className="ha-creator-info">
                 <span className="ha-creator-name">{post.creatorName}</span>
-                <a href={`mailto:${post.creatorEmail}`} className="ha-creator-email">
+                <a
+                  href={`mailto:${post.creatorEmail}`}
+                  className="ha-creator-email"
+                >
                   {post.creatorEmail}
                 </a>
               </div>
@@ -298,11 +364,19 @@ export default function PostDetail({ postId, onBack }) {
           <div className="ha-apply-footer">
             <div className="ha-apply-footer-text">
               <h3>Interested in this role?</h3>
-              <p>Submit your application to <strong>{post.companyName}</strong> today.</p>
+              <p>
+                Submit your application to <strong>{post.companyName}</strong>{" "}
+                today.
+              </p>
             </div>
-            <button className="ha-btn ha-btn--apply ha-btn--lg">Apply Now</button>
+            <button
+              className={`ha-btn ha-btn--lg ${applied ? "ha-btn--applied" : "ha-btn--apply"}`}
+              onClick={handleApply}
+              disabled={applying || applied}
+            >
+              {applying ? "Submitting…" : applied ? "✓ Applied" : "Apply Now"}
+            </button>
           </div>
-
         </div>
       </main>
     </>

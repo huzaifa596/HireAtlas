@@ -4,7 +4,8 @@ ALTER COLUMN grade VARCHAR(50) NULL;
 GO
 
 -----
-
+ALTER tABle appUser
+ADD cvFileName varchar(255) NULL;
 GO
 
 CREATE PROCEDURE sp_UpdatePersonalInfo
