@@ -1,22 +1,49 @@
-import { MapPin, DollarSign, Clock, ChevronRight, Users, Briefcase } from 'lucide-react';
+import {
+  MapPin,
+  DollarSign,
+  Clock,
+  ChevronRight,
+  Users,
+  Briefcase,
+  X,
+} from "lucide-react";
+import "./jobCard.css";
 
 const TYPE_COLORS = {
-  'Full-time': { bg: '#e0f2fe', color: '#0369a1' },
-  'Part-time':  { bg: '#fef9c3', color: '#854d0e' },
-  'Contract':   { bg: '#ede9fe', color: '#6d28d9' },
-  'Remote':     { bg: '#dcfce7', color: '#166534' },
+  "Full-time": { bg: "#e0f2fe", color: "#0369a1" },
+  "Part-time": { bg: "#fef9c3", color: "#854d0e" },
+  Contract: { bg: "#ede9fe", color: "#6d28d9" },
+  Remote: { bg: "#dcfce7", color: "#166534" },
 };
 
-export default function JobCard({ job, index, onViewPost }) { // ← ADD onViewPost
-  const typeStyle = TYPE_COLORS[job.type] || { bg: '#f1f5f9', color: '#475569' };
-  const initial = job.company?.charAt(0).toUpperCase() ?? '?';
+export default function JobCard({
+  job,
+  index,
+  onViewPost,
+  isMyPost,
+  onDelete,
+}) {
+  // ← ADD onViewPost
+  const typeStyle = TYPE_COLORS[job.type] || {
+    bg: "#f1f5f9",
+    color: "#475569",
+  };
+  const initial = job.company?.charAt(0).toUpperCase() ?? "?";
 
   return (
     <article
       className="job-card"
-      style={{ animationDelay: `${index * 80}ms` }}
+      style={{ animationDelay: `${index * 80}ms`, position: "relative" }}
     >
-      {/* Top row */}
+      {isMyPost && (
+        <button
+          className="delete-btn"
+          onClick={() => onDelete?.(job.id)}
+          aria-label="Delete post"
+        >
+          <X size={16} />
+        </button>
+      )}
       <div className="card-top">
         <div className="company-logo">{initial}</div>
         <div className="card-meta">
@@ -61,7 +88,9 @@ export default function JobCard({ job, index, onViewPost }) { // ← ADD onViewP
       {job.tags?.length > 0 && (
         <div className="tags-row">
           {job.tags.map((tag) => (
-            <span key={tag} className="tag">{tag}</span>
+            <span key={tag} className="tag">
+              {tag}
+            </span>
           ))}
         </div>
       )}
@@ -70,7 +99,7 @@ export default function JobCard({ job, index, onViewPost }) { // ← ADD onViewP
       <div className="card-footer">
         <span className="applicants-count">
           <Users size={14} />
-          Posted by {job.postedBy ?? 'Unknown'}
+          Posted by {job.postedBy ?? "Unknown"}
         </span>
         <button
           className="view-btn"

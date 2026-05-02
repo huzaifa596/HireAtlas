@@ -45,6 +45,20 @@ export default function Dashboard() {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  // handle delettepost
+
+  const handleDeletePost = async (postid) => {
+    try {
+      const result = await API.post(`dashboard/deletepost/${postid}`);
+      setPosts((prev) => prev.filter((p) => p.id != postid));
+    } catch (err) {
+      console.error(
+        "Error in deleting the post function api fetch in dashboard.jsx",
+      );
+      console.error("Status:", err.response?.status);
+      console.error("Data:", err.response?.data);
+    }
+  };
 
   // ── Fetch all posts OR my posts ───────────────────────────────────────────
   const fetchPosts = useCallback(async () => {
@@ -145,7 +159,9 @@ export default function Dashboard() {
 
       <main className="dashboard-main">
         <aside className="sidebar sidebar-left">
-          <FilterSidebar onApply={handleApplyFilters} />
+          {(activeTab === "posts" || activeTab === "myPosts") && (
+            <FilterSidebar onApply={handleApplyFilters} />
+          )}
         </aside>
 
         <section className="content-center">
@@ -187,6 +203,8 @@ export default function Dashboard() {
                       job={job}
                       index={i}
                       onViewPost={setSelectedPostId}
+                      isMyPost={activeTab === "myPosts"}
+                      onDelete={handleDeletePost}
                     />
                   ))}
                 </div>
