@@ -113,11 +113,6 @@ export default function Navbar({
             {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
           </button>
 
-          <button className="icon-btn bell-btn">
-            <Bell size={20} />
-            <span className="badge">3</span>
-          </button>
-
           <div
             className={`avatar-group ${activeTab === "profile" ? "active" : ""}`}
             onClick={() => setActiveTab("profile")}
