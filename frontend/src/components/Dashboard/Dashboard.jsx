@@ -47,8 +47,10 @@ export default function Dashboard() {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
   // handle delettepost
 
-  const handleDeletePost = async (postid) => {
+  const handleDeletePost = useCallback(async (postid) => {
     try {
+      console.log("handleDeletePost fired with:", postid);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       const result = await API.post(`dashboard/deletepost/${postid}`);
       setPosts((prev) => prev.filter((p) => p.id != postid));
     } catch (err) {
@@ -58,7 +60,7 @@ export default function Dashboard() {
       console.error("Status:", err.response?.status);
       console.error("Data:", err.response?.data);
     }
-  };
+  }, []);
 
   // ── Fetch all posts OR my posts ───────────────────────────────────────────
   const fetchPosts = useCallback(async () => {
