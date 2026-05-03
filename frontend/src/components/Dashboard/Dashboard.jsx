@@ -32,7 +32,8 @@ const mapPost = (p) => ({
   experienceLevel: p.experienceLevel,
 });
 
-export default function Dashboard() {
+export default function Dashboard({ onLogout }) {
+
   const [posts, setPosts] = useState([]);
   const [applications, setApplications] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -198,7 +199,8 @@ export default function Dashboard() {
       );
     }
 
-    if (activeTab === "profile") return <Profile />;
+    if (activeTab === "profile") return <Profile onLogout={onLogout} />;
+
     if (activeTab === "createPost") return <CreatePost />;
 
     // My Applications tab

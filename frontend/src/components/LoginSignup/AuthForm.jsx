@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import "./AuthForm.css";
 import API from "../../services/api.js";
+import { saveSession } from '../../services/auth';
+
 /* ── SVG Icons ──────────────────────────────────────────────────────────── */
 const IconMail = () => (
   <svg
@@ -269,7 +271,8 @@ export default function AuthForm({ mode, onModeChange, onLogin }) {
 
         const { token, message } = res.data;
 
-        localStorage.setItem("token", token); // store JWT
+       // localStorage.setItem("token", token); // store JWT
+        saveSession(token);
         onLogin();
       } else {
         // 📝 SIGNUP

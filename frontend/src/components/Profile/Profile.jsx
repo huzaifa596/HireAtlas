@@ -8,7 +8,8 @@ import SkillsSection       from "./SkillsSection";
 // adjust path as needed
 import API                 from "../../services/api";        // adjust path as needed
 
-const Profile = () => {
+const Profile = ({ onLogout }) => {
+
  
 
   const [user,       setUser]       = useState(null);
@@ -55,12 +56,12 @@ const Profile = () => {
 
   const circumference = 213.628;
 
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to log out?")) {
-      // localStorage.removeItem("token");
-      // window.location.href = "/login";
-    }
-  };
+  // replace the entire handleLogout function:
+const handleLogout = () => {
+  if (window.confirm("Are you sure you want to log out?")) {
+    onLogout();
+  }
+};
 
   // ── Guards ──────────────────────────────────────────────────────────────
   if (loading) return <div className="profile-loading">Loading profile…</div>;
