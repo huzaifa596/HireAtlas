@@ -185,3 +185,9 @@ CREATE INDEX IX_userExperience_userId ON userExperience (userId);
 
 CREATE INDEX IX_skill_skillName ON skill (skillName);
 CREATE INDEX IX_skill_category  ON skill (category);
+
+
+
+-------------------------------
+ALTER tABle appUser
+ADD cvFileName varchar(255) NULL;

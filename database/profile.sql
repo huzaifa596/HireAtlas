@@ -1,6 +1,6 @@
 
---profile data fetch procedure
-CREATE PROCEDURE GetUserProfile
+
+ALTER PROCEDURE GetUserProfile
     @UserId BIGINT
 AS
 BEGIN
@@ -44,6 +44,7 @@ BEGIN
 
     -- Skills Info
     SELECT
+        us.userSkillId,        -- ← added this
         s.skillId,
         s.skillName,
         s.category,
@@ -54,3 +55,4 @@ BEGIN
     ORDER BY s.category, s.skillName;
 
 END;
+GO
