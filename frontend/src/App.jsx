@@ -3,6 +3,7 @@ import LoadingScreen from './components/LoginSignup/LoadingScreen';
 import AuthPage      from './components/LoginSignup/AuthPage';
 import Dashboard     from './components/Dashboard/Dashboard';
 import { isSessionValid, refreshSession, clearSession } from './services/auth';
+import LandingPage from './components/landingpage/landingpage';
 
 const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -13,7 +14,7 @@ export default function App() {
 const [darkMode, setDarkMode] = useState(() => {
   return localStorage.getItem('darkMode') === 'true';
 });
-
+const [showLanding, setShowLanding] = useState(true);
 
   // ── Logout helper ──
   const logout = useCallback(() => {
@@ -52,18 +53,18 @@ useEffect(() => {
   localStorage.setItem('darkMode', darkMode);
 }, [darkMode]);
 
-  return (
-    <>
-      {loading && <LoadingScreen fadeOut={fadeOut} />}
-      {!loading && !isAuthenticated && (
-        <AuthPage onLogin={() => {
-          refreshSession();
-          setIsAuthenticated(true);
-        }} />
-      )}
-{!loading && isAuthenticated && (
-  <Dashboard onLogout={logout} darkMode={darkMode} setDarkMode={setDarkMode} />
-)}
-    </>
-  );
+ return (
+  <>
+    {showLanding && !isAuthenticated && (
+      <LandingPage onEnter={() => setShowLanding(false)} />
+    )}
+    {!showLanding && loading && <LoadingScreen fadeOut={fadeOut} />}
+    {!showLanding && !loading && !isAuthenticated && (
+      <AuthPage onLogin={() => setIsAuthenticated(true)} />
+    )}
+    {!loading && isAuthenticated && (
+      <Dashboard onLogout={() => { setShowLanding(true); logout(); }} darkMode={darkMode} setDarkMode={setDarkMode} />
+    )}
+  </>
+);
 }
