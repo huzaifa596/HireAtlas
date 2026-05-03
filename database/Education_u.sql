@@ -1,7 +1,5 @@
 ALTER TABLE userEducation
 ALTER COLUMN grade VARCHAR(50) NULL;
-GO
-
 
 
 CREATE PROCEDURE sp_AddEducation
@@ -43,14 +41,14 @@ END;
 GO
 
 CREATE PROCEDURE sp_UpdateEducation
-    @eduId         BIGINT,
-    @userId        BIGINT,
+    @eduId  BIGINT,
+    @userId  BIGINT,
     @instituteName VARCHAR(200) = NULL,
-    @level         VARCHAR(100) = NULL,
-    @degreeName    VARCHAR(150) = NULL,
-    @grade         VARCHAR(50)  = NULL,
-    @startDate     DATE         = NULL,
-    @endDate       DATE         = NULL
+    @level  VARCHAR(100) = NULL,
+    @degreeName   VARCHAR(150) = NULL,
+    @grade   VARCHAR(50)  = NULL,
+    @startDate   DATE = NULL,
+    @endDate   DATE = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -63,11 +61,11 @@ BEGIN
     UPDATE userEducation
     SET
         instituteName = ISNULL(@instituteName, instituteName),
-        level         = ISNULL(@level,         level),
-        degreeName    = ISNULL(@degreeName,    degreeName),
-        grade         = ISNULL(@grade,         grade),
-        startDate     = ISNULL(@startDate,     startDate),
-        endDate       = @endDate
+        level= ISNULL(@level,level),
+        degreeName= ISNULL(@degreeName,degreeName),
+        grade= ISNULL(@grade,grade),
+        startDate = ISNULL(@startDate,startDate),
+        endDate = @endDate
     WHERE eduId = @eduId AND userId = @userId;
 
     SELECT

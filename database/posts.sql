@@ -1,26 +1,26 @@
 
 CREATE PROCEDURE sp_CreatePost
-    @creatorId       BIGINT,
-    @companyName     VARCHAR(200)  = NULL,
-    @jobTitle        VARCHAR(150),
-    @description     VARCHAR(1000) = NULL,
-    @location        VARCHAR(150)  = NULL,
-    @empType         VARCHAR(50)   = NULL,
-    @jobCategory     VARCHAR(100)  = NULL,
+    @creatorId  BIGINT,
+    @companyName  VARCHAR(200)  = NULL,
+    @jobTitle   VARCHAR(150),
+    @description  VARCHAR(1000) = NULL,
+    @location  VARCHAR(150)  = NULL,
+    @empType  VARCHAR(50)   = NULL,
+    @jobCategory VARCHAR(100)  = NULL,
     @experienceLevel VARCHAR(50)   = NULL,
-    @minSalary       DECIMAL(18,2) = NULL,
-    @maxSalary       DECIMAL(18,2) = NULL,
-    @salCurrency     VARCHAR(10)   = 'PKR',
-    @isRemote        BIT           = 0,
+    @minSalary  DECIMAL(18,2) = NULL,
+    @maxSalary  DECIMAL(18,2) = NULL,
+    @salCurrency VARCHAR(10)   = 'PKR',
+    @isRemote  BIT  = 0,
 
     -- Skills and qualification as JSON strings
-    @skillsJson      NVARCHAR(MAX) = NULL,
-    @qualJson        NVARCHAR(MAX) = NULL
+    @skillsJson  NVARCHAR(MAX) = NULL,
+    @qualJson NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- ── Validations ────────────────────────────────────────────────
+    
     IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @creatorId)
     BEGIN
         SELECT 'USER_NOT_FOUND' AS Status, NULL AS PostId; RETURN;
@@ -43,7 +43,7 @@ BEGIN
         SELECT 'INVALID_SALARY_RANGE' AS Status, NULL AS PostId; RETURN;
     END
 
-    -- ── Main Logic (all or nothing) ────────────────────────────────
+   
     BEGIN TRANSACTION;
     BEGIN TRY
 
@@ -86,9 +86,9 @@ BEGIN
                 minGrade
             FROM OPENJSON(@qualJson)
             WITH (
-                minDegree    VARCHAR(100) '$.minDegree',
+                minDegree  VARCHAR(100) '$.minDegree',
                 fieldOfStudy VARCHAR(150) '$.fieldOfStudy',
-                minGrade     DECIMAL(5,2) '$.minGrade'
+                minGrade  DECIMAL(5,2) '$.minGrade'
             );
         END
 
@@ -138,8 +138,7 @@ BEGIN
 END;
 GO
 
--- ================================================================================================
---get post by id (for public view, includes creator info and required skills/qualifications)
+
   
 CREATE PROCEDURE sp_GetPostByID  
     @postId BIGINT  
@@ -153,7 +152,7 @@ BEGIN
         RETURN;  
     END  
   
-    -- Core post details + creator info  
+   
     SELECT  
         p.postId,  
         p.companyName,  
@@ -217,4 +216,3 @@ BEGIN
 
     SELECT 'SUCCESS' AS Status;
 END;
-GO

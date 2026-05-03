@@ -1,10 +1,10 @@
 CREATE PROCEDURE sp_AddExperience
-    @userId      BIGINT,
+    @userId BIGINT,
     @companyName VARCHAR(200),
-    @jobTitle    VARCHAR(150),
-    @description VARCHAR(1000) = NULL,
-    @startDate   DATE,
-    @endDate     DATE          = NULL
+    @jobTitle VARCHAR(150),
+    @description VARCHAR(1000) =NULL,
+    @startDate DATE,
+    @endDate DATE = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -35,13 +35,13 @@ END;
 GO
 
 CREATE PROCEDURE sp_UpdateExperience
-    @expId       BIGINT,
-    @userId      BIGINT,
-    @companyName VARCHAR(200)  = NULL,
-    @jobTitle    VARCHAR(150)  = NULL,
+    @expId BIGINT,
+    @userId BIGINT,
+    @companyName VARCHAR(200) =NULL,
+    @jobTitle VARCHAR(150)  = NULL,
     @description VARCHAR(1000) = NULL,
-    @startDate   DATE          = NULL,
-    @endDate     DATE          = NULL
+    @startDate DATE  = NULL,
+    @endDate DATE = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -54,10 +54,10 @@ BEGIN
     UPDATE userExperience
     SET
         companyName = ISNULL(@companyName, companyName),
-        jobTitle    = ISNULL(@jobTitle,    jobTitle),
+        jobTitle = ISNULL(@jobTitle,    jobTitle),
         description = ISNULL(@description, description),
-        startDate   = ISNULL(@startDate,   startDate),
-        endDate     = @endDate
+        startDate = ISNULL(@startDate,   startDate),
+        endDate = @endDate
     WHERE expId = @expId AND userId = @userId;
 
     SELECT

@@ -6,7 +6,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- 1. Prevent applying to own post
+    -- 1 prevent applying to own post
     IF EXISTS (
         SELECT 1 FROM post
         WHERE postId = @postId AND creatorId = @applicantId
@@ -16,7 +16,7 @@ BEGIN
         RETURN;
     END
 
-    -- 2. Post must exist and be active
+    -- 2 post must exist and be active
     IF NOT EXISTS (
         SELECT 1 FROM post WHERE postId = @postId AND isActive = 1
     )
@@ -25,7 +25,7 @@ BEGIN
         RETURN;
     END
 
-    -- 3. No duplicate application
+    -- 3 No duplicate application
     IF EXISTS (
         SELECT 1 FROM application
         WHERE postId = @postId AND applicantId = @applicantId
@@ -45,7 +45,7 @@ BEGIN
         RETURN;
     END
 
-    -- 5. Atomic insert + return all email data in one shot
+    -- 5  insert + return all email data in one shot
     BEGIN TRY
         BEGIN TRANSACTION;
 
@@ -53,13 +53,13 @@ BEGIN
             VALUES (@postId, @applicantId, @cvPath);
 
             SELECT
-                SCOPE_IDENTITY()        AS applicationId,
-                applicant.name          AS applicantName,
-                applicant.email         AS applicantEmail,
-                p.jobTitle              AS jobTitle,
-                p.companyName           AS companyName,
-                employer.name           AS employerName,
-                employer.email          AS employerEmail
+                SCOPE_IDENTITY() AS applicationId,
+                applicant.name  AS applicantName,
+                applicant.email AS applicantEmail,
+                p.jobTitle  AS jobTitle,
+                p.companyName   AS companyName,
+                employer.name  AS employerName,
+                employer.email AS employerEmail
             FROM post p
             INNER JOIN appUser applicant ON applicant.userId = @applicantId
             INNER JOIN appUser employer  ON employer.userId  = p.creatorId
@@ -72,14 +72,14 @@ BEGIN
             ROLLBACK TRANSACTION;
 
         DECLARE
-            @errMsg      NVARCHAR(2048) = ERROR_MESSAGE(),
-            @errSeverity INT            = ERROR_SEVERITY(),
-            @errState    INT            = ERROR_STATE();
+            @errMsg NVARCHAR(2048) = ERROR_MESSAGE(),
+            @errSeverity INT = ERROR_SEVERITY(),
+            @errState INT = ERROR_STATE();
 
         RAISERROR(@errMsg, @errSeverity, @errState);
     END CATCH
 END;
-GO
+
 
 CREATE VIEW vw_MyApplications AS
 SELECT
@@ -97,7 +97,7 @@ SELECT
     p.isActive
 FROM application a
 INNER JOIN post p ON p.postId = a.postId;
-GO
+
 
 CREATE VIEW vw_PostCandidates AS
 SELECT
@@ -109,16 +109,15 @@ SELECT
     u.email AS applicantEmail,
     u.cvPath AS cvPath
 FROM application a
-INNER JOIN appUser u ON u.userId = a.applicantId
-GO
+INNER JOIN appUser u ON u.userId = a.applicantId;
+
 
 
 CREATE OR ALTER PROCEDURE sp_GetMyApplications
     @applicantId BIGINT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
+    SET NOCOUNT ON
     SELECT
         applicationId,
         status,
@@ -135,7 +134,6 @@ BEGIN
     AND isActive=1
     ORDER BY applicationDate DESC;
 END;
-GO
 
 
 CREATE OR ALTER PROCEDURE sp_GetPostCandidates

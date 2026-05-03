@@ -44,7 +44,7 @@ BEGIN
 
     -- Skills Info
     SELECT
-        us.userSkillId,        -- ← added this
+        us.userSkillId,       
         s.skillId,
         s.skillName,
         s.category,

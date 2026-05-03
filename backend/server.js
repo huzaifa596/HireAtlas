@@ -14,9 +14,7 @@ app.use(express.json());
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const user = require("./routes/userRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
-console.log("authRoutes:", require("./routes/authRoutes"));
-console.log("dashboardRoutes:", dashboardRoutes);
-console.log("userRoutes:", user);
+
 
 // Routes
 //auth
@@ -36,6 +34,6 @@ app.use("/uploads", express.static("uploads"));
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(` Server running on port ${PORT}`);
   console.log("database name", process.env.DB_SERVER);
 });

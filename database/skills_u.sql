@@ -1,11 +1,9 @@
 
 
-GO
-
 CREATE PROCEDURE sp_AddUserSkill
-    @userId      BIGINT,
-    @skillName   VARCHAR(100),
-    @category    VARCHAR(50)  = NULL,
+    @userId  BIGINT,
+    @skillName  VARCHAR(100),
+    @category VARCHAR(50) = NULL,
     @proficiency VARCHAR(50)  = 'Beginner'
 AS
 BEGIN
@@ -21,13 +19,13 @@ BEGIN
         SELECT 'INVALID_SKILL_NAME' AS Status; RETURN;
     END
 
-    -- Upsert into skill master table
+    
     IF NOT EXISTS (SELECT 1 FROM skill WHERE skillName = @skillName)
         INSERT INTO skill (skillName, category) VALUES (@skillName, @category);
 
     DECLARE @skillId BIGINT = (SELECT skillId FROM skill WHERE skillName = @skillName);
 
-    -- Prevent duplicate user skill
+    
     IF EXISTS (SELECT 1 FROM userSkill WHERE userId = @userId AND skillId = @skillId)
     BEGIN
         SELECT 'SKILL_ALREADY_EXISTS' AS Status; RETURN;
@@ -49,18 +47,9 @@ END;
 GO
 
 
-
-
-
-
-----------------------------------------
-
-
-GO
-
 CREATE PROCEDURE sp_UpdateUserSkill
     @userSkillId BIGINT,
-    @userId      BIGINT,
+    @userId  BIGINT,
     @proficiency VARCHAR(50)
 AS
 BEGIN
@@ -88,8 +77,6 @@ END;
 GO
 
 ------------------------------
-
-GO
 
 CREATE PROCEDURE sp_DeleteUserSkill
     @userSkillId BIGINT,

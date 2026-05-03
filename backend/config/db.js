@@ -26,7 +26,7 @@ if (isWindowsAuth) {
 const poolPromise = new sql.ConnectionPool(dbConfig)
   .connect()
   .then((pool) => {
-    console.log(`✅ Connected via ${isWindowsAuth ? "Windows" : "SQL"} Auth`);
+    console.log(`Connection successfull via ${isWindowsAuth ? "Windows" : "SQL"} Auth`);
     return pool;
   })
   .catch((err) => {

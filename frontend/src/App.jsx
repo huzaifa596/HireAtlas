@@ -5,10 +5,10 @@ import Dashboard     from './components/Dashboard/Dashboard';
 import { isSessionValid, refreshSession, clearSession } from './services/auth';
 import LandingPage from './components/landingpage/landingpage';
 
-const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+const TIMEOUT_MS = 10 * 60 * 1000; 
 
 export default function App() {
-  const [loading,         setLoading]         = useState(true);
+  const [loading,setLoading]  = useState(true);
   const [fadeOut,         setFadeOut]         = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 const [darkMode, setDarkMode] = useState(() => {
@@ -16,19 +16,19 @@ const [darkMode, setDarkMode] = useState(() => {
 });
 const [showLanding, setShowLanding] = useState(true);
 
-  // ── Logout helper ──
+ 
   const logout = useCallback(() => {
     clearSession();
     setIsAuthenticated(false);
   }, []);
 
-  // ── Check session on app load ──
+  
   useEffect(() => {
     if (isSessionValid()) {
-      refreshSession();        // reset the 10 min timer on refresh
+      refreshSession();        
       setIsAuthenticated(true);
     } else {
-      clearSession();          // clean up any stale data
+      clearSession();          
       setIsAuthenticated(false);
     }
 
@@ -37,7 +37,7 @@ const [showLanding, setShowLanding] = useState(true);
     return () => { clearTimeout(fadeTimer); clearTimeout(doneTimer); };
   }, []);
 
-  // ── Auto logout after 10 min inactivity ──
+
   useEffect(() => {
     if (!isAuthenticated) return;
 

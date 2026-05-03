@@ -34,11 +34,11 @@ BEGIN
     END
 
     UPDATE appUser
-    SET name       = @name,
-        email      = @email,
-        phone      = @phone,
-        age        = @age,
-        cvPath     = ISNULL(@cvPath,     cvPath),      -- only update if provided
+    SET name = @name,
+        email = @email,
+        phone  = @phone,
+        age = @age,
+        cvPath = ISNULL(@cvPath,cvPath),      -- only update if provided
         cvFileName = ISNULL(@cvFileName, cvFileName)   -- only update if provided
     WHERE userId = @userId;
 

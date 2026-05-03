@@ -1,12 +1,9 @@
 
--- ================================================================================================
--- SIGN UP PROCEDURE
--- ================================================================================================
 CREATE PROCEDURE SignupUser
-    @Name     VARCHAR(100),
-    @Email    VARCHAR(150),
-    @Phone    VARCHAR(20)  = NULL,
-    @Age      INT          = NULL,
+    @Name   VARCHAR(100),
+    @Email  VARCHAR(150),
+    @Phone  VARCHAR(20)  = NULL,
+    @Age   INT    = NULL,
     @Password VARCHAR(255)
 AS
 BEGIN
@@ -29,11 +26,8 @@ BEGIN
 
     SELECT 'SUCCESS' AS Status, SCOPE_IDENTITY() AS UserID;
 END;
-GO
 
--- ================================================================================================
--- LOGIN PROCEDURE
--- ================================================================================================
+
 CREATE PROCEDURE LoginUser
     @Email VARCHAR(150)
 AS
@@ -56,7 +50,7 @@ BEGIN
         userId,
         name,
         email,
-        password   -- backend compares the hash
+        password   
     FROM appUser
     WHERE email = @Email;
 END;
