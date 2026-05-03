@@ -1,6 +1,6 @@
 
 
-ALTER PROCEDURE GetUserProfile
+CREATE or ALTER PROCEDURE GetUserProfile
     @UserId BIGINT
 AS
 BEGIN

@@ -44,7 +44,7 @@ BEGIN
     BEGIN
         SELECT
             'USER_NOT_FOUND' AS Status,
-            NULL AS UserID,
+            NULL AS userId,
             NULL AS Name,
             NULL AS Email,
             NULL AS password;
@@ -61,3 +61,4 @@ BEGIN
     WHERE email = @Email;
 END;
 GO
+
