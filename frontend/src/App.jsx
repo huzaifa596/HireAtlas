@@ -10,6 +10,10 @@ export default function App() {
   const [loading,         setLoading]         = useState(true);
   const [fadeOut,         setFadeOut]         = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+const [darkMode, setDarkMode] = useState(() => {
+  return localStorage.getItem('darkMode') === 'true';
+});
+
 
   // ── Logout helper ──
   const logout = useCallback(() => {
@@ -43,7 +47,10 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [isAuthenticated, logout]);
 
-
+useEffect(() => {
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  localStorage.setItem('darkMode', darkMode);
+}, [darkMode]);
 
   return (
     <>
@@ -55,7 +62,7 @@ export default function App() {
         }} />
       )}
 {!loading && isAuthenticated && (
-  <Dashboard onLogout={logout} />
+  <Dashboard onLogout={logout} darkMode={darkMode} setDarkMode={setDarkMode} />
 )}
     </>
   );

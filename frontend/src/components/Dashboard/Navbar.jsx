@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Search,
-  Bell,
   User,
   Briefcase,
   FileText,
@@ -9,6 +8,8 @@ import {
   X,
   Plus,
   ClipboardList,
+  Sun,
+  Moon,
 } from "lucide-react";
 import API from "../../services/api";
 
@@ -19,6 +20,8 @@ export default function Navbar({
   setSearchQuery,
   toggleMobileMenu,
   isMobileMenuOpen,
+  darkMode,
+  setDarkMode,
 }) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const mobileInputRef = useRef(null);
@@ -105,6 +108,17 @@ export default function Navbar({
 
         {/* RIGHT */}
         <div className="navbar-right">
+
+          {/* Dark mode toggle */}
+          <button
+            className="icon-btn"
+            onClick={() => setDarkMode((prev) => !prev)}
+            aria-label="Toggle dark mode"
+            title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? <Sun size={19} /> : <Moon size={19} />}
+          </button>
+
           <button
             className="icon-btn mobile-search-toggle"
             onClick={() => setMobileSearchOpen((o) => !o)}

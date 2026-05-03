@@ -25,6 +25,87 @@
   --font-display: 'Sora', sans-serif;
 }
 
+[data-theme="dark"] {
+  --primary:      #4299e1;
+  --accent:       #63b3ed;
+  --accent-light: #90cdf4;
+  --bg-gradient:  linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --card-bg:      #1e293b;
+  --border:       #334155;
+  --text-dark:    #f1f5f9;
+  --text-mid:     #94a3b8;
+  --text-muted:   #64748b;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Dark mode overrides for elements that use hardcoded colors */
+[data-theme="dark"] body {
+  background: var(--bg-gradient);
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .navbar {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .search-input {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .search-input:focus {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .nav-tab:hover { background: #1e293b; }
+
+[data-theme="dark"] .nav-tab.active {
+  background: rgba(66,153,225,0.15);
+}
+
+[data-theme="dark"] .job-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tag {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .job-card:hover .tag {
+  background: #1e3a5f;
+  color: #63b3ed;
+  border-color: #2d5a8e;
+}
+
+[data-theme="dark"] .content-count {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .mobile-menu {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: #334155;
+}
+
+[data-theme="dark"] .mobile-tab:hover  { background: #1e293b; }
+[data-theme="dark"] .mobile-tab.active { background: rgba(66,153,225,0.15); }
+
+[data-theme="dark"] .mobile-search-input {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .card-footer { border-top-color: #334155; }
+
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

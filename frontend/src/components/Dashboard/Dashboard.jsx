@@ -32,7 +32,7 @@ const mapPost = (p) => ({
   experienceLevel: p.experienceLevel,
 });
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
 
   const [posts, setPosts] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -301,13 +301,16 @@ export default function Dashboard({ onLogout }) {
   return (
     <div className="dashboard-root">
       <Navbar
-        activeTab={activeTab}
-        setActiveTab={handleSetActiveTab}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        toggleMobileMenu={toggleMobileMenu}
-        isMobileMenuOpen={isMobileMenuOpen}
-      />
+  activeTab={activeTab}
+  setActiveTab={handleSetActiveTab}
+  searchQuery={searchQuery}
+  setSearchQuery={setSearchQuery}
+  toggleMobileMenu={toggleMobileMenu}
+  isMobileMenuOpen={isMobileMenuOpen}
+  darkMode={darkMode}
+  setDarkMode={setDarkMode}
+/>
+
 
       <MobileMenu
         isOpen={isMobileMenuOpen}
