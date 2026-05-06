@@ -33,7 +33,6 @@ const mapPost = (p) => ({
 });
 
 export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
-
   const [posts, setPosts] = useState([]);
   const [applications, setApplications] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,7 +48,7 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
   const [candidatesPostId, setCandidatesPostId] = useState(null);
   const [candidatesJobTitle, setCandidatesJobTitle] = useState("");
 
-  const LIMIT = 20;
+  const LIMIT = 10;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
@@ -146,11 +145,47 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
     fetchApplications,
   ]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // ── Client-side search ────────────────────────────────────────────────────
+  const filteredJobs = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return posts;
+    return posts.filter(
+      (job) =>
+        job.title.toLowerCase().includes(q) ||
+        job.company?.toLowerCase().includes(q) ||
+        job.tags.some((tag) => tag.toLowerCase().includes(q)),
+    );
+  }, [searchQuery, posts]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
+
+  const isServerPaginated =
+    activeTab === "posts" && Object.keys(filterParams).length > 0;
+
+  const displayTotalPages = isServerPaginated
+    ? totalPages
+    : Math.ceil(filteredJobs.length / LIMIT);
+
+  const displayJobs = useMemo(() => {
+    if (isServerPaginated) return filteredJobs;
+    const start = (page - 1) * LIMIT;
+    return filteredJobs.slice(start, start + LIMIT);
+  }, [filteredJobs, page, isServerPaginated]);
+
   const handleApplyFilters = (params) => {
     setPage(1);
     setFilterParams(params);
     window.scrollTo(0, 0);
+  };
+
+  const changePage = (p) => {
+    setPage(p);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   const handleSetActiveTab = (tab) => {
@@ -163,18 +198,6 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
     setPage(1);
     setActiveTab(tab);
   };
-
-  // ── Client-side search ────────────────────────────────────────────────────
-  const filteredJobs = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-    if (!q) return posts;
-    return posts.filter(
-      (job) =>
-        job.title.toLowerCase().includes(q) ||
-        job.company?.toLowerCase().includes(q) ||
-        job.tags.some((tag) => tag.toLowerCase().includes(q)),
-    );
-  }, [searchQuery, posts]);
 
   // ── Render center content ─────────────────────────────────────────────────
   const renderContent = () => {
@@ -259,7 +282,7 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
           </div>
         ) : (
           <div className="jobs-list">
-            {filteredJobs.map((job, i) => (
+            {displayJobs.map((job, i) => (
               <JobCard
                 key={job.id}
                 job={job}
@@ -273,22 +296,21 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
           </div>
         )}
 
-        {activeTab === "posts" &&
-          Object.keys(filterParams).length > 0 &&
-          totalPages > 1 && (
+        {(activeTab === "posts" || activeTab === "myPosts") &&
+          displayTotalPages > 1 && (
             <div className="pagination">
               <button
                 disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
+                onClick={() => changePage(page - 1)}
               >
                 ← Prev
               </button>
               <span>
-                Page {page} of {totalPages}
+                Page {page} of {displayTotalPages}
               </span>
               <button
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
+                disabled={page === displayTotalPages}
+                onClick={() => changePage(page + 1)}
               >
                 Next →
               </button>
@@ -301,16 +323,15 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
   return (
     <div className="dashboard-root">
       <Navbar
-  activeTab={activeTab}
-  setActiveTab={handleSetActiveTab}
-  searchQuery={searchQuery}
-  setSearchQuery={setSearchQuery}
-  toggleMobileMenu={toggleMobileMenu}
-  isMobileMenuOpen={isMobileMenuOpen}
-  darkMode={darkMode}
-  setDarkMode={setDarkMode}
-/>
-
+        activeTab={activeTab}
+        setActiveTab={handleSetActiveTab}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        toggleMobileMenu={toggleMobileMenu}
+        isMobileMenuOpen={isMobileMenuOpen}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+      />
 
       <MobileMenu
         isOpen={isMobileMenuOpen}
@@ -322,15 +343,17 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
       />
 
       <main className="dashboard-main">
-        <aside className="sidebar sidebar-left">
-          {(activeTab === "posts" || activeTab === "myPosts") && (
+        {(activeTab === "posts" || activeTab === "myPosts") && (
+          <aside className="sidebar sidebar-left">
             <FilterSidebar onApply={handleApplyFilters} />
-          )}
-        </aside>
+          </aside>
+        )}
 
         <section className="content-center">{renderContent()}</section>
 
-        <aside className="sidebar sidebar-right" />
+        {(activeTab === "posts" || activeTab === "myPosts") && (
+          <aside className="sidebar sidebar-right" />
+        )}
       </main>
     </div>
   );

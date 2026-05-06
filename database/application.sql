@@ -6,7 +6,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- 1 prevent applying to own post
+    --prevent applying to own post
     IF EXISTS (
         SELECT 1 FROM post
         WHERE postId = @postId AND creatorId = @applicantId
@@ -16,7 +16,7 @@ BEGIN
         RETURN;
     END
 
-    -- 2 post must exist and be active
+    --  post must exist and be active
     IF NOT EXISTS (
         SELECT 1 FROM post WHERE postId = @postId AND isActive = 1
     )
@@ -35,7 +35,7 @@ BEGIN
         RETURN;
     END
 
-    -- 4. Applicant must have a CV on profile
+    -- applicant must have a CV on profile
     DECLARE @cvPath VARCHAR(255);
     SELECT @cvPath = cvPath FROM appUser WHERE userId = @applicantId;
 
@@ -44,8 +44,6 @@ BEGIN
         RAISERROR('NO_CV_ON_PROFILE', 16, 1);
         RETURN;
     END
-
-    -- 5  insert + return all email data in one shot
     BEGIN TRY
         BEGIN TRANSACTION;
 
@@ -79,6 +77,7 @@ BEGIN
         RAISERROR(@errMsg, @errSeverity, @errState);
     END CATCH
 END;
+GO;
 
 
 CREATE VIEW vw_MyApplications AS
@@ -98,7 +97,7 @@ SELECT
 FROM application a
 INNER JOIN post p ON p.postId = a.postId;
 
-
+GO
 CREATE VIEW vw_PostCandidates AS
 SELECT
     a.applicationId,
@@ -110,7 +109,7 @@ SELECT
     u.cvPath AS cvPath
 FROM application a
 INNER JOIN appUser u ON u.userId = a.applicantId;
-
+GO
 
 
 CREATE OR ALTER PROCEDURE sp_GetMyApplications
@@ -134,7 +133,7 @@ BEGIN
     AND isActive=1
     ORDER BY applicationDate DESC;
 END;
-
+GO
 
 CREATE OR ALTER PROCEDURE sp_GetPostCandidates
     @postId      BIGINT,

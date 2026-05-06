@@ -3,7 +3,7 @@
    Warm Light Mode · Mascots · More Personality
    ═══════════════════════════════════════════════ */
 
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Sora:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Gilroy+Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Sora:wght@400;500;600;700;800&display=swap");
 
 /* ── TOKENS ── */
 .lp-root {
@@ -20,8 +20,8 @@
   --lp-glass: rgba(255, 255, 255, 0.035);
   --lp-glass-2: rgba(255, 255, 255, 0.07);
   --lp-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  --lp-font-display: "Sora", sans-serif;
-  --lp-font-body: "DM Sans", sans-serif;
+  --lp-font-display: "Gilroy", sans-serif;
+  --lp-font-body: "Gilroy", sans-serif;
 
   font-family: var(--lp-font-body);
   background: var(--lp-navy);

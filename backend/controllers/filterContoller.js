@@ -1,7 +1,6 @@
 require("dotenv").config();
 const { sql, poolPromise } = require("../config/db");
 
-// GET /api/jobs?empType=Full-Time,Part-Time&experienceLevel=Senior&minSalary=100000&sortBy=newest&page=1
 const filterJobs = async (req, res) => {
   try {
     let {
@@ -64,7 +63,6 @@ const filterJobs = async (req, res) => {
     request.input("offsetRows", sql.Int, offset);
     request.input("fetchRows", sql.Int, limit);
 
-    // ── WHERE clause: NULL means "ignore this filter" ──
     const whereClause = `
       isActive = 1
       AND (@empType IS NULL OR empType IN (SELECT value FROM STRING_SPLIT(@empType, ',')))
@@ -78,7 +76,6 @@ const filterJobs = async (req, res) => {
       AND (@companyName IS NULL OR companyName LIKE @companyName)
     `;
 
-    // Fetch paginated data
     const dataSql = `
       SELECT 
         postId, jobTitle, companyName, location, empType,
