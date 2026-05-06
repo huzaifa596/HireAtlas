@@ -1,5 +1,12 @@
-const { Resend } = require("resend");
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,       // your Gmail address
+    pass: process.env.GMAIL_APP_PASSWORD, // Gmail App Password (not your login password)
+  },
+});
 
 // Email 1 — to applicant
 const sendApplicationConfirmation = async ({
@@ -8,8 +15,8 @@ const sendApplicationConfirmation = async ({
   jobTitle,
   companyName,
 }) => {
-  await resend.emails.send({
-    from: "HireAtlas <onboarding@resend.dev>",
+  await transporter.sendMail({
+    from: `"HireAtlas" <${process.env.GMAIL_USER}>`,
     to,
     subject: `Application Submitted — ${jobTitle}`,
     text: `Hi ${applicantName},\n\nYou have successfully applied for ${jobTitle} at ${companyName}.\n\nGood luck!\n\nHireAtlas`,
@@ -24,8 +31,8 @@ const sendNewApplicationNotification = async ({
   applicantEmail,
   jobTitle,
 }) => {
-  await resend.emails.send({
-    from: "HireAtlas <onboarding@resend.dev>",
+  await transporter.sendMail({
+    from: `"HireAtlas" <${process.env.GMAIL_USER}>`,
     to,
     subject: `New Application — ${jobTitle}`,
     text: `Hi ${employerName},\n\n${applicantName} (${applicantEmail}) has applied for ${jobTitle}.\n\nLogin to HireAtlas to review their application.\n\nHireAtlas`,

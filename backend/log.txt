@@ -357,3 +357,7 @@ User logged in: ahmedshakeel12.uk@gmail.com
  time: 2026-05-06T18:59:53.429Z
 User logged in: ahmedshakeel12.uk@gmail.com
  time: 2026-05-06T19:18:00.262Z
+New user signed up: huzaifa0695@gmail.com
+ time: 2026-05-06T20:22:39.798Z
+User logged in: huzaifa0695@gmail.com
+ time: 2026-05-06T20:22:52.691Z
