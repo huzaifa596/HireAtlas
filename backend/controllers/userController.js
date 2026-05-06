@@ -2,7 +2,8 @@ require('dotenv').config();
 const { sql, poolPromise } = require('../config/db');
 const multer = require('multer');
 const path   = require('path');
-
+const { generateOTP, saveOTP, verifyOTP } = require("../utils/otpStore");
+const { sendProfileVerificationOTP } = require("./emailSender");
 const getProfile = async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -326,8 +327,8 @@ const deleteSkill = async (req, res) => {
 // ── Multer config ──
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/cvs/'),
-  filename:    (req, file, cb) => {
-    const ext      = path.extname(file.originalname);
+  filename:  (req, file, cb) => {
+    const ext = path.extname(file.originalname);
     const filename = `user_${req.user.userID}_${Date.now()}${ext}`;
     cb(null, filename);
   }
@@ -338,13 +339,13 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     const allowed = ['.pdf', '.doc', '.docx'];
-    const ext     = path.extname(file.originalname).toLowerCase();
+    const ext = path.extname(file.originalname).toLowerCase();
     if (allowed.includes(ext)) cb(null, true);
     else cb(new Error('Only PDF, DOC, DOCX allowed'));
   }
 });
 
-// ── Upload CV handler ──
+// Upload CV handler 
 const uploadCv = async (req, res) => {
   try {
     if (!req.file) {
@@ -356,12 +357,12 @@ const uploadCv = async (req, res) => {
 
     const pool = await poolPromise;
     const result = await pool.request()
-      .input('userId',     sql.BigInt,      req.user.userID)
-      .input('name',       sql.VarChar(100), req.body.name)
-      .input('email',      sql.VarChar(150), req.body.email)
-      .input('phone',      sql.VarChar(20),  req.body.phone      ?? null)
-      .input('age',        sql.Int,          req.body.age        ?? null)
-      .input('cvPath',     sql.VarChar(500), cvPath)
+      .input('userId',  sql.BigInt,      req.user.userID)
+      .input('name',  sql.VarChar(100), req.body.name)
+      .input('email',  sql.VarChar(150), req.body.email)
+      .input('phone',  sql.VarChar(20),  req.body.phone ?? null)
+      .input('age',  sql.Int,   req.body.age  ?? null)
+      .input('cvPath', sql.VarChar(500), cvPath)
       .input('cvFileName', sql.VarChar(255), cvFileName)
       .execute('sp_UpdatePersonalInfo');
 
@@ -391,5 +392,42 @@ const uploadCv = async (req, res) => {
 };
 
 
+const sendVerificationOTP = async (req, res) => {
+  const { email } = req.user; // from auth middleware (JWT)
 
-module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience,deleteSkill,saveSkill,uploadCv, upload};
+  try {
+    const otp = generateOTP();
+    saveOTP(email, otp);
+    await sendProfileVerificationOTP({ to: email, otp });
+    res.json({ message: "Verification OTP sent to your email" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+};
+
+// Step 2 — Verify OTP & mark profile verified
+const verifyProfile = async (req, res) => {
+  const { email } = req.user;
+  const { otp } = req.body;
+
+  const result = verifyOTP(email, otp);
+  if (!result.valid) return res.status(400).json({ message: result.message });
+
+  try {
+    const pool = await poolPromise; // ← fixed
+    await pool
+      .request()
+      .input("email", sql.VarChar, email)
+      .query("UPDATE appUser SET is_verified = 1 WHERE email = @email"); // ← fixed table name
+
+    res.json({ message: "Profile verified successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to verify profile" });
+  }
+};
+
+
+module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience,deleteSkill,saveSkill,uploadCv, upload,sendVerificationOTP,
+  verifyProfile};

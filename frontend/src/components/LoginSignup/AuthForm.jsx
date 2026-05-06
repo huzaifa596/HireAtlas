@@ -5,48 +5,21 @@ import { saveSession } from '../../services/auth';
 
 /* ── SVG Icons ──────────────────────────────────────────────────────────── */
 const IconMail = () => (
-  <svg
-    width="17"
-    height="17"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="4" width="20" height="16" rx="2" />
     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
   </svg>
 );
 
 const IconLock = () => (
-  <svg
-    width="17"
-    height="17"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
 );
 
 const IconUser = () => (
-  <svg
-    width="17"
-    height="17"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="8" r="4" />
     <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
   </svg>
@@ -54,30 +27,12 @@ const IconUser = () => (
 
 const IconEye = ({ open }) =>
   open ? (
-    <svg
-      width="17"
-      height="17"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
   ) : (
-    <svg
-      width="17"
-      height="17"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
       <line x1="1" y1="1" x2="23" y2="23" />
@@ -85,16 +40,7 @@ const IconEye = ({ open }) =>
   );
 
 const IconArrow = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 );
@@ -113,15 +59,7 @@ function getStrength(pw) {
 const STRENGTH_LABELS = ["", "Weak", "Fair", "Good", "Strong"];
 
 /* ── Floating label field ───────────────────────────────────────────────── */
-function Field({
-  label,
-  type = "text",
-  value,
-  onChange,
-  error,
-  icon: Icon,
-  autoComplete,
-}) {
+function Field({ label, type = "text", value, onChange, error, icon: Icon, autoComplete }) {
   const [focused, setFocused] = useState(false);
   const [show, setShow] = useState(false);
   const isPassword = type === "password";
@@ -141,34 +79,16 @@ function Field({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       />
-
-      {/* Floating label */}
-      <label
-        className={`af-label${Icon ? "" : " af-label--no-icon"}${labelUp ? " af-label--up" : ""}`}
-      >
+      <label className={`af-label${Icon ? "" : " af-label--no-icon"}${labelUp ? " af-label--up" : ""}`}>
         {label}
       </label>
-
-      {/* Leading icon */}
-      {Icon && (
-        <span className="af-icon">
-          <Icon />
-        </span>
-      )}
-
-      {/* Eye toggle */}
+      {Icon && <span className="af-icon"><Icon /></span>}
       {isPassword && (
-        <button
-          type="button"
-          className="af-eye"
-          onClick={() => setShow((s) => !s)}
-          aria-label={show ? "Hide password" : "Show password"}
-          tabIndex={-1}
-        >
+        <button type="button" className="af-eye" onClick={() => setShow((s) => !s)}
+          aria-label={show ? "Hide password" : "Show password"} tabIndex={-1}>
           <IconEye open={show} />
         </button>
       )}
-
       {error && <p className="af-error">⚠ {error}</p>}
     </div>
   );
@@ -182,10 +102,7 @@ function StrengthMeter({ password }) {
     <div className="af-strength">
       <div className="af-strength__bars">
         {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className={`af-strength__bar${strength >= i ? ` af-strength__bar--${strength}` : ""}`}
-          />
+          <div key={i} className={`af-strength__bar${strength >= i ? ` af-strength__bar--${strength}` : ""}`} />
         ))}
       </div>
       <span className={`af-strength__label af-strength__label--${strength}`}>
@@ -199,310 +116,323 @@ function StrengthMeter({ password }) {
 export default function AuthForm({ mode, onModeChange, onLogin }) {
   const isLogin = mode === "login";
 
-  // Fields
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  // Login / Signup fields
+  const [name, setName]       = useState("");
+  const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [remember, setRemember] = useState(false);
 
   // UI state
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors]   = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // ── Forgot password states (CORRECTLY placed inside AuthForm) ────────────
+  const [fpStep, setFpStep]               = useState(null); // null | 'email' | 'otp' | 'reset' | 'otp2'
+  const [fpEmail, setFpEmail]             = useState("");
+  const [fpOtp, setFpOtp]                 = useState("");
+  const [fpNewPassword, setFpNewPassword] = useState("");
+  const [fpLoading, setFpLoading]         = useState(false);
+  const [fpError, setFpError]             = useState("");
+  const [fpSuccess, setFpSuccess]         = useState("");
+
   // Tab pill position
-  const tabRef = useRef(null);
-  const loginBtnRef = useRef(null);
+  const tabRef       = useRef(null);
+  const loginBtnRef  = useRef(null);
   const signupBtnRef = useRef(null);
   const [pillStyle, setPillStyle] = useState({ left: "4px", width: "50%" });
 
   useEffect(() => {
     const active = isLogin ? loginBtnRef.current : signupBtnRef.current;
-    const wrap = tabRef.current;
+    const wrap   = tabRef.current;
     if (active && wrap) {
       const wRect = wrap.getBoundingClientRect();
       const aRect = active.getBoundingClientRect();
-      setPillStyle({
-        left: `${aRect.left - wRect.left}px`,
-        width: `${aRect.width}px`,
-      });
+      setPillStyle({ left: `${aRect.left - wRect.left}px`, width: `${aRect.width}px` });
     }
   }, [mode]);
 
-  // Reset form when switching modes
   useEffect(() => {
     setErrors({});
     setSuccess(false);
   }, [mode]);
 
-  /* Validation */
+  /* ── Validation ── */
   function validate() {
     const errs = {};
     if (!isLogin && !name.trim()) errs.name = "Name is required";
-    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))
-      errs.email = "Enter a valid email";
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errs.email = "Enter a valid email";
     if (password.length < 8) errs.password = "At least 8 characters";
-    if (!isLogin && password !== confirm)
-      errs.confirm = "Passwords do not match";
+    if (!isLogin && password !== confirm) errs.confirm = "Passwords do not match";
     return errs;
   }
 
+  /* ── Login / Signup submit ── */
   async function handleSubmit(e) {
     e.preventDefault();
-
     const errs = validate();
-    if (Object.keys(errs).length) {
-      setErrors(errs);
-      return;
-    }
-
+    if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({});
     setLoading(true);
-
     try {
-      let res;
-
       if (isLogin) {
-        res = await API.post("/auth/login", {
-          email,
-          password,
-        });
-
-        const { token, message } = res.data;
-
-       // localStorage.setItem("token", token); // store JWT
-        saveSession(token);
+        const res = await API.post("/auth/login", { email, password });
+        saveSession(res.data.token);
         onLogin();
       } else {
-        // 📝 SIGNUP
-        res = await API.post("/auth/signup", {
-          name,
-          email,
-          password,
-        });
+        await API.post("/auth/signup", { name, email, password });
       }
-
       setSuccess(true);
     } catch (err) {
-      console.error("API ERROR:", err);
-
-      const msg = err.response?.data?.message || "Something went wrong";
-
-      alert(msg);
+      alert(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   }
 
+  /* ── Forgot password handlers ── */
+  const handleFpSendOtp = async () => {
+    if (!fpEmail) return setFpError("Enter your email");
+    setFpLoading(true); setFpError("");
+    try {
+      await API.post("/auth/forgot-password", { email: fpEmail });
+      setFpStep("otp");
+      setFpSuccess("OTP sent to your email");
+    } catch (err) {
+      setFpError(err.response?.data?.message || "Failed to send OTP");
+    } finally { setFpLoading(false); }
+  };
+
+  const handleFpVerifyOtp = async () => {
+    if (!fpOtp) return setFpError("Enter the OTP");
+    setFpLoading(true); setFpError("");
+    try {
+      await API.post("/auth/verify-forgot-otp", { email: fpEmail, otp: fpOtp });
+      setFpStep("reset");
+      setFpOtp("");
+      setFpSuccess("OTP verified! Enter your new password.");
+    } catch (err) {
+      setFpError(err.response?.data?.message || "Invalid OTP");
+    } finally { setFpLoading(false); }
+  };
+
+  const handleFpGetResetOtp = async () => {
+    if (!fpNewPassword || fpNewPassword.length < 8)
+      return setFpError("Password must be at least 8 characters");
+    setFpLoading(true); setFpError("");
+    try {
+      await API.post("/auth/forgot-password", { email: fpEmail });
+      setFpStep("otp2");
+      setFpOtp("");
+      setFpSuccess("A new OTP has been sent. Enter it below to confirm.");
+    } catch (err) {
+      setFpError(err.response?.data?.message || "Failed to send OTP");
+    } finally { setFpLoading(false); }
+  };
+
+  const handleFpResetFinal = async () => {
+    if (!fpOtp || !fpNewPassword) return setFpError("Fill in all fields");
+    setFpLoading(true); setFpError("");
+    try {
+      await API.post("/auth/reset-password", { email: fpEmail, otp: fpOtp, newPassword: fpNewPassword });
+      setFpStep(null);
+      setFpSuccess("");
+      alert("Password reset successfully! Please log in.");
+    } catch (err) {
+      setFpError(err.response?.data?.message || "Failed to reset password");
+    } finally { setFpLoading(false); }
+  };
+
+  /* ── Forgot password UI ── */
+  if (fpStep) {
+    return (
+      <div>
+        <button
+          type="button"
+          className="af-forgot"
+          style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 6 }}
+          onClick={() => { setFpStep(null); setFpError(""); setFpSuccess(""); setFpOtp(""); setFpNewPassword(""); }}
+        >
+          ← Back to Login
+        </button>
+
+        <div className="af-header">
+          <h2 className="af-title">Reset Password</h2>
+          <p className="af-sub">
+            {fpStep === "email" && "Enter your email to receive an OTP"}
+            {fpStep === "otp"   && "Enter the 6-digit OTP sent to your email"}
+            {fpStep === "reset" && "Enter your new password"}
+            {fpStep === "otp2"  && "Enter the new OTP to confirm your password reset"}
+          </p>
+        </div>
+
+        {fpError   && <p style={{ color:"#dc2626", fontSize:13, marginBottom:12 }}>⚠ {fpError}</p>}
+        {fpSuccess && <p style={{ color:"#16a34a", fontSize:13, marginBottom:12 }}>✓ {fpSuccess}</p>}
+
+        <div className="af-fields">
+          {fpStep === "email" && (
+            <Field label="Email address" type="email" value={fpEmail}
+              onChange={setFpEmail} icon={IconMail} />
+          )}
+
+          {fpStep === "otp" && (
+            <Field label="6-digit OTP" value={fpOtp}
+              onChange={setFpOtp} icon={IconLock} />
+          )}
+
+          {fpStep === "reset" && (
+            <>
+              <Field label="New Password" type="password" value={fpNewPassword}
+                onChange={setFpNewPassword} icon={IconLock} />
+              <StrengthMeter password={fpNewPassword} />
+            </>
+          )}
+
+          {fpStep === "otp2" && (
+            <>
+              <Field label="New OTP" value={fpOtp}
+                onChange={setFpOtp} icon={IconLock} />
+              <Field label="New Password" type="password" value={fpNewPassword}
+                onChange={setFpNewPassword} icon={IconLock} />
+            </>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="af-btn"
+          style={{ marginTop: 18 }}
+          disabled={fpLoading}
+          onClick={
+            fpStep === "email" ? handleFpSendOtp :
+            fpStep === "otp"   ? handleFpVerifyOtp :
+            fpStep === "reset" ? handleFpGetResetOtp :
+            handleFpResetFinal
+          }
+        >
+          {fpLoading ? <span className="af-spinner" /> : (
+            <>
+              {fpStep === "email" && "Send OTP"}
+              {fpStep === "otp"   && "Verify OTP"}
+              {fpStep === "reset" && "Get Reset OTP"}
+              {fpStep === "otp2"  && "Reset Password"}
+              <IconArrow />
+            </>
+          )}
+        </button>
+      </div>
+    );
+  }
+
+  /* ── Success screen ── */
   if (success) {
     return (
       <div style={{ textAlign: "center", padding: "40px 0" }}>
-        <div
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, #10b981, #059669)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 20px",
-            boxShadow: "0 8px 24px rgba(16,185,129,0.35)",
-          }}
-        >
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#fff"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+        <div style={{ width:64, height:64, borderRadius:"50%", background:"linear-gradient(135deg,#10b981,#059669)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 20px", boxShadow:"0 8px 24px rgba(16,185,129,0.35)" }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h2
-          style={{
-            fontSize: 22,
-            fontWeight: 800,
-            color: "var(--text-dark)",
-            marginBottom: 8,
-            letterSpacing: "-0.5px",
-          }}
-        >
+        <h2 style={{ fontSize:22, fontWeight:800, color:"var(--text-dark)", marginBottom:8, letterSpacing:"-0.5px" }}>
           {isLogin ? "Welcome back!" : "Account created!"}
         </h2>
-        <p
-          style={{ fontSize: 14, color: "var(--text-soft)", marginBottom: 28 }}
-        >
-          {isLogin
-            ? "You're now signed in to HireAtlas."
-            : "Your HireAtlas account is ready to go."}
+        <p style={{ fontSize:14, color:"var(--text-soft)", marginBottom:28 }}>
+          {isLogin ? "You're now signed in to HireAtlas." : "Your HireAtlas account is ready to go."}
         </p>
-        <button
-          className="af-btn"
-          onClick={() => {
-            setSuccess(false);
-            setEmail("");
-            setPassword("");
-            setName("");
-            setConfirm("");
-          }}
-        >
+        <button className="af-btn" onClick={() => { setSuccess(false); setEmail(""); setPassword(""); setName(""); setConfirm(""); }}>
           Back to {isLogin ? "Login" : "Sign Up"}
         </button>
       </div>
     );
   }
 
+  /* ── Main login / signup form ── */
   return (
     <form onSubmit={handleSubmit} noValidate>
-      {/* ── Mode tabs ── */}
+      {/* Mode tabs */}
       <div className="af-tabs" ref={tabRef}>
         <div className="af-tab-pill" style={pillStyle} aria-hidden="true" />
-        <button
-          type="button"
-          ref={loginBtnRef}
+        <button type="button" ref={loginBtnRef}
           className={`af-tab${isLogin ? " af-tab--active" : ""}`}
-          onClick={() => onModeChange("login")}
-        >
+          onClick={() => onModeChange("login")}>
           Sign In
         </button>
-        <button
-          type="button"
-          ref={signupBtnRef}
+        <button type="button" ref={signupBtnRef}
           className={`af-tab${!isLogin ? " af-tab--active" : ""}`}
-          onClick={() => onModeChange("signup")}
-        >
+          onClick={() => onModeChange("signup")}>
           Create Account
         </button>
       </div>
 
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="af-header">
         <h2 className="af-title">{isLogin ? "Welcome back" : "Get started"}</h2>
         <p className="af-sub">
-          {isLogin
-            ? "Sign in to your HireAtlas workspace"
-            : "Create your free HireAtlas account today"}
+          {isLogin ? "Sign in to your HireAtlas workspace" : "Create your free HireAtlas account today"}
         </p>
       </div>
 
-      {/* ── Fields ── */}
+      {/* Fields */}
       <div className="af-fields">
         {!isLogin && (
-          <Field
-            label="Full name"
-            value={name}
-            onChange={(v) => {
-              setName(v);
-              setErrors((e) => ({ ...e, name: "" }));
-            }}
-            error={errors.name}
-            icon={IconUser}
-            autoComplete="name"
-          />
+          <Field label="Full name" value={name}
+            onChange={(v) => { setName(v); setErrors((e) => ({ ...e, name: "" })); }}
+            error={errors.name} icon={IconUser} autoComplete="name" />
         )}
-
-        <Field
-          label="Email address"
-          type="email"
-          value={email}
-          onChange={(v) => {
-            setEmail(v);
-            setErrors((e) => ({ ...e, email: "" }));
-          }}
-          error={errors.email}
-          icon={IconMail}
-          autoComplete="email"
-        />
-
-        <Field
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(v) => {
-            setPassword(v);
-            setErrors((e) => ({ ...e, password: "" }));
-          }}
-          error={errors.password}
-          icon={IconLock}
-          autoComplete={isLogin ? "current-password" : "new-password"}
-        />
-
+        <Field label="Email address" type="email" value={email}
+          onChange={(v) => { setEmail(v); setErrors((e) => ({ ...e, email: "" })); }}
+          error={errors.email} icon={IconMail} autoComplete="email" />
+        <Field label="Password" type="password" value={password}
+          onChange={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: "" })); }}
+          error={errors.password} icon={IconLock}
+          autoComplete={isLogin ? "current-password" : "new-password"} />
         {!isLogin && <StrengthMeter password={password} />}
-
         {!isLogin && (
-          <Field
-            label="Confirm password"
-            type="password"
-            value={confirm}
-            onChange={(v) => {
-              setConfirm(v);
-              setErrors((e) => ({ ...e, confirm: "" }));
-            }}
-            error={errors.confirm}
-            icon={IconLock}
-            autoComplete="new-password"
-          />
+          <Field label="Confirm password" type="password" value={confirm}
+            onChange={(v) => { setConfirm(v); setErrors((e) => ({ ...e, confirm: "" })); }}
+            error={errors.confirm} icon={IconLock} autoComplete="new-password" />
         )}
       </div>
 
-      {/* ── Meta row ── */}
+      {/* Meta row */}
       {isLogin && (
         <div className="af-meta">
           <label className="af-remember">
-            <input
-              type="checkbox"
-              className="af-check-input"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-            />
+            <input type="checkbox" className="af-check-input" checked={remember}
+              onChange={(e) => setRemember(e.target.checked)} />
             <span className="af-check-box" />
             Remember me
           </label>
-          <button type="button" className="af-forgot">
+          <button
+            type="button"
+            className="af-forgot"
+            onClick={() => { setFpStep("email"); setFpEmail(email); setFpError(""); setFpSuccess(""); }}
+          >
             Forgot password?
           </button>
         </div>
       )}
 
-      {/* ── Submit ── */}
-      <button
-        type="submit"
-        className="af-btn"
-        disabled={loading}
-        style={{ marginTop: isLogin ? 0 : 18 }}
-      >
-        {loading ? (
-          <span className="af-spinner" />
-        ) : (
-          <>
-            {isLogin ? "Sign In" : "Create Account"}
-            <IconArrow />
-          </>
+      {/* Submit */}
+      <button type="submit" className="af-btn" disabled={loading} style={{ marginTop: isLogin ? 0 : 18 }}>
+        {loading ? <span className="af-spinner" /> : (
+          <>{isLogin ? "Sign In" : "Create Account"}<IconArrow /></>
         )}
       </button>
 
-      {/* ── Terms (signup only) ── */}
+      {/* Terms */}
       {!isLogin && (
         <p className="af-terms">
-          By creating an account, you agree to our{" "}
-          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+          By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
         </p>
       )}
 
-      {/* ── Mode switch ── */}
+      {/* Switch */}
       <p className="af-switch">
         {isLogin ? "Don't have an account? " : "Already have an account? "}
-        <button
-          type="button"
-          className="af-switch__link"
-          onClick={() => onModeChange(isLogin ? "signup" : "login")}
-        >
+        <button type="button" className="af-switch__link"
+          onClick={() => onModeChange(isLogin ? "signup" : "login")}>
           {isLogin ? "Create one" : "Sign in"}
         </button>
       </p>

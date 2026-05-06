@@ -15,7 +15,37 @@ const Profile = ({ onLogout }) => {
   const [skills,setSkills] = useState([]);
   const [loading, setLoading]  = useState(true);
   const [error, setError]  = useState(null);
+const [verifyStep, setVerifyStep]   = useState(null); // null | 'sent' 
+const [verifyOtp,  setVerifyOtp]    = useState("");
+const [verifyMsg,  setVerifyMsg]    = useState("");
+const [verifyErr,  setVerifyErr]    = useState("");
+const [verifyLoad, setVerifyLoad]   = useState(false);
+const [isVerified, setIsVerified]   = useState(false);
 
+const handleSendVerifyOtp = async () => {
+  setVerifyLoad(true); setVerifyErr(""); setVerifyMsg("");
+  try {
+    await API.post("/user/send-verification");
+    setVerifyStep("sent");
+    setVerifyMsg("OTP sent to your email");
+  } catch (err) {
+    setVerifyErr(err.response?.data?.message || "Failed to send OTP");
+  } finally { setVerifyLoad(false); }
+};
+
+const handleVerifyProfile = async () => {
+  if (!verifyOtp) return setVerifyErr("Enter the OTP");
+  setVerifyLoad(true); setVerifyErr("");
+  try {
+    await API.post("/user/verify-profile", { otp: verifyOtp });
+    setIsVerified(true);
+    setVerifyStep(null);
+    setVerifyMsg("");
+    setVerifyOtp("");
+  } catch (err) {
+    setVerifyErr(err.response?.data?.message || "Invalid OTP");
+  } finally { setVerifyLoad(false); }
+};
   useEffect(() => {
   
 
@@ -76,7 +106,25 @@ const handleLogout = () => {
           </div>
 
           <div className="profile-hero__info">
-            <h1 className="profile-hero__name">{user.name}</h1>
+            <h1 className="profile-hero__name">
+  {user.name}
+  {isVerified && (
+    <span style={{
+      marginLeft: 10,
+      fontSize: "0.75rem",
+      fontWeight: 700,
+      background: "#16a34a",
+      color: "#fff",
+      padding: "3px 10px",
+      borderRadius: 99,
+      verticalAlign: "middle",
+      letterSpacing: "0.03em"
+    }}>
+      ✓ Verified
+    </span>
+  )}
+</h1>
+
             <p className="profile-hero__email">{user.email}</p>
             {experience[0] && (
               <p className="profile-hero__role">
@@ -104,7 +152,62 @@ const handleLogout = () => {
 
      
       <div className="profile-content">
-        <PersonalInfoSection
+      
+        {/* ── Profile Verification ── */}
+<div className="section-card">
+  <div className="section-card__header">
+    <div className="section-card__title">
+      <span className="section-card__icon">🔒</span>
+      <h2>Profile Verification</h2>
+    </div>
+    {isVerified && (
+      <span style={{ color:"#16a34a", fontWeight:700, fontSize:".85rem",
+        background:"#dcfce7", padding:"4px 12px", borderRadius:99 }}>
+        ✓ Verified
+      </span>
+    )}
+  </div>
+
+  <div className="section-card__body">
+    {isVerified ? (
+      <p style={{ color:"#16a34a", margin:0 }}>Your profile is verified ✓</p>
+    ) : (
+      <>
+        <p style={{ color:"var(--gray-500)", fontSize:".88rem", margin:"0 0 14px" }}>
+          Verify your email to build trust with employers.
+        </p>
+
+        {verifyErr && <p style={{ color:"#dc2626", fontSize:13, marginBottom:10 }}>⚠ {verifyErr}</p>}
+        {verifyMsg && <p style={{ color:"#16a34a", fontSize:13, marginBottom:10 }}>✓ {verifyMsg}</p>}
+
+        {verifyStep === "sent" && (
+          <div style={{ display:"flex", gap:10, alignItems:"flex-end", marginBottom:14 }}>
+            <input
+              type="text"
+              placeholder="Enter 6-digit OTP"
+              value={verifyOtp}
+              onChange={(e) => setVerifyOtp(e.target.value)}
+              className="form-input__control"
+              style={{ maxWidth:200 }}
+            />
+            <button className="btn btn--primary btn--sm"
+              onClick={handleVerifyProfile} disabled={verifyLoad}>
+              {verifyLoad ? <span className="spinner" /> : "Confirm OTP"}
+            </button>
+          </div>
+        )}
+
+        {!verifyStep && (
+          <button className="btn btn--outline btn--sm"
+            onClick={handleSendVerifyOtp} disabled={verifyLoad}>
+            {verifyLoad ? <span className="spinner" /> : "📧 Send Verification OTP"}
+          </button>
+        )}
+      </>
+    )}
+  </div>
+</div>
+  <PersonalInfoSection
           user={user}
           onUserUpdated={setUser}
         />

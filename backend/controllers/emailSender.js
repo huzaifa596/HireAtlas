@@ -39,7 +39,32 @@ const sendNewApplicationNotification = async ({
   });
 };
 
+// Add these two functions to your existing emailSender.js
+
+// Email 3 — forgot password OTP
+const sendForgotPasswordOTP = async ({ to, otp }) => {
+  await transporter.sendMail({
+    from: `"HireAtlas" <${process.env.GMAIL_USER}>`,
+    to,
+    subject: `Reset Your Password — HireAtlas`,
+    text: `Your password reset OTP is: ${otp}\n\nThis code expires in 10 minutes.\n\nIf you didn't request this, ignore this email.\n\nHireAtlas`,
+  });
+};
+
+// Email 4 — profile verification OTP
+const sendProfileVerificationOTP = async ({ to, otp }) => {
+  await transporter.sendMail({
+    from: `"HireAtlas" <${process.env.GMAIL_USER}>`,
+    to,
+    subject: `Verify Your Profile — HireAtlas`,
+    text: `Your profile verification OTP is: ${otp}\n\nThis code expires in 10 minutes.\n\nHireAtlas`,
+  });
+};
+
+// Add these to module.exports too:
 module.exports = {
   sendApplicationConfirmation,
   sendNewApplicationNotification,
+  sendForgotPasswordOTP,
+  sendProfileVerificationOTP,
 };

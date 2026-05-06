@@ -10,6 +10,8 @@ CREATE TABLE appUser
     cvPath VARCHAR(255)
 );
 
+ALTER TABLE appuser ADD is_verified BIT DEFAULT 0;
+
 CREATE TABLE post
 (
     postId  BIGINT   IDENTITY(1,1) PRIMARY KEY,

@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const { sql, poolPromise } = require('../config/db');
 const fs = require('fs').promises;  
+const { generateOTP, saveOTP, verifyOTP } = require("../utils/otpStore");
+const { sendForgotPasswordOTP } = require("./emailSender");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -129,4 +131,59 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { signup, login };
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  try {
+    const pool = await poolPromise; // ← fixed
+    const result = await pool
+      .request()
+      .input("email", sql.VarChar, email)
+      .query("SELECT * FROM appUser WHERE email = @email");
+
+    if (result.recordset.length === 0)
+      return res.status(404).json({ message: "No account found with this email" });
+
+    const otp = generateOTP();
+    saveOTP(email, otp);
+    await sendForgotPasswordOTP({ to: email, otp });
+
+    res.json({ message: "OTP sent to your email" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+};
+
+const verifyForgotPasswordOTP = (req, res) => {
+  const { email, otp } = req.body;
+  const result = verifyOTP(email, otp);
+  if (!result.valid) return res.status(400).json({ message: result.message });
+  res.json({ message: "OTP verified. Proceed to reset password." });
+};
+const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  const result = verifyOTP(email, otp);
+  if (!result.valid) return res.status(400).json({ message: result.message });
+
+  try {
+    const hashed = await bcrypt.hash(newPassword, 10);
+    const pool = await poolPromise; // ← fixed
+    await pool
+      .request()
+      .input("email", sql.VarChar, email)
+      .input("password", sql.VarChar, hashed)
+      .query("UPDATE appUser SET password = @password WHERE email = @email");
+
+    res.json({ message: "Password reset successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to reset password" });
+  }
+};
+module.exports = { signup, login,forgotPassword,
+  verifyForgotPasswordOTP,
+  resetPassword, };
