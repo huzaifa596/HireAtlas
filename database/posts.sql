@@ -210,8 +210,8 @@ BEGIN
     END
 
     UPDATE post
-    SET    isActive = 0
-    WHERE  postId    = @postId
+    SET   isActive = 0
+    WHERE  postId  = @postId
       AND  creatorId = @creatorId;
 
     SELECT 'SUCCESS' AS Status;

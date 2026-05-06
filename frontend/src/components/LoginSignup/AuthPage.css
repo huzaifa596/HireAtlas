@@ -185,7 +185,13 @@
   align-items: center;
   justify-content: center;
   padding: clamp(40px, 6vh, 88px) clamp(24px, 5.5vw, 80px);
-  background: linear-gradient(148deg, var(--navy-50) 0%, var(--white) 55%, #daeaf9 100%);
+  .ap-right {
+  background: linear-gradient(148deg,
+    var(--navy-800) 0%,
+    var(--navy-900) 55%,
+    var(--navy-950) 100%
+  );
+}
   position: relative;
   overflow-y: auto;
   min-height: 100vh;

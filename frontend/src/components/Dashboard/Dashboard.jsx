@@ -12,13 +12,13 @@ import API from "../../services/api.js";
 import CreatePost from "../insertpost/CreatePost";
 
 const mapPost = (p) => ({
-  id: p.postId,
+  id: p.postId, 
   title: p.jobTitle,
   company: p.companyName,
   location: p.isRemote ? "Remote" : p.location || "N/A",
   salary:
     p.minSalary && p.maxSalary
-      ? `$${Number(p.minSalary).toLocaleString()} – $${Number(p.maxSalary).toLocaleString()}`
+      ? `${p.salCurrency} ${Number(p.minSalary).toLocaleString()} – ${p.salCurrency} ${Number(p.maxSalary).toLocaleString()}`
       : "Not specified",
   type: p.isRemote ? "Remote" : p.empType || "Full-time",
   posted: p.postedDate

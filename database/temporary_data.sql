@@ -3,28 +3,7 @@ GO
 
 
 
-CREATE TRIGGER tr_RestrictStatusFlow
-ON application
-AFTER UPDATE
-AS
-BEGIN
-    IF UPDATE(status)
-    BEGIN
-        IF EXISTS (
-            SELECT 1
-            FROM deleted d
-            JOIN inserted i ON d.applicationId = i.applicationId
-            WHERE d.status IN ('Rejected', 'Accepted')
-        )
-        BEGIN
-            RAISERROR('Final decisions (Accepted/Rejected) cannot be modified.', 16, 1);
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-        PRINT 'Application Status Successfully Updated!';
-    END
-END;
-GO
+
 
 -- ================================================================================================
 -- POST SKILL: ADD SKILL TO A POST

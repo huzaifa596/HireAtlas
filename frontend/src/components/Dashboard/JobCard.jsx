@@ -1,6 +1,5 @@
 import {
   MapPin,
-  DollarSign,
   Clock,
   ChevronRight,
   Users,
@@ -96,7 +95,7 @@ export default function JobCard({
           <MapPin size={13} /> {job.location}
         </span>
         <span className="info-chip">
-          <DollarSign size={13} /> {job.salary}
+           {job.salary}
         </span>
         {job.experienceLevel && (
           <span className="info-chip">
