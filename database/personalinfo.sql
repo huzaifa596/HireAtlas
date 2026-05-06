@@ -15,7 +15,7 @@ BEGIN
 
     IF NOT EXISTS (SELECT 1 FROM appUser WHERE userId = @userId)
     BEGIN
-        SELECT 'USER_NOT_FOUND' AS Status; RETURN;
+        SELECT 'USER NOT FOUND' AS Status; RETURN;
     END
 
     IF @name IS NULL OR LTRIM(RTRIM(@name)) = ''
@@ -38,8 +38,8 @@ BEGIN
         email = @email,
         phone  = @phone,
         age = @age,
-        cvPath = ISNULL(@cvPath,cvPath),      -- only update if provided
-        cvFileName = ISNULL(@cvFileName, cvFileName)   -- only update if provided
+        cvPath = ISNULL(@cvPath,cvPath),      
+        cvFileName = ISNULL(@cvFileName, cvFileName)   
     WHERE userId = @userId;
 
     SELECT

@@ -132,12 +132,10 @@ User logged in: tester2@gmail.com
  time: 2026-04-23T00:24:42.685Z
 User logged in: tester2@gmail.com
  time: 2026-04-23T00:26:53.526Z
-<<<<<<< HEAD
 User logged in: tester2@gmail.com
  time: 2026-04-23T20:54:17.866Z
 User logged in: tester2@gmail.com
  time: 2026-04-23T22:00:18.690Z
-=======
 User logged in: l240894@lhr.nu.edu.pk
  time: 2026-04-23T16:29:57.470Z
 User logged in: l240894@lhr.nu.edu.pk
@@ -198,7 +196,6 @@ User logged in: hello123@gmail.com
  time: 2026-04-30T00:10:22.776Z
 User logged in: hello123@gmail.com
  time: 2026-04-30T22:08:58.227Z
-<<<<<<< HEAD
 User logged in: tester2@gmail.com
  time: 2026-04-30T22:56:11.012Z
 User logged in: tester2@gmail.com
@@ -213,7 +210,6 @@ User logged in: tester1@gmail.com
  time: 2026-04-30T23:43:06.425Z
 User logged in: tester1@gmail.com
  time: 2026-05-01T11:28:19.681Z
-=======
 User logged in: hello123@gmail.com
  time: 2026-04-30T22:55:56.615Z
 User logged in: hello123@gmail.com
@@ -222,7 +218,6 @@ User logged in: hello123@gmail.com
  time: 2026-05-01T00:34:29.734Z
 User logged in: hello123@gmail.com
  time: 2026-05-01T11:48:39.791Z
->>>>>>> 3435a6a38564adc484bfdd2af451b37832049865
 User logged in: tester2@gmail.com
  time: 2026-05-01T12:15:55.739Z
 User logged in: tester2@gmail.com
@@ -333,13 +328,10 @@ User logged in: tester2@gmail.com
  time: 2026-05-03T02:34:31.213Z
 User logged in: tester2@gmail.com
  time: 2026-05-03T02:57:38.100Z
-<<<<<<< HEAD
 User logged in: tester2@gmail.com
  time: 2026-05-03T11:02:37.602Z
-=======
 User logged in: ahmedshakeel12.uk@gmail.com
  time: 2026-05-03T11:20:26.724Z
-
 User logged in: tester2@gmail.com
  time: 2026-05-03T16:10:16.063Z
 User logged in: tester2@gmail.com
@@ -350,3 +342,10 @@ User logged in: ahmedshakeel12.uk@gmail.com
  time: 2026-05-05T21:51:02.519Z
 User logged in: l240695@lhr.nu.edu.pk
  time: 2026-05-05T21:52:44.782Z
+User logged in: tester2@gmail.com
+ time: 2026-05-04T09:30:35.422Z
+User logged in: huzaifa7830@gmail.com
+ time: 2026-05-04T09:31:49.206Z
+User logged in: tester2@gmail.com
+ time: 2026-05-05T08:16:44.373Z
+

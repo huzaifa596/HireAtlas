@@ -7,17 +7,17 @@ const isWindowsAuth = !process.env.DB_USER && !process.env.DB_PASSWORD;
 const dbConfig = {
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
-  // We define the driver connection string for Windows Auth
+
   connectionString: isWindowsAuth
     ? "Driver={ODBC Driver 17 for SQL Server};Server=localhost;Database=freshdb;Trusted_Connection=yes;"
     : null,
-  // Standard config for SQL Auth (your buddy)
+
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD
   
 };
 
-// If Windows Auth, we remove user/pass so they don't conflict
+
 if (isWindowsAuth) {
   delete dbConfig.user;
   delete dbConfig.password;
@@ -30,7 +30,7 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
     return pool;
   })
   .catch((err) => {
-    console.error("❌ DB Connection Failed:", err.message);
+    console.error(" ERROR .DB Connection Failed:", err.message);
   });
 
 module.exports = { sql, poolPromise };

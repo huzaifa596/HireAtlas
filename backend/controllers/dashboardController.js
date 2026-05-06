@@ -3,7 +3,7 @@ const { sql, poolPromise } = require("../config/db");
 
 const getPosts = async (req, res) => {
   try {
-    const pool = await poolPromise; // ✅ already correct
+    const pool = await poolPromise; 
     const result = await pool
       .request()
       .input("LoggedInUserID", sql.BigInt, req.user.userID)
@@ -28,7 +28,7 @@ const getSinglePost = async (req, res) => {
         .json({ status: "ERROR", message: "Invalid post ID" });
     }
 
-    const pool = await poolPromise; // ✅ fixed here
+    const pool = await poolPromise; 
     const result = await pool
       .request()
       .input("postId", sql.BigInt, postId)
@@ -164,7 +164,7 @@ const deleteMyPost = async (req, res) => {
     const result = await pool
       .request()
       .input("postId", sql.BigInt, postId)
-      .input("creatorId", sql.BigInt, req.user.userID) // ← must match SP param name
+      .input("creatorId", sql.BigInt, req.user.userID) 
       .execute("sp_DeletePost");
 
     // SP returns SELECT with Status column

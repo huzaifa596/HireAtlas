@@ -1,22 +1,7 @@
 // components/SectionCard.jsx
 import React from "react";
 
-/**
- * SectionCard — wrapper for each profile section.
- *
- * Props:
- *   title      string    Section heading
- *   icon       string    Emoji / icon
- *   isEditing  bool      Whether this section is in edit mode
- *   isSaving   bool      Show spinner on Save button
- *   onEdit     fn        Called when Edit button clicked
- *   onSave     fn        Called when Save button clicked
- *   onCancel   fn        Called when Cancel clicked
- *   onAdd      fn?       If provided, shows an "+ Add" button
- *   addLabel   string?   Label for add button
- *   feedback   object?   { type: "success"|"error", message: string }
- *   children   node
- */
+
 const SectionCard = ({
   title,
   icon,
@@ -48,7 +33,7 @@ const SectionCard = ({
                 </button>
               )}
               <button className="btn btn--outline btn--sm" onClick={onEdit}>
-                ✏️ Edit
+              
               </button>
             </>
           ) : (
