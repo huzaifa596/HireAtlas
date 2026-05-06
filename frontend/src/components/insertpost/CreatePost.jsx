@@ -255,25 +255,6 @@ export default function CreatePost({ onBack, onSuccess }) {
         cancelLabel="Go back"
       />
 
-      {/* ── Top bar ── */}
-      <div className="cp-topbar">
-        <button className="cp-back-btn" onClick={onBack}>
-          ← Back to Posts
-        </button>
-        <div className="cp-topbar-right">
-          <button className="cp-btn cp-btn--ghost" onClick={onBack}>
-            Cancel
-          </button>
-          <button
-            className="cp-btn cp-btn--primary"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? <span className="cp-spinner" /> : "Publish Post"}
-          </button>
-        </div>
-      </div>
-
       {/* ── Page header ── */}
       <div className="cp-page-header">
         <div className="cp-page-header-inner">
