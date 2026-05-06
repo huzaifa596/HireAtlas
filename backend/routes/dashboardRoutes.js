@@ -7,6 +7,7 @@ const {
   getmypost,
   deleteMyPost,
 } = require("../controllers/dashboardController");
+
 const verifyToken = require("../middleware/authMiddleware");
 const { filterJobs } = require("../controllers/filterContoller");
 router.get("/posts", verifyToken, getPosts);

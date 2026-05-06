@@ -59,7 +59,7 @@ const submitApplication = async (req, res) => {
       });
     }
 
-    if (err.number === 50000 || err.class === 16) {
+    if (err.number === 50000 || err.severity === 16) {
       console.log("SP error message:", msg);
       return res.status(409).json({ message: msg });
     }
