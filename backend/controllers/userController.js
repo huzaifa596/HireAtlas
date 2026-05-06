@@ -77,16 +77,16 @@ const saveEducation = async (req, res) => {
     let spResult;
 
     if (eduId) {
-      // ── UPDATE existing entry ──
+      // update existing entry 
       const result = await pool.request()
-        .input('eduId',         sql.BigInt,      eduId)
-        .input('userId',        sql.BigInt,      req.user.userID)
+        .input('eduId',  sql.BigInt,  eduId)
+        .input('userId',   sql.BigInt,  req.user.userID)
         .input('instituteName', sql.VarChar(200), instituteName ?? null)
-        .input('level',         sql.VarChar(100), level         ?? null)
-        .input('degreeName',    sql.VarChar(150), degreeName    ?? null)
-        .input('grade',         sql.VarChar(50),  grade         ?? null)
-        .input('startDate',     sql.Date,         startDate     ?? null)
-        .input('endDate',       sql.Date,         endDate       ?? null)
+        .input('level',  sql.VarChar(100), level ?? null)
+        .input('degreeName', sql.VarChar(150), degreeName ?? null)
+        .input('grade',  sql.VarChar(50),  grade  ?? null)
+        .input('startDate', sql.Date,  startDate ?? null)
+        .input('endDate', sql.Date, endDate  ?? null)
         .execute('sp_UpdateEducation');
 
       spResult = result.recordset[0];
@@ -94,13 +94,13 @@ const saveEducation = async (req, res) => {
     } else {
       // ── ADD new entry ──
       const result = await pool.request()
-        .input('userId',        sql.BigInt,      req.user.userID)
+        .input('userId',  sql.BigInt,      req.user.userID)
         .input('instituteName', sql.VarChar(200), instituteName)
-        .input('level',         sql.VarChar(100), level)
-        .input('degreeName',    sql.VarChar(150), degreeName)
-        .input('grade',         sql.VarChar(50),  grade      ?? null)
-        .input('startDate',     sql.Date,         startDate)
-        .input('endDate',       sql.Date,         endDate    ?? null)
+        .input('level', sql.VarChar(100), level)
+        .input('degreeName', sql.VarChar(150), degreeName)
+        .input('grade', sql.VarChar(50), grade  ?? null)
+        .input('startDate', sql.Date, startDate)
+        .input('endDate', sql.Date,endDate ?? null)
         .execute('sp_AddEducation');
 
       spResult = result.recordset[0];
@@ -167,21 +167,21 @@ const saveExperience = async (req, res) => {
     let spResult;
 
     if (expId) {
-      // ── UPDATE existing entry ──
+      // UPDATE existing entry 
       const result = await pool.request()
-        .input('expId',       sql.BigInt,       expId)
-        .input('userId',      sql.BigInt,       req.user.userID)
-        .input('companyName', sql.VarChar(200),  companyName  ?? null)
-        .input('jobTitle',    sql.VarChar(150),  jobTitle     ?? null)
-        .input('description', sql.VarChar(1000), description  ?? null)
-        .input('startDate',   sql.Date,          startDate    ?? null)
-        .input('endDate',     sql.Date,          endDate      ?? null)
+        .input('expId',  sql.BigInt,  expId)
+        .input('userId', sql.BigInt,  req.user.userID)
+        .input('companyName', sql.VarChar(200), companyName ?? null)
+        .input('jobTitle', sql.VarChar(150), jobTitle ?? null)
+        .input('description', sql.VarChar(1000), description ?? null)
+        .input('startDate', sql.Date, startDate   ?? null)
+        .input('endDate',  sql.Date,  endDate   ?? null)
         .execute('sp_UpdateExperience');
 
       spResult = result.recordset[0];
 
     } else {
-      // ── ADD new entry ──
+      // ADD new entry 
       const result = await pool.request()
         .input('userId',      sql.BigInt,       req.user.userID)
         .input('companyName', sql.VarChar(200),  companyName)
@@ -253,31 +253,31 @@ const saveSkill = async (req, res) => {
     let spResult;
 
     if (userSkillId) {
-      // ── UPDATE existing skill proficiency ──
+      // update existing skill proficiency
       const result = await pool.request()
-        .input('userSkillId', sql.BigInt,     userSkillId)
-        .input('userId',      sql.BigInt,     req.user.userID)
+        .input('userSkillId', sql.BigInt,  userSkillId)
+        .input('userId',  sql.BigInt,  req.user.userID)
         .input('proficiency', sql.VarChar(50), proficiency ?? 'Beginner')
         .execute('sp_UpdateUserSkill');
 
       spResult = result.recordset[0];
 
     } else {
-      // ── ADD new skill ──
+      // ADD new skill 
       const result = await pool.request()
-        .input('userId',      sql.BigInt,      req.user.userID)
-        .input('skillName',   sql.VarChar(100), skillName)
-        .input('category',    sql.VarChar(50),  category    ?? null)
-        .input('proficiency', sql.VarChar(50),  proficiency ?? 'Beginner')
+        .input('userId',  sql.BigInt,  req.user.userID)
+        .input('skillName', sql.VarChar(100), skillName)
+        .input('category', sql.VarChar(50), category  ?? null)
+        .input('proficiency', sql.VarChar(50), proficiency ?? 'Beginner')
         .execute('sp_AddUserSkill');
 
       spResult = result.recordset[0];
     }
 
     const statusMap = {
-      'USER_NOT_FOUND':       { code: 404, message: 'User not found' },
-      'SKILL_NOT_FOUND':      { code: 404, message: 'Skill not found' },
-      'INVALID_SKILL_NAME':   { code: 400, message: 'Skill name is required' },
+      'USER_NOT_FOUND':  { code: 404, message: 'User not found' },
+      'SKILL_NOT_FOUND':  { code: 404, message: 'Skill not found' },
+      'INVALID_SKILL_NAME': { code: 400, message: 'Skill name is required' },
       'SKILL_ALREADY_EXISTS': { code: 409, message: 'You already have this skill' },
     };
 

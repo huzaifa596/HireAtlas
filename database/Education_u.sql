@@ -9,7 +9,7 @@ CREATE PROCEDURE sp_AddEducation
     @degreeName    VARCHAR(150),
     @grade         VARCHAR(50)  = NULL,
     @startDate     DATE,
-    @endDate       DATE         = NULL
+    @endDate       DATE = NULL
 AS
 BEGIN
     SET NOCOUNT ON;

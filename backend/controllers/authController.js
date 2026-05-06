@@ -2,14 +2,13 @@ const env=require('dotenv').config();
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const { sql, poolPromise } = require('../config/db');
-const fs = require('fs').promises;  // ✅ Use promises version
+const fs = require('fs').promises;  
 
 const JWT_SECRET = process.env.JWT_SECRET;
-//fs.writeFile('log.txt', ' ');  //
 
-// ─────────────────────────────
-// SIGNUP
-// ─────────────────────────────
+
+
+// sign up
 const signup = async (req, res) => {
     const { name, email, phone, age, password } = req.body;
 
@@ -25,16 +24,17 @@ const signup = async (req, res) => {
 
         const pool   = await poolPromise;
         const result = await pool.request()
-            .input('Name',     sql.VarChar(100), name)
-            .input('Email',    sql.VarChar(150), email)
-            .input('Phone',    sql.VarChar(20),  phone || null)
-            .input('Age',      sql.Int,          age   || null)
+            .input('Name', sql.VarChar(100), name)
+            .input('Email', sql.VarChar(150), email)
+            .input('Phone', sql.VarChar(20),  phone || null)
+            .input('Age', sql.Int, age  || null)
             .input('Password', sql.VarChar(255), passwordHash)
             .execute('SignupUser');
 
         const response = result.recordset[0];
 
-        if (response.Status === 'EMAIL_ALREADY_EXISTS') {
+        if (response.Status === 'EMAIL_ALREADY_EXISTS') 
+            {
             return res.status(409).json({ 
                 status:  'ERROR', 
                 message: 'Email already registered' 
@@ -48,7 +48,8 @@ const signup = async (req, res) => {
             });
         }
 
-        await fs.appendFile('log.txt', `New user signed up: ${email}\n time: ${new Date().toISOString()}\n`);  // ✅ awaited
+        await fs.appendFile('log.txt', `New user signed up: ${email}\n time: ${new Date().toISOString()}\n`);  
+
         return res.status(201).json({
             status:  'SUCCESS',
             message: 'Account created successfully',
@@ -64,9 +65,9 @@ const signup = async (req, res) => {
     }
 };
 
-// ─────────────────────────────
+
 // LOGIN
-// ─────────────────────────────
+
 const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -102,7 +103,7 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-    { userID: user.userId, email: user.email },  // lowercase userId, email
+    { userID: user.userId, email: user.email },  
     JWT_SECRET,
     { expiresIn: '7d' }
 );
@@ -113,9 +114,9 @@ const login = async (req, res) => {
     message: 'Login successful',
     token,
     user: {
-        userID: user.userId,  // ✅ was user.UserID
-        name:   user.name,    // ✅ was user.Name
-        email:  user.email    // ✅ was user.Email
+        userID: user.userId,  
+        name:   user.name,    
+        email:  user.email    
     }
 });
 

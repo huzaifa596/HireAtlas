@@ -1,23 +1,20 @@
-// Profile.jsx — Main profile page for HireAtlas
+
 import React, { useState, useEffect } from "react";
 import "./Profile.css";
 import PersonalInfoSection from "./PersonalInfoSection";
-import EducationSection    from "./EducationSection";
-import ExperienceSection   from "./ExperienceSection";
-import SkillsSection       from "./SkillsSection";
-// adjust path as needed
-import API                 from "../../services/api";        // adjust path as needed
+import EducationSection  from "./EducationSection";
+import ExperienceSection from "./ExperienceSection";
+import SkillsSection from "./SkillsSection";
+import API from "../../services/api";        
 
 const Profile = ({ onLogout }) => {
 
- 
-
-  const [user,       setUser]       = useState(null);
-  const [education,  setEducation]  = useState([]);
-  const [experience, setExperience] = useState([]);
-  const [skills,     setSkills]     = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState(null);
+  const [user, setUser] = useState(null);
+  const [education, setEducation] = useState([]);
+  const [experience,setExperience]= useState([]);
+  const [skills,setSkills] = useState([]);
+  const [loading, setLoading]  = useState(true);
+  const [error, setError]  = useState(null);
 
   useEffect(() => {
   
@@ -47,23 +44,22 @@ const Profile = ({ onLogout }) => {
 
   const completion = Math.min(
     (user?.name && user?.email ? 25 : 0) +
-    (user?.phone               ? 10 : 0) +
-    (education.length          ? 25 : 0) +
-    (experience.length         ? 25 : 0) +
-    (skills.length             ? 15 : 0),
+    (user?.phone  ? 10 : 0) +
+    (education.length  ? 25 : 0) +
+    (experience.length   ? 25 : 0) +
+    (skills.length  ? 15 : 0),
     100
   );
 
   const circumference = 213.628;
 
-  // replace the entire handleLogout function:
+  
 const handleLogout = () => {
   if (window.confirm("Are you sure you want to log out?")) {
     onLogout();
   }
 };
 
-  // ── Guards ──────────────────────────────────────────────────────────────
   if (loading) return <div className="profile-loading">Loading profile…</div>;
   if (error)   return <div className="profile-error">Error: {error}</div>;
   if (!user)   return null;
@@ -71,7 +67,7 @@ const handleLogout = () => {
   return (
     <div className="profile-page">
 
-      {/* ══ Hero Banner ══ */}
+     
       <div className="profile-hero">
         <div className="profile-hero__bg" />
         <div className="profile-hero__content">
@@ -106,7 +102,7 @@ const handleLogout = () => {
         </div>
       </div>
 
-      {/* ══ Section Content ══ */}
+     
       <div className="profile-content">
         <PersonalInfoSection
           user={user}
@@ -129,7 +125,7 @@ const handleLogout = () => {
         />
       </div>
 
-      {/* ══ Logout ══ */}
+     
       <div className="profile-logout-row">
         <button className="btn btn--logout" onClick={handleLogout}>
           <svg width="16" height="16" viewBox="0 0 24 24"

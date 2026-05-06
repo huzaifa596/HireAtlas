@@ -3,10 +3,6 @@ GO
 
 
 
-
--- ================================================================================================
--- TRIGGER: RESTRICT STATUS FLOW ON application
--- ================================================================================================
 CREATE TRIGGER tr_RestrictStatusFlow
 ON application
 AFTER UPDATE

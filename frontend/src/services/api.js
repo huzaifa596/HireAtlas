@@ -4,7 +4,7 @@
     baseURL: 'http://localhost:3000/api',
   });
 
-  // 🔥 attach token automatically
+  // attach token automatically
   API.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
 
