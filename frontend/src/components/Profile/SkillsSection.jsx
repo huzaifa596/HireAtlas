@@ -10,8 +10,8 @@ const proficiencyOptions = ["Beginner","Intermediate","Expert"];
 
 const EMPTY_SKILL = { skillName: "", category: "", proficiency: "Beginner" };
 
-const SkillsSection = ({ userId, skills: initialSkills, onSkillsUpdated }) => {
-  const [skills,      setSkills]      = useState(initialSkills);
+const SkillsSection = ({ userId, skills: initialSkills = [], onSkillsUpdated }) => {
+  const [skills, setSkills] = useState(initialSkills ?? []);
   const [isEditing,   setIsEditing]   = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [form,        setForm]        = useState({ ...EMPTY_SKILL });

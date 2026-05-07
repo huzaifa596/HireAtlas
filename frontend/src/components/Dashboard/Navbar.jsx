@@ -12,7 +12,7 @@ import {
   Moon,
 } from "lucide-react";
 import API from "../../services/api";
-
+import { BarChart2 } from "lucide-react";
 export default function Navbar({
   activeTab,
   setActiveTab,
@@ -82,6 +82,13 @@ export default function Navbar({
             >
               <ClipboardList size={15} /> My Applications
             </button>
+            <button
+  className={`nav-tab ${activeTab === "analytics" ? "active" : ""}`}
+  onClick={() => setActiveTab("analytics")}
+>
+  <BarChart2 size={15} /> Analytics
+</button>
+
           </div>
 
           <button

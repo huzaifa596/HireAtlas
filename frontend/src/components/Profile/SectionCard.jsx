@@ -1,7 +1,6 @@
 // components/SectionCard.jsx
 import React from "react";
 
-
 const SectionCard = ({
   title,
   icon,
@@ -32,16 +31,28 @@ const SectionCard = ({
                   + {addLabel}
                 </button>
               )}
-              <button className="btn btn--outline btn--sm" onClick={onEdit}>
-              
+              <button
+                className="btn btn--outline btn--sm btn--edit-icon"
+                onClick={onEdit}
+                title="Edit"
+              >
+                ✏️
               </button>
             </>
           ) : (
             <>
-              <button className="btn btn--ghost btn--sm" onClick={onCancel} disabled={isSaving}>
+              <button
+                className="btn btn--ghost btn--sm"
+                onClick={onCancel}
+                disabled={isSaving}
+              >
                 Cancel
               </button>
-              <button className="btn btn--primary btn--sm" onClick={onSave} disabled={isSaving}>
+              <button
+                className="btn btn--primary btn--sm"
+                onClick={onSave}
+                disabled={isSaving}
+              >
                 {isSaving ? <span className="spinner" /> : "💾 Save"}
               </button>
             </>

@@ -431,6 +431,49 @@ const verifyProfile = async (req, res) => {
   }
 };
 
+// Add a new multer instance for avatars (alongside your existing cv storage)
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/avatars/'),
+  filename:    (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar_${req.user.userID}_${Date.now()}${ext}`);
+  }
+});
 
-module.exports = { getProfile, updatePersonalInfo,saveEducation ,deleteEducation ,saveExperience,deleteExperience,deleteSkill,saveSkill,uploadCv, upload,sendVerificationOTP,
-  verifyProfile};
+const uploadAvatar = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.jpg', '.jpeg', '.png', '.webp'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error('Only JPG, PNG, WEBP allowed'));
+  }
+});
+
+const uploadAvatarHandler = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ status: 'ERROR', message: 'No file uploaded' });
+
+    const avatarPath = `uploads/avatars/${req.file.filename}`;
+
+    const pool = await poolPromise;
+    await pool.request()
+      .input('userId',     sql.BigInt,      req.user.userID)
+      .input('avatarPath', sql.VarChar(500), avatarPath)
+      .query('UPDATE appUser SET avatarPath = @avatarPath WHERE userId = @userId');
+
+    return res.json({ status: 'SUCCESS', avatarPath });
+  } catch (err) {
+    console.error('Avatar upload error:', err);
+    return res.status(500).json({ status: 'ERROR', message: 'Could not upload avatar' });
+  }
+};
+
+// Update your module.exports to include the new exports:
+module.exports = {
+  getProfile, updatePersonalInfo, saveEducation, deleteEducation,
+  saveExperience, deleteExperience, deleteSkill, saveSkill,
+  uploadCv, upload, sendVerificationOTP, verifyProfile,
+  uploadAvatar, uploadAvatarHandler   // ← add these
+};

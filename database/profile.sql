@@ -14,7 +14,8 @@ BEGIN
         phone,
         age,
         cvPath,
-        is_verified
+        is_verified,
+        avatarPath
     FROM appUser
     WHERE userId = @UserId;
 

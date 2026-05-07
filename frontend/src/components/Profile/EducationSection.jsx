@@ -36,8 +36,9 @@ const EntryForm = ({ form, errors, isSaving, editingId, onField, onSave, onCance
   </div>
 );
 
-const EducationSection = ({ userId, education: init, onEducationUpdated }) => {
-  const [education, setEducation] = useState(init);
+const EducationSection = ({ userId, education: init = [], onEducationUpdated }) => {
+
+  const [education, setEducation] = useState(init ?? []);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form,      setForm]      = useState({ ...EMPTY });

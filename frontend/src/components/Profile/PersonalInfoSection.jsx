@@ -1,135 +1,64 @@
-import React, { useState, useRef } from "react";
+// components/Profile/PersonalInfoSection.jsx
+import { useState } from "react";
+import API from "../../services/api";
 import SectionCard from "./SectionCard";
-import FormInput from "./FormInput";
-import API from '../../services/api';
+import FormInput   from "./FormInput";
 
-const PersonalInfoSection = ({ user, onUserUpdated }) => {
+export default function PersonalInfoSection({ profile, onUpdate }) {
+  const info = profile?.personalInfo ?? {};
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving,  setIsSaving]  = useState(false);
   const [feedback,  setFeedback]  = useState(null);
-  const [form,      setForm]      = useState({ ...user });
   const [cvFile,    setCvFile]    = useState(null);
-  const [cvPreview, setCvPreview] = useState(null);
-  const [errors,    setErrors]    = useState({});
 
-  const cvInputRef = useRef(null);
+  const [form, setForm] = useState({
+    name:  info.name  ?? "",
+    email: info.email ?? "",
+    phone: info.phone ?? "",
+    dob:   info.dob   ? info.dob.slice(0, 10) : "",
+  });
 
-  const getInitials = (name) =>
-    name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
-
-  const handleEdit = () => {
-    setForm({ ...user });
-    setCvFile(null);
-    setCvPreview(null);
-    setErrors({});
-    setFeedback(null);
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setForm({ ...user });
-    setCvFile(null);
-    setCvPreview(null);
-    setErrors({});
-    setIsEditing(false);
-  };
-
-  const handleCvChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowed = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ];
-    if (!allowed.includes(file.type)) {
-      setErrors((prev) => ({ ...prev, cv: "Only PDF or Word documents are accepted." }));
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, cv: "File must be smaller than 5 MB." }));
-      return;
-    }
-
-    setCvFile(file);
-    setCvPreview(file.name);
-    setErrors((prev) => ({ ...prev, cv: undefined }));
-  };
-
-  const handleRemoveCvSelection = () => {
-    setCvFile(null);
-    setCvPreview(null);
-    if (cvInputRef.current) cvInputRef.current.value = "";
-  };
-
-  const validate = () => {
-    const errs = {};
-    if (!form.name?.trim())  errs.name  = "Name is required";
-    if (!form.email?.trim()) errs.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = "Invalid email address";
-    if (form.age && (isNaN(form.age) || form.age < 16 || form.age > 100))
-      errs.age = "Age must be between 16 and 100";
-    return errs;
-  };
+  const field = (key) => ({
+    value:    form[key],
+    onChange: (e) => setForm((p) => ({ ...p, [key]: e.target.value })),
+  });
 
   const handleSave = async () => {
-    const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
     setIsSaving(true);
     setFeedback(null);
-
     try {
-      let updatedUser;
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      if (cvFile) fd.append("cv", cvFile);
 
-      if (cvFile) {
-        // ── CV selected → multipart/form-data ──
-        const formData = new FormData();
-        formData.append('cv',    cvFile);
-        formData.append('name',  form.name);
-        formData.append('email', form.email);
-        if (form.phone) formData.append('phone', form.phone);
-        if (form.age)   formData.append('age',   form.age);
+      const { data } = await API.post("/user/personal", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-        const response = await API.post('/user/cv', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        updatedUser = response.data.personalInfo;
-
-      } else {
-        // ── No CV → normal JSON ──
-        const response = await API.patch('/user/personal', {
-          name:  form.name,
-          email: form.email,
-          phone: form.phone || null,
-          age:   form.age   || null,
-        });
-        updatedUser = response.data.personalInfo;
-      }
-
-      onUserUpdated(updatedUser);
-      setCvFile(null);
-      setCvPreview(null);
-      setFeedback({ type: "success", message: "Personal info updated successfully." });
+      onUpdate(data.profile);
+      setFeedback({ type: "success", message: "Personal info saved!" });
       setIsEditing(false);
-
+      setCvFile(null);
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to save. Please try again.";
-      setFeedback({ type: "error", message: msg });
+      console.error(err);
+      setFeedback({ type: "error", message: "Save failed. Please try again." });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const field = (key) => ({
-    value: form[key] ?? "",
-    onChange: (e) => {
-      setForm((f) => ({ ...f, [key]: e.target.value }));
-      if (errors[key]) setErrors((er) => ({ ...er, [key]: undefined }));
-    },
-    error: errors[key],
-  });
+  const handleCancel = () => {
+    setForm({
+      name:  info.name  ?? "",
+      email: info.email ?? "",
+      phone: info.phone ?? "",
+      dob:   info.dob   ? info.dob.slice(0, 10) : "",
+    });
+    setCvFile(null);
+    setFeedback(null);
+    setIsEditing(false);
+  };
 
   return (
     <SectionCard
@@ -137,152 +66,100 @@ const PersonalInfoSection = ({ user, onUserUpdated }) => {
       icon="👤"
       isEditing={isEditing}
       isSaving={isSaving}
-      onEdit={handleEdit}
+      onEdit={() => setIsEditing(true)}
       onSave={handleSave}
       onCancel={handleCancel}
       feedback={feedback}
     >
       {!isEditing ? (
-        /* ════════════════ VIEW MODE ════════════════ */
-        <div className="personal-view">
-          <div className="personal-view__avatar">
-            <div className="avatar-circle">{getInitials(user.name)}</div>
+        /* ── View mode ── */
+        <div className="personal-info-grid">
+          <div className="info-field">
+            <span className="info-field__label">Full name</span>
+            <span className="info-field__value">
+              <span className="icon">👤</span>
+              {info.name || <span className="info-empty">Not set</span>}
+            </span>
           </div>
 
-          <div className="personal-view__details">
-            <div className="personal-view__name">{user.name}</div>
-            <div className="personal-view__grid">
-              <div className="info-row">
-                <span className="info-row__icon">📧</span>
-                <span className="info-row__value">{user.email}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-row__icon">📞</span>
-                <span className="info-row__value">{user.phone || "—"}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-row__icon">🎂</span>
-                <span className="info-row__value">{user.age ? `${user.age} years old` : "—"}</span>
-              </div>
+          <div className="info-field">
+            <span className="info-field__label">Email</span>
+            <span className="info-field__value">
+              <span className="icon">✉️</span>
+              {info.email || <span className="info-empty">Not set</span>}
+            </span>
+          </div>
 
-              <div className="info-row">
-                <span className="info-row__icon">📄</span>
-                {user.cvPath ? (
-                  <div className="cv-view-row">
-                     <a
-                      href={`http://localhost:3000/${user.cvPath}`}
-                      download={user.cvFileName}
-                      className="info-row__link"
-                    >
-                      {user.cvFileName || "Download CV"}
-                    </a>
-                    <span className="cv-view-row__sep">·</span>
-                    <label className="btn btn--ghost btn--xs cv-replace-btn">
-                      Replace
-                      <input
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        hidden
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            handleEdit();
-                            setCvFile(file);
-                            setCvPreview(file.name);
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                ) : (
-                  <label className="btn btn--ghost btn--xs">
-                    Upload CV
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      hidden
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) { handleEdit(); setCvFile(file); setCvPreview(file.name); }
-                      }}
-                    />
-                  </label>
-                )}
-              </div>
+          <div className="info-field">
+            <span className="info-field__label">Phone</span>
+            <span className="info-field__value">
+              <span className="icon">📞</span>
+              {info.phone || <span className="info-empty">Not set</span>}
+            </span>
+          </div>
+
+          <div className="info-field">
+            <span className="info-field__label">Date of birth</span>
+            <span className="info-field__value">
+              <span className="icon">🎂</span>
+              {info.dob
+                ? new Date(info.dob).toLocaleDateString("en-US", {
+                    day: "numeric", month: "long", year: "numeric",
+                  })
+                : <span className="info-empty">Not set</span>}
+            </span>
+          </div>
+
+          <div className="info-field" style={{ gridColumn: "1 / -1" }}>
+            <span className="info-field__label">CV / Résumé</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 2 }}>
+              {info.cvPath ? (
+                <>
+                  <a
+                    href={info.cvPath}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="cv-badge"
+                  >
+                    📄 Download CV
+                  </a>
+                  <button
+                    className="cv-replace-btn"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Replace
+                  </button>
+                </>
+              ) : (
+                <span className="info-empty">No CV uploaded yet</span>
+              )}
             </div>
           </div>
         </div>
-
       ) : (
-        /* ════════════════ EDIT MODE ════════════════ */
-        <div className="personal-edit">
-          <div className="personal-edit__avatar">
-            <div className="avatar-circle avatar-circle--lg">{getInitials(form.name)}</div>
+        /* ── Edit mode ── */
+        <div className="form-stack">
+          <div className="form-grid-2">
+            <FormInput label="Full name"  name="name"  type="text"  {...field("name")}  required />
+            <FormInput label="Email"      name="email" type="email" {...field("email")} required />
+            <FormInput label="Phone"      name="phone" type="tel"   {...field("phone")} />
+            <FormInput label="Date of birth" name="dob" type="date" {...field("dob")} />
           </div>
 
-          <div className="personal-edit__form">
-            <div className="form-row form-row--2">
-              <FormInput label="Full Name" name="name" required placeholder="Your full name" {...field("name")} />
-              <FormInput label="Age"       name="age"  type="number" placeholder="e.g. 26"   {...field("age")} />
-            </div>
-
-            <div className="form-row form-row--2">
-              <FormInput label="Email" name="email" type="email" required placeholder="you@example.com"  {...field("email")} />
-              <FormInput label="Phone" name="phone" type="tel"            placeholder="+92 300 0000000"   {...field("phone")} />
-            </div>
-
-            <div className="cv-upload-row">
-              <div className="cv-upload-row__label">
-                <span>📄</span>
-                <span>CV / Resume</span>
-              </div>
-
-              {!cvPreview && user.cvPath && (
-                <div className="cv-current">
-                  <span className="cv-current__name">Current: {user.cvFileName || "CV on file"}</span>
-                   <a
-                    href={`http://localhost:3000/${user.cvPath}`}
-                    download={user.cvFileName}
-                    className="info-row__link cv-current__download"
-                  >
-                    Download
-                  </a>
-                </div>
-              )}
-
-              {cvPreview && (
-                <div className="cv-preview-chip">
-                  <span>📎 {cvPreview}</span>
-                  <button
-                    type="button"
-                    className="cv-preview-chip__remove"
-                    onClick={handleRemoveCvSelection}
-                    title="Remove selection"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-
-              <label className="btn btn--outline btn--sm cv-upload-btn">
-                {cvPreview ? "Choose Different File" : user.cvPath ? "Replace CV" : "Upload CV"}
-                <input
-                  ref={cvInputRef}
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  hidden
-                  onChange={handleCvChange}
-                />
-              </label>
-
-              {errors.cv && <span className="form-input__error-msg">{errors.cv}</span>}
-              <span className="cv-upload-hint">Accepted: PDF, DOC, DOCX · Max 5 MB</span>
-            </div>
-          </div>
+          <FormInput
+            label="CV / Résumé"
+            name="cv"
+            type="file"
+            accept=".pdf,.doc,.docx"
+            onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
+          />
+          {info.cvPath && !cvFile && (
+            <p style={{ fontSize: 12, color: "var(--gray-400)" }}>
+              Current CV will be kept unless you upload a new one.
+            </p>
+          )}
         </div>
       )}
     </SectionCard>
   );
-};
-
-export default PersonalInfoSection;
+}

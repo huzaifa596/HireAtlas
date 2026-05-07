@@ -11,6 +11,8 @@ import "./Dashboard.css";
 import API from "../../services/api.js";
 import CreatePost from "../insertpost/CreatePost";
 import Chatbot from "../Chatbot/Chatbot";
+// Add to imports at the top:
+import Analytics from "../Analytics/Analytics";
 
 const mapPost = (p) => ({
   id: p.postId, 
@@ -203,7 +205,9 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
   // ── Render center content ─────────────────────────────────────────────────
   const renderContent = () => {
     // Post detail view
+    if (activeTab === "analytics") return <Analytics />;
     if (selectedPostId) {
+       
       return (
         <PostDetail
           postId={selectedPostId}
@@ -343,7 +347,13 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
         setActiveTab={setActiveTab}
       />
 
-      <main className="dashboard-main">
+      <main
+  className={`dashboard-main${
+    activeTab === "posts" || activeTab === "myPosts"
+      ? ""
+      : " dashboard-main--full"
+  }`}
+>
         {(activeTab === "posts" || activeTab === "myPosts") && (
           <aside className="sidebar sidebar-left">
             <FilterSidebar onApply={handleApplyFilters} />

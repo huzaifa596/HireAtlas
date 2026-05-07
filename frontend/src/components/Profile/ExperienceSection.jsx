@@ -37,8 +37,8 @@ const EntryForm = ({ form, errors, isSaving, editingId, onField, onSave, onCance
   </div>
 );
 
-const ExperienceSection = ({ userId, experience: init, onExperienceUpdated }) => {
-  const [experience, setExperience] = useState(init);
+const ExperienceSection = ({ userId, experience: init = [], onExperienceUpdated }) => {
+ const [experience, setExperience] = useState(init ?? []);
   const [isEditing,  setIsEditing]  = useState(false);
   const [editingId,  setEditingId]  = useState(null);
   const [form,       setForm]       = useState({ ...EMPTY });

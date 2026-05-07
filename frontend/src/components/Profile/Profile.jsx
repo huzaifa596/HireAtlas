@@ -1,252 +1,330 @@
-
-import React, { useState, useEffect } from "react";
+// components/Profile/Profile.jsx
+import { useState, useEffect, useRef } from "react";
+import API from "../../services/api";
 import "./Profile.css";
+
+import SectionCard       from "./SectionCard";
 import PersonalInfoSection from "./PersonalInfoSection";
 import EducationSection  from "./EducationSection";
 import ExperienceSection from "./ExperienceSection";
-import SkillsSection from "./SkillsSection";
-import API from "../../services/api";        
+import SkillsSection     from "./SkillsSection";
 
-const Profile = ({ onLogout }) => {
+/* ── Completion scoring ── */
+function calcCompletion(profile) {
+  const checks = [
+    !!profile?.personalInfo?.name,
+    !!profile?.personalInfo?.email,
+    !!profile?.personalInfo?.phone,
+    !!profile?.personalInfo?.dob,
+    !!profile?.personalInfo?.cvPath,
+    (profile?.education  ?? []).length > 0,
+    (profile?.experience ?? []).length > 0,
+    (profile?.skills     ?? []).length > 0,
+  ];
+  const done = checks.filter(Boolean).length;
+  return Math.round((done / checks.length) * 100);
+}
 
-  const [user, setUser] = useState(null);
-  const [education, setEducation] = useState([]);
-  const [experience,setExperience]= useState([]);
-  const [skills,setSkills] = useState([]);
-  const [loading, setLoading]  = useState(true);
-  const [error, setError]  = useState(null);
-const [verifyStep, setVerifyStep]   = useState(null); // null | 'sent' 
-const [verifyOtp,  setVerifyOtp]    = useState("");
-const [verifyMsg,  setVerifyMsg]    = useState("");
-const [verifyErr,  setVerifyErr]    = useState("");
-const [verifyLoad, setVerifyLoad]   = useState(false);
-const [isVerified, setIsVerified]   = useState(false);
+/* ── Initials from name ── */
+function initials(name = "") {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+}
 
-const handleSendVerifyOtp = async () => {
-  setVerifyLoad(true); setVerifyErr(""); setVerifyMsg("");
-  try {
-    await API.post("/user/send-verification");
-    setVerifyStep("sent");
-    setVerifyMsg("OTP sent to your email");
-  } catch (err) {
-    setVerifyErr(err.response?.data?.message || "Failed to send OTP");
-  } finally { setVerifyLoad(false); }
-};
+/* ── Completion Ring SVG ── */
+function CompletionRing({ pct }) {
+  const r    = 28;
+  const circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
 
-const handleVerifyProfile = async () => {
-  if (!verifyOtp) return setVerifyErr("Enter the OTP");
-  setVerifyLoad(true); setVerifyErr("");
-  try {
-    await API.post("/user/verify-profile", { otp: verifyOtp });
-    setIsVerified(true);
-    setVerifyStep(null);
-    setVerifyMsg("");
-    setVerifyOtp("");
-  } catch (err) {
-    setVerifyErr(err.response?.data?.message || "Invalid OTP");
-  } finally { setVerifyLoad(false); }
-};
-  useEffect(() => {
-  
-
-    setLoading(true);
-     
-  API.get("/user")
-    .then(({ data }) => {
-      if (data.status !== "SUCCESS") throw new Error("Failed to load profile");
-
-const { personalInfo, education, experience, skills, isVerified } = data.profile;
-setUser(personalInfo);
-setEducation(education);
-setExperience(experience);
-setSkills(skills);
-setIsVerified(!!isVerified);
-
-    })
-    .catch((err) => {
-      console.error("Error fetching profile:", err);
-      setError(err.message);
-    })
-    .finally(() => setLoading(false));
-}, []);
-
-
-  const getInitials = (name) =>
-    name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "?";
-
-  const completion = Math.min(
-    (user?.name && user?.email ? 25 : 0) +
-    (user?.phone  ? 10 : 0) +
-    (education.length  ? 25 : 0) +
-    (experience.length   ? 25 : 0) +
-    (skills.length  ? 15 : 0),
-    100
+  return (
+    <div className="completion-ring">
+      <svg width="76" height="76" viewBox="0 0 76 76">
+        <defs>
+          <linearGradient id="completionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stopColor="#f0b429" />
+            <stop offset="50%"  stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#10b981" />
+          </linearGradient>
+        </defs>
+        {/* track */}
+        <circle
+          className="completion-ring__bg"
+          cx="38" cy="38" r={r}
+          transform="rotate(-90 38 38)"
+        />
+        {/* fill */}
+        <circle
+          className="completion-ring__fill"
+          cx="38" cy="38" r={r}
+          strokeDasharray={`${dash} ${circ}`}
+          strokeDashoffset="0"
+          transform="rotate(-90 38 38)"
+          stroke="url(#completionGrad)"
+          fill="none"
+          strokeWidth="6"
+          strokeLinecap="round"
+          style={{ transition: "stroke-dasharray .8s cubic-bezier(.4,0,.2,1)" }}
+        />
+      </svg>
+      <div className="completion-ring__label">
+        <span className="completion-ring__pct">{pct}%</span>
+        <span className="completion-ring__sub">done</span>
+      </div>
+    </div>
   );
+}
 
-  const circumference = 213.628;
+/* ══════════════════════════════════════════
+   MAIN COMPONENT
+══════════════════════════════════════════ */
+export default function Profile({ onLogout }) {
+  const [profile,       setProfile]       = useState(null);
+  const [loading,       setLoading]       = useState(true);
+  const [avatarUrl,     setAvatarUrl]     = useState(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError,   setAvatarError]   = useState("");
+  const fileInputRef = useRef(null);
 
-  
-const handleLogout = () => {
-  if (window.confirm("Are you sure you want to log out?")) {
-    onLogout();
+  /* ── Fetch profile ── */
+  useEffect(() => {
+    API.get("/user")
+      .then(({ data }) => {
+        setProfile(data.profile);
+        if (data.profile?.personalInfo?.avatarUrl) {
+          setAvatarUrl(data.profile.personalInfo.avatarUrl);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  /* ── Avatar upload ── */
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowed.includes(file.type)) {
+      setAvatarError("Please upload a JPG, PNG, or WebP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError("Image must be under 5 MB.");
+      return;
+    }
+
+    setAvatarError("");
+    setAvatarUploading(true);
+
+    /* Optimistic preview */
+    const localUrl = URL.createObjectURL(file);
+    setAvatarUrl(localUrl);
+
+    try {
+      const fd = new FormData();
+      fd.append("avatar", file);
+      const { data } = await API.post("/user/avatar", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setAvatarUrl(data.avatarUrl ?? localUrl);
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+      setAvatarError("Upload failed. Please try again.");
+      setAvatarUrl(null);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  /* ── Profile update callback (passed to child sections) ── */
+  const handleProfileUpdate = (updated) => setProfile(updated);
+
+  /* ── Loading ── */
+  if (loading) {
+    return (
+      <div className="profile-loading">
+        <div className="profile-loading__spinner" />
+        <p className="profile-loading__text">Loading profile…</p>
+      </div>
+    );
   }
-};
 
-  if (loading) return <div className="profile-loading">Loading profile…</div>;
-  if (error)   return <div className="profile-error">Error: {error}</div>;
-  if (!user)   return null;
+  const info       = profile?.personalInfo ?? {};
+  const pct        = calcCompletion(profile);
+  const isVerified = profile?.isVerified ?? false;
+  const userInitials = initials(info.name || "U");
 
   return (
     <div className="profile-page">
 
-     
+      {/* ════════════════ HERO BANNER ════════════════ */}
       <div className="profile-hero">
-        <div className="profile-hero__bg" />
-        <div className="profile-hero__content">
-          <div className="avatar-circle avatar-circle--xl">
-            {getInitials(user.name)}
-          </div>
+        <div className="profile-hero__inner">
 
-          <div className="profile-hero__info">
-            <h1 className="profile-hero__name">
-  {user.name}
-  {isVerified && (
-    <span style={{
-      marginLeft: 10,
-      fontSize: "0.75rem",
-      fontWeight: 700,
-      background: "#16a34a",
-      color: "#fff",
-      padding: "3px 10px",
-      borderRadius: 99,
-      verticalAlign: "middle",
-      letterSpacing: "0.03em"
-    }}>
-      ✓ Verified
-    </span>
-  )}
-</h1>
+          {/* Avatar (upload lives here) */}
+          <div className="profile-avatar-zone">
+            <div className="profile-avatar-ring">
+              <div className="profile-avatar-ring__border">
+                <div className="profile-avatar-ring__inner">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={info.name} />
+                  ) : (
+                    userInitials
+                  )}
+                </div>
+              </div>
 
-            <p className="profile-hero__email">{user.email}</p>
-            {experience[0] && (
-              <p className="profile-hero__role">
-                {experience[0].jobTitle} @ {experience[0].companyName}
-              </p>
+              {/* Camera / upload button */}
+              <button
+                className="avatar-upload-btn"
+                onClick={() => fileInputRef.current?.click()}
+                title="Change photo"
+                disabled={avatarUploading}
+              >
+                {avatarUploading ? "⏳" : "📷"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="avatar-upload-input"
+                onChange={handleAvatarChange}
+              />
+            </div>
+
+            {avatarError && (
+              <span style={{ fontSize: 11, color: "#fca5a5", textAlign: "center", maxWidth: 120 }}>
+                {avatarError}
+              </span>
             )}
           </div>
 
-          <div className="profile-hero__completion">
-            <div className="completion-ring">
-              <svg viewBox="0 0 80 80" className="completion-ring__svg">
-                <circle cx="40" cy="40" r="34" className="completion-ring__track" />
-                <circle
-                  cx="40" cy="40" r="34"
-                  className="completion-ring__fill"
-                  strokeDasharray={`${(completion / 100) * circumference} ${circumference}`}
-                />
-              </svg>
-              <span className="completion-ring__pct">{completion}%</span>
+          {/* Name + email + tags */}
+          <div className="profile-hero__info">
+            <div className="profile-hero__name">
+              {info.name || "Your Name"}
+              {isVerified && (
+                <span className="profile-hero__verified">✔ Verified</span>
+              )}
             </div>
-            <span className="completion-label">Profile Complete</span>
+            <div className="profile-hero__email">{info.email || ""}</div>
+
+            <div className="profile-hero__meta">
+              {info.phone && (
+                <span className="profile-hero__tag">📞 {info.phone}</span>
+              )}
+              {info.dob && (
+                <span className="profile-hero__tag">
+                  🎂 {new Date().getFullYear() - new Date(info.dob).getFullYear()} yrs
+                </span>
+              )}
+              {(profile?.skills ?? []).length > 0 && (
+                <span className="profile-hero__tag">
+                  🛠 {profile.skills.length} skill{profile.skills.length !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Completion ring */}
+          <div className="profile-completion">
+            <CompletionRing pct={pct} />
+            <span className="completion-label">Profile complete</span>
           </div>
         </div>
       </div>
 
-     
-      <div className="profile-content">
-      
-        {/* ── Profile Verification ── */}
-<div className="section-card">
-  <div className="section-card__header">
-    <div className="section-card__title">
-      <span className="section-card__icon">🔒</span>
-      <h2>Profile Verification</h2>
-    </div>
-    {isVerified && (
-      <span style={{ color:"#16a34a", fontWeight:700, fontSize:".85rem",
-        background:"#dcfce7", padding:"4px 12px", borderRadius:99 }}>
-        ✓ Verified
-      </span>
-    )}
-  </div>
+      {/* ════════════════ BODY ════════════════ */}
+      <div className="profile-body">
 
-  <div className="section-card__body">
-    {isVerified ? (
-      <p style={{ color:"#16a34a", margin:0 }}>Your profile is verified ✓</p>
-    ) : (
-      <>
-        <p style={{ color:"var(--gray-500)", fontSize:".88rem", margin:"0 0 14px" }}>
-          Verify your email to build trust with employers.
-        </p>
-
-        {verifyErr && <p style={{ color:"#dc2626", fontSize:13, marginBottom:10 }}>⚠ {verifyErr}</p>}
-        {verifyMsg && <p style={{ color:"#16a34a", fontSize:13, marginBottom:10 }}>✓ {verifyMsg}</p>}
-
-        {verifyStep === "sent" && (
-          <div style={{ display:"flex", gap:10, alignItems:"flex-end", marginBottom:14 }}>
-            <input
-              type="text"
-              placeholder="Enter 6-digit OTP"
-              value={verifyOtp}
-              onChange={(e) => setVerifyOtp(e.target.value)}
-              className="form-input__control"
-              style={{ maxWidth:200 }}
-            />
-            <button className="btn btn--primary btn--sm"
-              onClick={handleVerifyProfile} disabled={verifyLoad}>
-              {verifyLoad ? <span className="spinner" /> : "Confirm OTP"}
-            </button>
+        {/* Verification */}
+        <div className="section-card">
+          <div className="section-card__header">
+            <div className="section-card__title">
+              <span className="section-card__icon">🔐</span>
+              <h2>Profile Verification</h2>
+            </div>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                padding: "4px 12px",
+                borderRadius: 20,
+                background: isVerified ? "rgba(16,185,129,.12)" : "rgba(245,158,11,.12)",
+                color: isVerified ? "#065f46" : "#92400e",
+                border: `1px solid ${isVerified ? "rgba(16,185,129,.25)" : "rgba(245,158,11,.25)"}`,
+              }}
+            >
+              {isVerified ? "✔ Verified" : "⚠ Pending"}
+            </span>
           </div>
-        )}
+          <div className="section-card__body">
+            <div className="verify-card">
+              <div className="verify-card__icon">
+                {isVerified ? "✅" : "⏳"}
+              </div>
+              <div className="verify-card__text">
+                <h3>
+                  {isVerified
+                    ? "Your profile is verified"
+                    : "Verification pending"}
+                </h3>
+                <p>
+                  {isVerified
+                    ? "Recruiters can see your verified badge on all applications."
+                    : "We'll review your profile shortly."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        {!verifyStep && (
-          <button className="btn btn--outline btn--sm"
-            onClick={handleSendVerifyOtp} disabled={verifyLoad}>
-            {verifyLoad ? <span className="spinner" /> : "📧 Send Verification OTP"}
-          </button>
-        )}
-      </>
-    )}
-  </div>
-</div>
-  <PersonalInfoSection
-          user={user}
-          onUserUpdated={setUser}
+        {/* Personal Info */}
+        <PersonalInfoSection
+          profile={profile}
+          onUpdate={handleProfileUpdate}
         />
+
+        {/* Education */}
         <EducationSection
-          userId={user.userId}
-          education={education}
-          onEducationUpdated={setEducation}
-        />
-        <ExperienceSection
-          userId={user.userId}
-          experience={experience}
-          onExperienceUpdated={setExperience}
-        />
+  education={profile?.education ?? []}
+  onEducationUpdated={(updated) =>
+    handleProfileUpdate({ ...profile, education: updated })
+  }
+/>
+
+
+        {/* Experience */}
+       <ExperienceSection
+  experience={profile?.experience ?? []}
+  onExperienceUpdated={(updated) =>
+    handleProfileUpdate({ ...profile, experience: updated })
+  }
+/>
+
+        {/* Skills */}
         <SkillsSection
-          userId={user.userId}
-          skills={skills}
-          onSkillsUpdated={setSkills}
-        />
-      </div>
-
-     
-      <div className="profile-logout-row">
-        <button className="btn btn--logout" onClick={handleLogout}>
-          <svg width="16" height="16" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor"
-            strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+  skills={profile?.skills ?? []}
+  onSkillsUpdated={(updated) =>
+    handleProfileUpdate({ ...profile, skills: updated })
+  }
+/>
+        {/* Logout */}
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 4 }}>
+          <button
+            className="btn btn--danger btn--sm"
+            onClick={onLogout}
+            style={{ borderRadius: 20, padding: "25px 70px" }}
           >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Log Out
-        </button>
+            🚪 Sign out
+          </button>
+        </div>
       </div>
-
     </div>
   );
-};
-
-export default Profile;
+}

@@ -11,6 +11,7 @@ CREATE TABLE appUser
 );
 
 ALTER TABLE appuser ADD is_verified BIT DEFAULT 0;
+ALTER TABLE appUser ADD avatarPath VARCHAR(500) NULL;
 
 CREATE TABLE post
 (

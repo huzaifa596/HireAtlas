@@ -1,77 +1,382 @@
-.delete-btn {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  background: #fff;
-  color: #dc2626;
-  border: 1.5px solid #fecaca;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-  padding: 0;
+/* ================================================================
+   JOB CARD — Liquid Crystal Premium
+   Glass morphism · Gradient borders · 3D hover · Kinetic tags
+   ================================================================ */
+
+/* ── Keyframes ── */
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes borderShimmer {
+  from { background-position: 0% 50%; }
+  to   { background-position: 200% 50%; }
+}
+@keyframes tagPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 
-.delete-btn:hover {
-  background: #fee2e2;
-  border-color: #ef4444;
-  transform: scale(1.08);
-}
-
-/* Prevent the date/type badge from sliding under the X */
-.card-meta {
-  padding-right: 34px;
-}
-
-/* Mobile: bigger touch target + adjusted spacing */
-@media (max-width: 768px) {
-  .delete-btn {
-    width: 34px;
-    height: 34px;
-    top: 14px;
-    right: 14px;
-  }
-
-  .card-meta {
-    padding-right: 44px;
-  }
-
-  .delete-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-}
-/* ── Add these to your existing jobCard.css ── */
-
-.card-footer-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.candidates-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: #f1f5f9;
-  color: #1e3a8a;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+/* ================================================================
+   CARD BASE
+   ================================================================ */
+.job-card {
+  position: relative;
+  background: var(--card-bg, rgba(255,255,255,0.62));
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  border-radius: 20px;
+  padding: 24px 26px 20px;
+  /* Gradient border via box-shadow layering */
+  box-shadow:
+    0 0 0 1px rgba(170,200,255,0.45),
+    0 2px 12px rgba(10,30,70,0.07),
+    0 1px 0 rgba(255,255,255,0.85) inset;
   transition:
-    background 0.15s,
-    border-color 0.15s;
+    transform 0.32s cubic-bezier(0.34,1.15,0.64,1),
+    box-shadow 0.32s ease,
+    background 0.28s ease;
+  animation: cardIn 0.48s cubic-bezier(0.4,0,0.2,1) both;
+  cursor: default;
+  overflow: visible;
 }
 
+/* Gradient border overlay — morphs on hover */
+.job-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  background: linear-gradient(
+    135deg,
+    rgba(59,130,246,0.3) 0%,
+    rgba(99,102,241,0.15) 40%,
+    rgba(6,182,212,0.1) 70%,
+    rgba(59,130,246,0.05) 100%
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.32s ease;
+  pointer-events: none;
+}
+
+/* Top glow line */
+.job-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59,130,246,0.55), rgba(99,102,241,0.4), transparent);
+  border-radius: 0 0 2px 2px;
+  opacity: 0;
+  transition: opacity 0.32s ease, left 0.32s ease, right 0.32s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-6px) scale(1.006);
+  background: var(--card-bg-hover, rgba(255,255,255,0.9));
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.5),
+    0 24px 60px rgba(10,30,70,0.14),
+    0 8px 22px rgba(59,130,246,0.12),
+    0 1px 0 rgba(255,255,255,0.9) inset;
+}
+.job-card:hover::before { opacity: 1; }
+.job-card:hover::after  { opacity: 1; left: 10%; right: 10%; }
+
+/* ── Dark mode card ── */
+[data-theme="dark"] .job-card {
+  background: var(--card-bg, rgba(6,16,38,0.56));
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.14),
+    0 2px 12px rgba(0,0,0,0.45),
+    0 1px 0 rgba(255,255,255,0.04) inset;
+}
+[data-theme="dark"] .job-card::before {
+  background: linear-gradient(
+    135deg,
+    rgba(59,130,246,0.5) 0%,
+    rgba(99,102,241,0.3) 40%,
+    rgba(6,182,212,0.2) 70%,
+    rgba(59,130,246,0.08) 100%
+  );
+}
+[data-theme="dark"] .job-card::after {
+  background: linear-gradient(90deg, transparent, rgba(59,130,246,0.7), rgba(99,102,241,0.55), transparent);
+}
+[data-theme="dark"] .job-card:hover {
+  background: var(--card-bg-hover, rgba(8,22,54,0.86));
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.52),
+    0 24px 60px rgba(0,0,0,0.55),
+    0 8px 22px rgba(59,130,246,0.2),
+    0 1px 0 rgba(255,255,255,0.05) inset;
+}
+
+/* ================================================================
+   COMPANY LOGO
+   ================================================================ */
+.company-logo {
+  width: 50px; height: 50px; border-radius: 14px;
+  background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: "Sora", sans-serif;
+  font-size: 20px; font-weight: 800; flex-shrink: 0;
+  box-shadow:
+    0 4px 16px rgba(37,99,235,0.32),
+    0 0 0 1px rgba(255,255,255,0.18) inset;
+  transition: transform 0.3s cubic-bezier(0.34,1.2,0.64,1), box-shadow 0.3s ease;
+  position: relative; overflow: hidden;
+  letter-spacing: -1px;
+}
+.company-logo::after {
+  content: '';
+  position: absolute;
+  top: -40%; left: -30%; width: 60%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-15deg);
+  transition: left 0.4s ease;
+}
+.job-card:hover .company-logo {
+  transform: scale(1.1) rotate(-3deg);
+  box-shadow: 0 6px 22px rgba(37,99,235,0.45), 0 0 0 1px rgba(255,255,255,0.2) inset;
+}
+.job-card:hover .company-logo::after { left: 140%; }
+
+/* ================================================================
+   CARD TOP ROW
+   ================================================================ */
+.card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-meta { display: flex; align-items: center; gap: 10px; }
+
+/* ── Type Badge ── */
+.type-badge {
+  font-size: 11px; font-weight: 800;
+  padding: 4px 12px; border-radius: 20px;
+  letter-spacing: 0.6px; text-transform: uppercase;
+  border: 1px solid transparent;
+  backdrop-filter: blur(6px);
+}
+
+/* Posted time */
+.posted-time {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; color: var(--text-300, #90aac0); font-weight: 500;
+}
+
+/* ================================================================
+   CARD HEADING
+   ================================================================ */
+.card-heading { margin-bottom: 12px; }
+
+.job-title {
+  font-family: "Sora", sans-serif;
+  font-size: 17px; font-weight: 800;
+  color: var(--text-900, #06111f);
+  letter-spacing: -0.4px; line-height: 1.3;
+  transition: color 0.22s ease;
+}
+.job-card:hover .job-title { color: #1d4ed8; }
+[data-theme="dark"] .job-card:hover .job-title { color: #93c5fd; }
+
+.job-company {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.1px;
+  color: var(--accent, #3b82f6); margin-top: 4px;
+}
+
+/* ================================================================
+   INFO CHIPS
+   ================================================================ */
+.card-info-row {
+  display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.info-chip {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-500, #4a6a8a); font-weight: 600;
+  background: rgba(170,200,255,0.13);
+  padding: 4px 11px; border-radius: 20px;
+  border: 1px solid rgba(170,200,255,0.22);
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+[data-theme="dark"] .info-chip {
+  background: rgba(59,130,246,0.08);
+  border-color: rgba(59,130,246,0.15);
+  color: var(--text-700, #a0bfe0);
+}
+.info-chip svg { color: var(--accent, #3b82f6); flex-shrink: 0; }
+.job-card:hover .info-chip {
+  background: rgba(59,130,246,0.1);
+  border-color: rgba(59,130,246,0.25);
+}
+[data-theme="dark"] .job-card:hover .info-chip {
+  background: rgba(59,130,246,0.14);
+  border-color: rgba(59,130,246,0.3);
+}
+
+/* ================================================================
+   DESCRIPTION
+   ================================================================ */
+.job-description {
+  font-size: 13.5px; color: var(--text-500, #4a6a8a);
+  line-height: 1.68;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; margin-bottom: 16px;
+}
+
+/* ================================================================
+   TAGS — staggered animated
+   ================================================================ */
+.tags-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+
+.tag {
+  font-size: 11.5px; font-weight: 700;
+  padding: 4px 12px; border-radius: 8px;
+  background: rgba(170,200,255,0.14);
+  color: var(--text-500, #4a6a8a);
+  border: 1px solid rgba(170,200,255,0.28);
+  letter-spacing: 0.15px;
+  transition: all 0.22s cubic-bezier(0.34,1.3,0.64,1);
+  cursor: default;
+}
+[data-theme="dark"] .tag {
+  background: rgba(59,130,246,0.07);
+  border-color: rgba(59,130,246,0.17);
+  color: var(--text-700, #a0bfe0);
+}
+
+/* Individual tag pop on hover (nth-child stagger) */
+.job-card:hover .tag { color: #1d4ed8; background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.32); }
+.job-card:hover .tag:nth-child(1) { transform: translateY(-2px); transition-delay: 0ms; }
+.job-card:hover .tag:nth-child(2) { transform: translateY(-2px); transition-delay: 35ms; }
+.job-card:hover .tag:nth-child(3) { transform: translateY(-2px); transition-delay: 70ms; }
+.job-card:hover .tag:nth-child(n+4) { transform: translateY(-2px); transition-delay: 105ms; }
+
+[data-theme="dark"] .job-card:hover .tag {
+  color: #93c5fd; background: rgba(59,130,246,0.18); border-color: rgba(59,130,246,0.38);
+}
+
+/* ================================================================
+   CARD FOOTER
+   ================================================================ */
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid rgba(170,200,255,0.25);
+  padding-top: 16px;
+}
+[data-theme="dark"] .card-footer { border-top-color: rgba(59,130,246,0.12); }
+
+.applicants-count {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--text-300, #90aac0); font-weight: 500;
+}
+
+.card-footer-actions { display: flex; align-items: center; gap: 8px; }
+
+/* ── See Candidates ── */
+.candidates-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: rgba(170,200,255,0.14);
+  color: var(--text-700, #1d3a5e);
+  border: 1px solid rgba(170,200,255,0.32);
+  border-radius: 11px; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; transition: all 0.22s ease; backdrop-filter: blur(6px);
+}
 .candidates-btn:hover {
-  background: #e0f2fe;
-  border-color: #bae6fd;
+  background: rgba(59,130,246,0.12);
+  color: #1d4ed8; border-color: rgba(59,130,246,0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(59,130,246,0.18);
+}
+[data-theme="dark"] .candidates-btn {
+  background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); color: var(--text-700, #a0bfe0);
+}
+[data-theme="dark"] .candidates-btn:hover {
+  background: rgba(59,130,246,0.2); color: #93c5fd; border-color: rgba(59,130,246,0.45);
+  box-shadow: 0 4px 14px rgba(59,130,246,0.22);
+}
+
+/* ── View Details ── */
+.view-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 20px; border-radius: 12px;
+  background: linear-gradient(135deg, #1a3a6e 0%, #2563eb 100%);
+  color: #fff; font-size: 13px; font-weight: 800; letter-spacing: 0.2px;
+  transition: all 0.26s cubic-bezier(0.34,1.2,0.64,1);
+  box-shadow:
+    0 3px 12px rgba(37,99,235,0.35),
+    0 0 0 1px rgba(255,255,255,0.14) inset;
+  position: relative; overflow: hidden;
+}
+.view-btn::before {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.4s ease;
+}
+.view-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  transform: translateY(-2px) translateX(1px);
+  box-shadow: 0 6px 22px rgba(37,99,235,0.5), 0 0 0 1px rgba(255,255,255,0.14) inset;
+}
+.view-btn:hover::before { left: 140%; }
+.view-btn svg { transition: transform 0.22s ease; }
+.view-btn:hover svg { transform: translateX(3px); }
+
+/* ================================================================
+   DELETE BUTTON
+   ================================================================ */
+.delete-btn {
+  position: absolute; top: 20px; right: 20px;
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  color: #dc2626; border: 1.5px solid rgba(252,165,165,0.7);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.22s ease; z-index: 10; padding: 0;
+  box-shadow: 0 2px 8px rgba(220,38,38,0.12);
+}
+[data-theme="dark"] .delete-btn {
+  background: rgba(6,16,38,0.75); border-color: rgba(239,68,68,0.32);
+}
+.delete-btn:hover {
+  background: #fee2e2; border-color: #ef4444;
+  transform: scale(1.12) rotate(10deg);
+  box-shadow: 0 4px 14px rgba(220,38,38,0.28);
+}
+[data-theme="dark"] .delete-btn:hover { background: rgba(220,38,38,0.18); }
+
+.card-meta { padding-right: 40px; }
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 768px) {
+  .job-card { padding: 18px 18px 16px; border-radius: 16px; }
+  .card-top { flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .card-meta { flex-wrap: wrap; gap: 6px; justify-content: flex-end; flex: 1; min-width: 0; padding-right: 46px; }
+  .job-title { font-size: 15px; word-break: break-word; }
+  .job-company { font-size: 12.5px; }
+  .info-chip { font-size: 11.5px; }
+  .job-description { font-size: 13px; }
+  .tag { font-size: 11px; padding: 3px 9px; }
+  .card-footer { flex-wrap: wrap; gap: 10px; }
+  .view-btn { font-size: 13px; padding: 8px 15px; }
+  .delete-btn { width: 34px; height: 34px; top: 14px; right: 14px; }
+  .delete-btn svg { width: 16px; height: 16px; }
+}
+
+@media (max-width: 480px) {
+  .job-card { padding: 15px 13px 13px; border-radius: 14px; }
+  .company-logo { width: 42px; height: 42px; font-size: 17px; border-radius: 12px; }
+  .card-footer { flex-direction: column; align-items: stretch; gap: 10px; }
+  .card-footer-actions { width: 100%; }
+  .view-btn { width: 100%; justify-content: center; }
+  .candidates-btn { flex: 1; justify-content: center; }
+  .posted-time { font-size: 11px; }
 }

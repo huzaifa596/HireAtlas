@@ -1,6 +1,6 @@
 const express=require('express')
 const router=express.Router();
-const {uploadCv,upload,getProfile,updatePersonalInfo,saveEducation,deleteEducation,saveExperience,deleteExperience,saveSkill,deleteSkill, sendVerificationOTP, verifyProfile}=require('../controllers/userController')
+const {uploadAvatar, uploadAvatarHandler,uploadCv,upload,getProfile,updatePersonalInfo,saveEducation,deleteEducation,saveExperience,deleteExperience,saveSkill,deleteSkill, sendVerificationOTP, verifyProfile}=require('../controllers/userController')
 const verifyToken = require('../middleware/authMiddleware');
 
 router.get('/', verifyToken, getProfile);
@@ -14,4 +14,5 @@ router.delete('/skills/:userSkillId', verifyToken, deleteSkill);
 router.post('/cv', verifyToken, upload.single('cv'), uploadCv); 
 router.post("/send-verification", verifyToken, sendVerificationOTP);
 router.post("/verify-profile", verifyToken, verifyProfile);
+router.post('/avatar', verifyToken, uploadAvatar.single('avatar'), uploadAvatarHandler);
 module.exports = router; 
