@@ -13,15 +13,18 @@ const getProfile = async (req, res) => {
 
     console.log("Querying with UserID:", req.user.userID);
 
-    return res.status(200).json({
-      status: 'SUCCESS',
-      profile: {
-        personalInfo: result.recordsets[0][0],
-        education:    result.recordsets[1],
-        experience:   result.recordsets[2],
-        skills:       result.recordsets[3]
-      }
-    });
+    const personalInfo = result.recordsets[0][0];
+return res.status(200).json({
+  status: 'SUCCESS',
+  profile: {
+    personalInfo,
+    education:   result.recordsets[1],
+    experience:  result.recordsets[2],
+    skills:      result.recordsets[3],
+    isVerified:  personalInfo?.is_verified === true || personalInfo?.is_verified === 1
+  }
+});
+
   } catch (err) {
     console.error('Get profile error:', err);
     return res.status(500).json({ status: 'ERROR', message: 'Could not fetch profile' });

@@ -13,7 +13,8 @@ BEGIN
         email,
         phone,
         age,
-        cvPath
+        cvPath,
+        is_verified
     FROM appUser
     WHERE userId = @UserId;
 

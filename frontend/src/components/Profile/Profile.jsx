@@ -55,11 +55,13 @@ const handleVerifyProfile = async () => {
     .then(({ data }) => {
       if (data.status !== "SUCCESS") throw new Error("Failed to load profile");
 
-      const { personalInfo, education, experience, skills } = data.profile;
-      setUser(personalInfo);
-      setEducation(education);
-      setExperience(experience);
-      setSkills(skills);
+const { personalInfo, education, experience, skills, isVerified } = data.profile;
+setUser(personalInfo);
+setEducation(education);
+setExperience(experience);
+setSkills(skills);
+setIsVerified(!!isVerified);
+
     })
     .catch((err) => {
       console.error("Error fetching profile:", err);
