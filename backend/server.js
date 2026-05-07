@@ -32,6 +32,9 @@ app.use("/api/user", user);
 
 app.use("/uploads", express.static("uploads"));
 
+const chatRoutes = require('./routes/chatRoutes');
+app.use('/api/chat', chatRoutes);
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(` Server running on port ${PORT}`);

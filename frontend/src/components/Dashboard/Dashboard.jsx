@@ -10,6 +10,7 @@ import CandidatesPage from "../candidate/CandidatesPage";
 import "./Dashboard.css";
 import API from "../../services/api.js";
 import CreatePost from "../insertpost/CreatePost";
+import Chatbot from "../Chatbot/Chatbot";
 
 const mapPost = (p) => ({
   id: p.postId, 
@@ -354,7 +355,9 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
         {(activeTab === "posts" || activeTab === "myPosts") && (
           <aside className="sidebar sidebar-right" />
         )}
+        <Chatbot />
       </main>
     </div>
+    
   );
 }
