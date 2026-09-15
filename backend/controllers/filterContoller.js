@@ -14,7 +14,7 @@ const filterJobs = async (req, res) => {
       csv(req.query.empType), csv(req.query.experienceLevel),
       ['0', '1', 0, 1, true, false].includes(req.query.isRemote) && req.query.isRemote !== 'any' ? ['1', 1, true].includes(req.query.isRemote) : null,
       csv(req.query.jobCategory), optionalNumber(req.query.minSalary), optionalNumber(req.query.maxSalary),
-      req.query.postedDate || null, req.query.location?.trim() ? `%${req.query.location.trim()}%` : null,
+      optionalNumber(req.query.postedWithin), req.query.location?.trim() ? `%${req.query.location.trim()}%` : null,
       req.query.companyName?.trim() ? `%${req.query.companyName.trim()}%` : null,
     ];
     const where = `isactive = TRUE
@@ -24,7 +24,7 @@ const filterJobs = async (req, res) => {
       AND ($4::text[] IS NULL OR jobcategory = ANY($4))
       AND ($5::numeric IS NULL OR maxsalary >= $5)
       AND ($6::numeric IS NULL OR minsalary <= $6)
-      AND ($7::date IS NULL OR posteddate = $7)
+      AND ($7::int IS NULL OR posteddate >= CURRENT_DATE - $7)
       AND ($8::text IS NULL OR location ILIKE $8)
       AND ($9::text IS NULL OR companyname ILIKE $9)`;
     const [data, count] = await Promise.all([
