@@ -92,7 +92,7 @@ export default function Navbar({
           </div>
 
           <button
-            className={`nav-tab ${activeTab === "createPost" ? "active" : ""}`}
+            className={`nav-tab create-tab ${activeTab === "createPost" ? "active" : ""}`}
             onClick={() => setActiveTab("createPost")}
           >
             <Plus size={15} /> Create Post
@@ -134,18 +134,18 @@ export default function Navbar({
             {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
           </button>
 
-          <div
+          <button
             className={`avatar-group ${activeTab === "profile" ? "active" : ""}`}
             onClick={() => setActiveTab("profile")}
-            style={{ cursor: "pointer" }}
+            aria-label="Open profile"
           >
             <div className="avatar">
               <User size={18} />
             </div>
             <span className="avatar-name">{username}</span>
-          </div>
+          </button>
 
-          <button className="hamburger-btn" onClick={toggleMobileMenu}>
+          <button className="hamburger-btn" onClick={toggleMobileMenu} aria-label="Open navigation menu" aria-expanded={isMobileMenuOpen}>
             {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
