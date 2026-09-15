@@ -1,107 +1,41 @@
-require("dotenv").config();
-const { sql, poolPromise } = require("../config/db");
+require('dotenv').config();
+const { pool } = require('../config/db');
 
+const csv = (value) => value ? String(value).split(',').map((item) => item.trim()).filter(Boolean) : null;
+const optionalNumber = (value) => value === undefined || value === '' ? null : Number(value);
+
+// Parameterized PostgreSQL filtering. Keeping this query in one place makes
+// filters predictable, prevents SQL injection, and uses the schema indexes.
 const filterJobs = async (req, res) => {
   try {
-    let {
-      empType,
-      experienceLevel,
-      isRemote,
-      jobCategory,
-      minSalary,
-      maxSalary,
-      postedDate,
-      location,
-      companyName,
-      page = 1,
-      limit = 20,
-    } = req.query;
-
-    page = Math.max(1, Number(page));
-    limit = Math.min(100, Math.max(1, Number(limit)));
-    const offset = (page - 1) * limit;
-
-    const orderBy = "postedDate DESC";
-
-    // Build request with ALL possible parameters
-    const pool = await poolPromise;
-    const request = await pool.request();
-
-    request.input("empType", sql.NVarChar(sql.MAX), empType || null);
-    request.input(
-      "experienceLevel",
-      sql.NVarChar(sql.MAX),
-      experienceLevel || null,
-    );
-    request.input(
-      "isRemote",
-      sql.Bit,
-      isRemote !== undefined && isRemote !== "any" ? Number(isRemote) : null,
-    );
-    request.input("jobCategory", sql.NVarChar(sql.MAX), jobCategory || null);
-    request.input(
-      "minSalary",
-      sql.Decimal(18, 2),
-      minSalary ? Number(minSalary) : null,
-    );
-    request.input(
-      "maxSalary",
-      sql.Decimal(18, 2),
-      maxSalary ? Number(maxSalary) : null,
-    );
-    request.input("postedDate", sql.Date, postedDate || null);
-    request.input(
-      "location",
-      sql.NVarChar(150),
-      location ? `%${location.trim()}%` : null,
-    );
-    request.input(
-      "companyName",
-      sql.NVarChar(200),
-      companyName ? `%${companyName.trim()}%` : null,
-    );
-    request.input("offsetRows", sql.Int, offset);
-    request.input("fetchRows", sql.Int, limit);
-
-    const whereClause = `
-      isActive = 1
-      AND (@empType IS NULL OR empType IN (SELECT value FROM STRING_SPLIT(@empType, ',')))
-      AND (@experienceLevel IS NULL OR experienceLevel IN (SELECT value FROM STRING_SPLIT(@experienceLevel, ',')))
-      AND (@isRemote IS NULL OR isRemote = @isRemote)
-      AND (@jobCategory IS NULL OR jobCategory IN (SELECT value FROM STRING_SPLIT(@jobCategory, ',')))
-      AND (@minSalary IS NULL OR maxSalary >= @minSalary)
-      AND (@maxSalary IS NULL OR minSalary <= @maxSalary)
-      AND (@postedDate IS NULL OR postedDate = @postedDate)
-      AND (@location IS NULL OR location LIKE @location)
-      AND (@companyName IS NULL OR companyName LIKE @companyName)
-    `;
-
-    const dataSql = `
-      SELECT 
-        postId, jobTitle, companyName, location, empType,
-        experienceLevel, minSalary, maxSalary, postedDate,
-        isRemote, jobCategory
-      FROM post
-      WHERE ${whereClause}
-      ORDER BY ${orderBy}
-      OFFSET @offsetRows ROWS FETCH NEXT @fetchRows ROWS ONLY;
-    `;
-    const dataResult = await request.query(dataSql);
-
-    // Fetch total count (same filters, no pagination)
-    const countSql = `SELECT COUNT(*) AS total FROM post WHERE ${whereClause};`;
-    const countResult = await request.query(countSql);
-
-    res.json({
-      jobs: dataResult.recordset,
-      total: countResult.recordset[0].total,
-      page,
-      limit,
-      totalPages: Math.ceil(countResult.recordset[0].total / limit),
-    });
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+    const values = [
+      csv(req.query.empType), csv(req.query.experienceLevel),
+      ['0', '1', 0, 1, true, false].includes(req.query.isRemote) && req.query.isRemote !== 'any' ? ['1', 1, true].includes(req.query.isRemote) : null,
+      csv(req.query.jobCategory), optionalNumber(req.query.minSalary), optionalNumber(req.query.maxSalary),
+      req.query.postedDate || null, req.query.location?.trim() ? `%${req.query.location.trim()}%` : null,
+      req.query.companyName?.trim() ? `%${req.query.companyName.trim()}%` : null,
+    ];
+    const where = `isactive = TRUE
+      AND ($1::text[] IS NULL OR emptype = ANY($1))
+      AND ($2::text[] IS NULL OR experiencelevel = ANY($2))
+      AND ($3::boolean IS NULL OR isremote = $3)
+      AND ($4::text[] IS NULL OR jobcategory = ANY($4))
+      AND ($5::numeric IS NULL OR maxsalary >= $5)
+      AND ($6::numeric IS NULL OR minsalary <= $6)
+      AND ($7::date IS NULL OR posteddate = $7)
+      AND ($8::text IS NULL OR location ILIKE $8)
+      AND ($9::text IS NULL OR companyname ILIKE $9)`;
+    const [data, count] = await Promise.all([
+      pool.query(`SELECT postid AS "postId",jobtitle AS "jobTitle",companyname AS "companyName",location,emptype AS "empType",experiencelevel AS "experienceLevel",minsalary AS "minSalary",maxsalary AS "maxSalary",posteddate AS "postedDate",isremote AS "isRemote",jobcategory AS "jobCategory" FROM post WHERE ${where} ORDER BY posteddate DESC, postid DESC LIMIT $10 OFFSET $11`, [...values, limit, (page - 1) * limit]),
+      pool.query(`SELECT COUNT(*)::int AS total FROM post WHERE ${where}`, values),
+    ]);
+    const total = count.rows[0].total;
+    return res.json({ jobs: data.rows, total, page, limit, totalPages: Math.ceil(total / limit) });
   } catch (err) {
-    console.error("MSSQL filter error:", err);
-    res.status(500).json({ error: "Failed to fetch jobs" });
+    console.error('PostgreSQL filter error:', err);
+    return res.status(500).json({ error: 'Failed to fetch jobs' });
   }
 };
 

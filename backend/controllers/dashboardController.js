@@ -140,7 +140,7 @@ const getmypost = async (req, res) => {
     const result = await pool
       .request()
       .input("userId", sql.BigInt, req.user.userID)
-      .query("SELECT * FROM post WHERE creatorId = @userId AND isActive=1");
+      .query("SELECT * FROM post WHERE creatorId = @userId AND isActive = TRUE");
 
     return res.status(200).json({ status: "SUCCESS", posts: result.recordset });
   } catch (err) {

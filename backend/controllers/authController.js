@@ -13,11 +13,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // sign up
 const signup = async (req, res) => {
     const { name, email, phone, age, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
 
-    if (!name || !email || !password) {
+    if (!name?.trim() || !normalizedEmail || !password || password.length < 8) {
         return res.status(400).json({ 
             status:  'ERROR', 
-            message: 'Name, email and password are required' 
+            message: 'Name, email and an 8-character password are required'
         });
     }
 
@@ -26,8 +27,8 @@ const signup = async (req, res) => {
 
         const pool   = await poolPromise;
         const result = await pool.request()
-            .input('Name', sql.VarChar(100), name)
-            .input('Email', sql.VarChar(150), email)
+            .input('Name', sql.VarChar(100), name.trim())
+            .input('Email', sql.VarChar(150), normalizedEmail)
             .input('Phone', sql.VarChar(20),  phone || null)
             .input('Age', sql.Int, age  || null)
             .input('Password', sql.VarChar(255), passwordHash)
@@ -50,7 +51,7 @@ const signup = async (req, res) => {
             });
         }
 
-        await fs.appendFile('log.txt', `New user signed up: ${email}\n time: ${new Date().toISOString()}\n`);  
+        await fs.appendFile('log.txt', `New user signed up: ${normalizedEmail}\n time: ${new Date().toISOString()}\n`);
 
         return res.status(201).json({
             status:  'SUCCESS',
@@ -72,8 +73,9 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
         return res.status(400).json({ 
             status:  'ERROR', 
             message: 'Email and password are required' 
@@ -83,7 +85,7 @@ const login = async (req, res) => {
     try {
         const pool   = await poolPromise;
         const result = await pool.request()
-            .input('Email', sql.VarChar(150), email)
+            .input('Email', sql.VarChar(150), normalizedEmail)
             .execute('LoginUser');
 
         const user = result.recordset[0];
@@ -110,7 +112,7 @@ const login = async (req, res) => {
     { expiresIn: '7d' }
 );
 
-        await fs.appendFile('log.txt', `User logged in: ${email}\n time: ${new Date().toISOString()}\n`);  // ✅ awaited
+        await fs.appendFile('log.txt', `User logged in: ${normalizedEmail}\n time: ${new Date().toISOString()}\n`);  // ✅ awaited
         return res.status(200).json({
     status:  'SUCCESS',
     message: 'Login successful',

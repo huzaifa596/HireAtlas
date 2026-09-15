@@ -422,7 +422,7 @@ const verifyProfile = async (req, res) => {
     await pool
       .request()
       .input("email", sql.VarChar, email)
-      .query("UPDATE appUser SET is_verified = 1 WHERE email = @email"); // ← fixed table name
+      .query("UPDATE appUser SET is_verified = TRUE WHERE email = @email");
 
     res.json({ message: "Profile verified successfully" });
   } catch (err) {

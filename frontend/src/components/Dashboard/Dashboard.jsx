@@ -344,7 +344,7 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleSetActiveTab}
       />
 
       <main

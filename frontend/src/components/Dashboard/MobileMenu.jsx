@@ -38,19 +38,16 @@ export default function MobileMenu({
 
         {/* Nav Tabs */}
         <div className="mobile-nav-tabs">
-          <button
-            className={`mobile-tab ${activeTab === 'posts' ? 'active' : ''}`}
-            onClick={() => handleTabSwitch('posts')}
-          >
+          <button className={`mobile-tab ${activeTab === 'posts' ? 'active' : ''}`} onClick={() => handleTabSwitch('posts')}>
             <Briefcase size={17} />
-            My Posts
+            Browse jobs
           </button>
-          <button
-            className={`mobile-tab ${activeTab === 'applications' ? 'active' : ''}`}
-            onClick={() => handleTabSwitch('applications')}
-          >
+          <button className={`mobile-tab ${activeTab === 'myPosts' ? 'active' : ''}`} onClick={() => handleTabSwitch('myPosts')}>
             <FileText size={17} />
-            My Applications
+            My posts
+          </button>
+          <button className={`mobile-tab ${activeTab === 'myApplications' ? 'active' : ''}`} onClick={() => handleTabSwitch('myApplications')}>
+            <FileText size={17} /> My applications
           </button>
         </div>
 
@@ -63,8 +60,8 @@ export default function MobileMenu({
             <User size={22} />
           </div>
           <div className="mobile-profile-info">
-            <p className="mobile-profile-name">John Doe</p>
-            <p className="mobile-profile-email">john@example.com</p>
+            <p className="mobile-profile-name">Your profile</p>
+            <p className="mobile-profile-email">View and edit account details</p>
           </div>
         </div>
 

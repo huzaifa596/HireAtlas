@@ -1,15 +1,20 @@
-const env = require("dotenv").config(); //here dotenv module is imported to load environment variables from a .env file into process.env, allowing us to keep sensitive information like database credentials and JWT secrets out of our codebase.
-const express = require("express"); //requests meaning importing a module. here express module is imported
-const cors = require("cors"); //here cors module is imported to handle cross-origin requests, allowing the frontend (running on a different port) to communicate with the backend without issues.
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      const allowed = (process.env.CLIENT_ORIGIN || "http://localhost:5173").split(",");
+      if (!origin || allowed.includes(origin)) return callback(null, true);
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
   }),
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const user = require("./routes/userRoutes");
@@ -30,13 +35,20 @@ app.use("/api/applications", applicationRoutes);
 
 app.use("/api/user", user);
 
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const chatRoutes = require('./routes/chatRoutes');
 app.use('/api/chat', chatRoutes);
 
-const PORT = process.env.PORT;
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && "body" in err) return res.status(400).json({ message: "Invalid JSON body" });
+  if (err.message === "Origin is not allowed by CORS") return res.status(403).json({ message: err.message });
+  if (err.name === "MulterError" || err.message?.startsWith("Only ")) return res.status(400).json({ message: err.message });
+  console.error(err);
+  return res.status(500).json({ message: "Internal server error" });
+});
+
+const PORT = Number(process.env.PORT || 5000);
 app.listen(PORT, () => {
   console.log(` Server running on port ${PORT}`);
-  console.log("database name", process.env.DB_SERVER);
 });
