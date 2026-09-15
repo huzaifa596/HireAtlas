@@ -42,6 +42,8 @@ The frontend uses `http://localhost:5000/api` by default. Set `VITE_API_URL` in 
 | 2026-09-16 | PostgreSQL migration | Removed the SQL Server driver from the backend configuration, added `pg`, PostgreSQL connection settings, parameterized filters, and a single PostgreSQL bootstrap script. Existing API routes remain compatible. |
 | 2026-09-16 | Reliability & security | Added configurable CORS, request body limits, static upload paths independent of working directory, centralized upload/JSON errors, backend start/test scripts, API timeouts, and safer environment defaults. |
 | 2026-09-16 | UI & mobile | Fixed the mobile menu’s incorrect tabs and placeholder identity, made it use normal dashboard state transitions, added keyboard focus visibility, responsive image protection, reduced-motion support, and deployment-configurable API addressing. |
+| 2026-09-16 | Frontend design pass | Centered the dashboard grid, improved navigation hierarchy and accessibility, redesigned filters to match light/dark themes, polished application/candidate cards, and made job creation and detail screens visually consistent and responsive. |
+| 2026-09-16 | Filter UX | Fixed the date selector state and added PostgreSQL-backed “posted within” range filtering. |
 | 2026-09-16 | Verification | Frontend production build succeeds; backend source syntax checks pass. |
 
 ## Notes for deployment
