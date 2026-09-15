@@ -1,17 +1,20 @@
 .app-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 20px 24px;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--card-border, #e2e8f0);
+  border-radius: var(--r-lg, 16px);
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow .22s ease, transform .22s ease, border-color .22s ease;
   animation: cardFadeIn 0.35s ease both;
 }
 
 .app-card:hover {
-  box-shadow: 0 4px 24px rgba(30, 64, 175, 0.08);
+  background: var(--card-bg-hover, #fff);
+  border-color: var(--card-border-h, #bfdbfe);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -31,7 +34,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  background: linear-gradient(135deg, #1a3a6e, #2563eb);
   color: #fff;
   font-size: 18px;
   font-weight: 700;
@@ -84,7 +87,7 @@
 .app-job-title {
   font-size: 17px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-900, #1e293b);
   margin: 0;
 }
 
@@ -93,7 +96,7 @@
   align-items: center;
   gap: 5px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-500, #64748b);
   margin: 0;
 }
 
@@ -107,9 +110,17 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--accent-dim, #f1f5f9);
+  color: var(--text-700, #475569);
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 8px;
+  border: 1px solid var(--card-border, #e2e8f0);
+}
+
+@media (max-width: 560px) {
+  .app-card { padding: 18px; }
+  .app-card-top { align-items: flex-start; }
+  .app-card-meta { justify-content: flex-start; gap: 8px; }
+  .app-job-title { font-size: 16px; }
 }

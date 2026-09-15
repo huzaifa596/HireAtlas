@@ -71,7 +71,7 @@ function CandidateCard({ candidate, onStatusChange }) {
         {/* View CV link */}
         {cvPath && (
           <a
-            href={`http://localhost:3000/${cvPath}`}
+            href={`${(import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/api$/, "")}/${cvPath}`}
             target="_blank"
             rel="noreferrer"
             className="view-cv-link"
@@ -85,6 +85,8 @@ function CandidateCard({ candidate, onStatusChange }) {
             style={{ background: style.bg, color: style.color }}
             onClick={() => setDropdownOpen((o) => !o)}
             disabled={updating}
+            aria-expanded={dropdownOpen}
+            aria-label={`Change application status, currently ${current}`}
           >
             <span className="status-dot" style={{ background: style.dot }} />
             {updating ? "Saving…" : current}
@@ -92,7 +94,7 @@ function CandidateCard({ candidate, onStatusChange }) {
           </button>
 
           {dropdownOpen && (
-            <div className="status-dropdown-menu">
+            <div className="status-dropdown-menu" role="menu">
               {STATUSES.map((s) => {
                 const st = STATUS_STYLES[s];
                 return (
@@ -100,6 +102,8 @@ function CandidateCard({ candidate, onStatusChange }) {
                     key={s}
                     className={`status-option ${s === current ? "active" : ""}`}
                     onClick={() => handleStatusChange(s)}
+                    role="menuitemradio"
+                    aria-checked={s === current}
                   >
                     <span
                       className="status-dot"
