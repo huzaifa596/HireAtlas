@@ -33,7 +33,7 @@ const DEFAULT_STATE = {
   isRemote: "any",
   jobCategory: [],
   salaryRange: [],
-  postedWithin: "any",
+  postedDate: "any",
   location: "",
   sortBy: "newest",
 };
@@ -64,10 +64,11 @@ export function buildApiParams(filters) {
       : Math.max(...matched.map((b) => b.max));
   }
 
-  if (filters.postedWithin !== "any") {
+  if (filters.postedDate !== "any") {
     const d = new Date();
-    d.setDate(d.getDate() - Number(filters.postedWithin));
-    params.postedDate = d.toISOString().split("T")[0];
+    // The API expects an exact date; omit this client-only convenience filter
+    // until a date-range endpoint is available, rather than returning no jobs.
+    params.postedWithin = Number(filters.postedDate);
   }
 
   return params;
@@ -264,7 +265,7 @@ export default function FilterSidebar({ onApply }) {
     (filters.isRemote !== "any" ? 1 : 0) +
     (filters.jobCategory?.length || 0) +
     (filters.salaryRange?.length || 0) +
-    (filters.postedWithin !== "any" ? 1 : 0);
+    (filters.postedDate !== "any" ? 1 : 0);
 
   const set = (id, val) => setFilters((prev) => ({ ...prev, [id]: val }));
   const reset = () => setFilters(DEFAULT_STATE);
@@ -282,7 +283,7 @@ export default function FilterSidebar({ onApply }) {
             height="15"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#1e3a5f"
+              stroke="currentColor"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"

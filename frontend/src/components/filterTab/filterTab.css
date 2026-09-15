@@ -1,24 +1,21 @@
-/* FilterSidebar.css */
-/* Temporary debug - add to FilterSidebar.css */
-:root {
-  --navbar-h: 70px; /* Redefine here if Dashboard.css :root isn't loaded first */
-}
-/* ─── Sidebar Container ─── */
+/* Filter sidebar — uses the shared dashboard token system. */
 .filter-sidebar {
   width: 252px;
   min-width: 236px;
-  background: #ffffff;
+  background: var(--sidebar-bg);
   border-radius: 16px;
-  border: 1px solid #e8edf5;
-  box-shadow: 0 2px 16px rgba(30, 58, 95, 0.07);
+  border: 1px solid var(--sidebar-border);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: var(--blur-sm);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   font-family: "Geist", "DM Sans", "Segoe UI", sans-serif;
   align-self: flex-start;
-  /* position: sticky; */
+  position: sticky;
   top: calc(var(--navbar-h) + 32px);
   margin-top: 52px;
+  max-height: calc(100vh - var(--navbar-h) - 72px);
 }
 
 /* ─── Header ─── */
@@ -38,12 +35,12 @@
 .filter-sidebar__header-title {
   font-size: 14px;
   font-weight: 700;
-  color: #1e3a5f;
+  color: var(--text-900);
   letter-spacing: -0.01em;
 }
 
 .filter-sidebar__total-badge {
-  background: #2563eb;
+  background: var(--accent);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -58,20 +55,20 @@
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  color: #2563eb;
+  color: var(--accent);
   padding: 3px 6px;
   border-radius: 6px;
   transition: background-color 0.15s;
 }
 
 .filter-sidebar__clear-btn:hover {
-  background-color: #eff6ff;
+  background-color: var(--accent-dim);
 }
 
 /* ─── Divider ─── */
 .filter-sidebar__divider {
   height: 1px;
-  background: #e8edf5;
+  background: var(--sidebar-border);
   margin: 0 14px;
 }
 
@@ -83,7 +80,7 @@
 
 /* ─── Individual Section ─── */
 .filter-section {
-  border-bottom: 1px solid #f0f4f9;
+  border-bottom: 1px solid var(--sidebar-border);
 }
 
 .filter-section__header {
@@ -107,14 +104,14 @@
 .filter-section__label {
   font-size: 12.5px;
   font-weight: 600;
-  color: #1e3a5f;
+  color: var(--text-700);
   letter-spacing: 0.01em;
 }
 
 .filter-section__badge {
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--card-border);
   font-size: 10px;
   font-weight: 700;
   border-radius: 99px;
@@ -126,7 +123,7 @@
 .chevron-icon {
   transition: transform 0.2s ease;
   flex-shrink: 0;
-  color: #9ca3af;
+  color: var(--text-300);
 }
 
 .chevron-icon--open {
@@ -156,8 +153,8 @@
   width: 16px;
   height: 16px;
   border-radius: 4px;
-  border: 1.5px solid #d1d9e6;
-  background: #f8fafc;
+  border: 1.5px solid var(--card-border);
+  background: rgba(255,255,255,.48);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,8 +169,8 @@
 }
 
 .filter-control--checked {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .filter-control__radio-dot {
@@ -187,26 +184,26 @@
 /* ─── Option Text ─── */
 .filter-option__text {
   font-size: 12.5px;
-  color: #6b7280;
+  color: var(--text-500);
   font-weight: 400;
   line-height: 1.4;
   transition: color 0.1s;
 }
 
 .filter-option__text--active {
-  color: #1e3a5f;
+  color: var(--text-900);
   font-weight: 600;
 }
 
 /* ─── Apply Button Area ─── */
 .filter-sidebar__apply-area {
   padding: 12px 14px 16px;
-  border-top: 1px solid #e8edf5;
+  border-top: 1px solid var(--sidebar-border);
 }
 
 .filter-sidebar__apply-btn {
   width: 100%;
-  background: #1e3a5f;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -219,11 +216,12 @@
   justify-content: center;
   gap: 8px;
   letter-spacing: 0.01em;
-  transition: background-color 0.15s;
+  transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .filter-sidebar__apply-btn:hover {
-  background: #2a4a73;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37,99,235,.28);
 }
 
 .filter-sidebar__apply-badge {
@@ -237,5 +235,10 @@
 /* ─── Search Icon Color ─── */
 .search-icon {
   flex-shrink: 0;
-  color: #9ca3af;
+  color: var(--text-300);
 }
+
+[data-theme="dark"] .filter-control { background: rgba(6,16,38,.65); }
+[data-theme="dark"] .filter-sidebar__apply-btn { box-shadow: 0 8px 20px rgba(0,0,0,.28); }
+
+@media (max-width: 1024px) { .filter-sidebar { display: none; } }
