@@ -534,3 +534,25 @@
   .cp-page-header-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
   .cp-topbar-right .cp-btn--ghost { display: none; }
 }
+
+/* Scoped token overrides let the form follow the global appearance switch. */
+[data-theme="dark"] .cp-root {
+  --cp-bg: transparent;
+  --cp-surface: rgba(6,16,38,.72);
+  --cp-border: rgba(96,165,250,.18);
+  --cp-text-dark: #e4effe;
+  --cp-text-mid: #a0bfe0;
+  --cp-text-muted: #6f8dad;
+  --cp-navy: #0c2045;
+  --cp-navy-light: #17457f;
+  --cp-shadow-sm: 0 4px 14px rgba(0,0,0,.24);
+  --cp-shadow-md: 0 12px 30px rgba(0,0,0,.34);
+}
+[data-theme="dark"] .cp-topbar { background: rgba(3,12,29,.86); }
+[data-theme="dark"] .cp-input,
+[data-theme="dark"] .cp-select,
+[data-theme="dark"] .cp-textarea,
+[data-theme="dark"] .cp-skill-row,
+[data-theme="dark"] .cp-skill-level { background: rgba(3,12,29,.62); color: var(--cp-text-dark); }
+[data-theme="dark"] .cp-btn--ghost:hover:not(:disabled),
+[data-theme="dark"] .cp-back-btn:hover { background: rgba(59,130,246,.14); }

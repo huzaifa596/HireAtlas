@@ -800,3 +800,19 @@
 .ha-btn--applied:disabled {
   opacity: 1;
 }
+
+/* Keep the detail view visually integrated with dashboard dark mode. */
+[data-theme="dark"] .ha-root {
+  --ha-page-bg: transparent;
+  --ha-surface: rgba(6,16,38,.7);
+  --ha-banner: #0c2045;
+  --ha-banner-deep: #07162f;
+  --ha-text-dark: #e4effe;
+  --ha-text-mid: #a0bfe0;
+  --ha-text-muted: #6f8dad;
+  --ha-border: rgba(96,165,250,.18);
+  --ha-border-hover: rgba(96,165,250,.42);
+  --ha-indigo-light: rgba(59,130,246,.14);
+  --ha-shadow-sm: 0 8px 24px rgba(0,0,0,.25);
+  --ha-shadow-md: 0 14px 38px rgba(0,0,0,.34);
+}

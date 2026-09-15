@@ -229,7 +229,14 @@ export default function Dashboard({ onLogout, darkMode, setDarkMode }) {
 
     if (activeTab === "profile") return <Profile onLogout={onLogout} />;
 
-    if (activeTab === "createPost") return <CreatePost />;
+    if (activeTab === "createPost") {
+      return (
+        <CreatePost
+          onBack={() => handleSetActiveTab("myPosts")}
+          onSuccess={() => handleSetActiveTab("myPosts")}
+        />
+      );
+    }
 
     // My Applications tab
     if (activeTab === "myApplications") {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import API from "../../services/api";
-import "./CreatePost.css";
+import "./Createpost.css";
 import AlertBox from "../alertBox/alert.jsx";
 
 /* ── Constants ─────────────────────────────────────────────── */
